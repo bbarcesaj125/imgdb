@@ -1,0 +1,13 @@
+{
+	"folders": [
+		{
+			"path": "."
+		}
+	],
+	"settings": {
+		"python.pythonPath": "/home/yusarch/.local/share/virtualenvs/rt_movie_cover-BKNwWD9D/bin/python",
+		"cSpell.enableFiletypes": [
+			"!python"
+		]
+	}
+}
