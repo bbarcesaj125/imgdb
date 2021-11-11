@@ -1,7 +1,7 @@
 from pathlib import Path
 import pandas as pd
-import csv
-import time
+# import csv
+# import time
 
 
 tsv_title_basics = Path('./imdb_datasets/title.basics.tsv')
@@ -43,10 +43,14 @@ tsv_title_basics_ratings = Path('./imdb_datasets/title_basics_ratings.tsv')
 # print(f"Loading {res1.values[0]} ended: ", end2 - start2)
 
 
-def trying():
+def imdb_get_rating(criteria={}):
 
-    for chunk in pd.read_csv(tsv_title_basics_ratings, sep="\t", chunksize=100000, dtype={"tconst": str, "titeType": str, "primaryTitle": str, "originalTitle": str,
-                                                                                          "isAdult": str, "startYear": str, "endYear": str, "runtimeMinutes": str, "genres": str, "averageRating": float, "numVotes": int}, header=0):
+    argument_list = criteria
+
+    dtypes = {"tconst": str, "titeType": str, "primaryTitle": str, "originalTitle": str,
+              "isAdult": str, "startYear": str, "endYear": str, "runtimeMinutes": str, "genres": str, "averageRating": float, "numVotes": int}
+
+    for chunk in pd.read_csv(tsv_title_basics_ratings, sep="\t", chunksize=100000, dtype=dtypes, header=0):
 
         # print(chunk["primaryTitle"] == "Die Welt von Maurice Chevalier")
         # chunk_pd = pd.read_csv(chunk, sep="\t", header=0)
@@ -56,15 +60,15 @@ def trying():
         #     if row["primaryTitle"] == "The Expanse":2001
         #         print(row["startYear"])
 
-        res = chunk.loc[(chunk["primaryTitle"] == "The Ghost of Peter Sellers")
-                        & (chunk["titleType"] == "movie") & (chunk["startYear"] == "2018"), "averageRating"]
-        print(res.head())
+        res = chunk.loc[(chunk["primaryTitle"] == argument_list["movie_title"])
+                        & (chunk["titleType"] == argument_list["media_type"]) & (chunk["startYear"] == argument_list["movie_year"]), argument_list["column"]]
+
         if not res.empty:
-            print(res.values[0])
-            # end3=time.time()
+            imdb_movie_rating = res.values[0]
+            print("The Imdb movie rating is: ", imdb_movie_rating)
             print(
                 f"Loading {res.values[0]} from function ended!")
-            break
+            return imdb_movie_rating
 
 
 """ for row in chunk["primaryTitle"]:
@@ -77,7 +81,13 @@ def trying():
 
 
 if __name__ == "__main__":
-    trying()
+    imdb_search_criteria = {
+        "movie_title": "Joker",
+        "media_type": "movie",
+        "movie_year": "2019",
+        "column": "averageRating"
+    }
+    imdb_get_rating(imdb_search_criteria)
 
 # try:
 #     sqlite_connection = sqlite3.connect('./imdb_title_basics.db')

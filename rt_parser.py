@@ -7,6 +7,7 @@ from time import sleep
 import re
 from urllib.error import URLError, HTTPError
 import os
+from imdb_data_handler import imdb_get_rating
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -25,7 +26,7 @@ def rt_construct_json():
         movie_data = {
             "title": item["title"],
             "tomatoScore": item["tomatoScore"],
-            "imdbRating": imdb_results["imdbRating"],
+            "imdbRating": "N/A",  # imdb_results["imdbRating"],
             "dvdReleaseDate": item.get("dvdReleaseDate") if item.get("dvdReleaseDate") else "N/A",
             "year": rt_get_movie_year(item["url"]),
             "runtime": item.get("runtime") if item.get("runtime") else "N/A",
@@ -107,6 +108,7 @@ def rt_get_movie_year(rurl):
     else:
         soup = BeautifulSoup(response.read(), 'html.parser')
         title = soup.find("meta", property="og:title")["content"]
+        print("From RT: ", title)
         regex = r"\(([\d^\)]+)\)"
         year = re.search(regex, title).group(1) if title else ""
         print(f"The movie's release year is {year}")
@@ -123,7 +125,9 @@ def imdb_get_data(title):
     imdb_custom_search_id = os.getenv("IMDB_GCUSTOM_SEARCH_ID")
     query = urllib.parse.quote_plus(movie_title)
     url = f"https://www.googleapis.com/customsearch/v1/siterestrict?key={gcsearch_api_key}&cx={imdb_custom_search_id}&num=10&q={query}"
-    regex = r"(?<=UY1200)(.*?)(?=.(jpg|png|jpeg)\b)"
+    regex_url = r"(?<=UY1200)(.*?)(?=.(jpg|png|jpeg)\b)"
+    regex_title = r"\(([^)]+)\)"
+    regex_year = r"\d+"
 
     try:
         res = urlopen(url)
@@ -142,6 +146,7 @@ def imdb_get_data(title):
         if item_list:
             for item in item_list:
                 try:
+                    imdb_title = item["title"]
                     # imdb_rating = item["pagemap"]["aggregaterating"][0]["ratingvalue"]
                     imdb_movie_thumbnail_url = item["pagemap"]["cse_thumbnail"][0]["src"]
                     imdb_movie_cropped_poster_url = item["pagemap"]["metatags"][0]["og:image"]
@@ -156,27 +161,52 @@ def imdb_get_data(title):
                     print("Unexpected error: {0}".format(e))
                     raise
                 else:
+                    # Google custom search engine changed their JSON response. Now, there is no need to process the imdb_movie_cropped_poster_url.
+                    # The imdb_movie_cropped_poster_url which we get directly from the JSON results already contains the desired image size.
+                    # Thus, there is no need to use regex substitutions on imdb_movie_cropped_poster_url.
+                    # But I will leave the part that deals with substitutions intact as Google can change their API anytime they want.
+
                     imdb_poster_url_pattern = re.search(
-                        regex, imdb_movie_cropped_poster_url)
+                        regex_url, imdb_movie_cropped_poster_url)
                     imdb_poster_url = re.sub(
-                        regex, "", imdb_movie_cropped_poster_url) if imdb_poster_url_pattern else imdb_movie_cropped_poster_url
+                        regex_url, "", imdb_movie_cropped_poster_url) if imdb_poster_url_pattern else imdb_movie_cropped_poster_url
+                    imdb_year_parenthesis = re.findall(
+                        regex_title, imdb_title)[0]
 
                     print(
                         f"The IMDB cropped poster URL is {imdb_movie_cropped_poster_url}")
                     print(
                         f"The IMDB poster URL is {imdb_poster_url}")
 
-                    # print(f"The URL pattern is: {imdb_poster_url_pattern.group(0)}")
-                    # print(f"The movie's rating is {imdb_rating}, the thumbnail's url is {imdb_movie_thumbnail_url}")
+                    try:
+                        int(imdb_year_parenthesis)
+                        is_year_int = True
+                    except ValueError:
+                        is_year_int = False
 
-                    # try:
-                    #    float(imdb_rating)
-                    #    is_rating_float = True
-                    # except ValueError:
-                    #    is_rating_float = False
+                    if not is_year_int:
+                        imdb_year_string_test = re.search(
+                            regex_year, imdb_year_parenthesis)
+                        if imdb_year_string_test:
+                            imdb_year_from_string = re.findall(
+                                regex_year, imdb_year_parenthesis)[0]
+                        else:
+                            imdb_year_from_string = None
+
+                    imdb_search_criteria = {
+                        "movie_title": title,
+                        "media_type": "movie",
+                        "movie_year": imdb_year_parenthesis if is_year_int else imdb_year_from_string,
+                        "column": "averageRating"
+                    }
+
+                    imdb_rating = imdb_get_rating(imdb_search_criteria)
+                    print(
+                        f"IMDB rating is {imdb_rating}")
 
                     results = {
-                        # "imdbRating": float(imdb_rating) if is_rating_float else imdb_rating,
+                        "imdbYear": imdb_year_parenthesis if is_year_int else imdb_year_from_string,
+                        "imdbRating": imdb_rating,
                         "imdbThumbUrl": imdb_movie_thumbnail_url,
                         "imdbPosterUrl": imdb_poster_url
                     }
@@ -199,7 +229,8 @@ def write_json_to_file(json_dict):
 
 
 if __name__ == "__main__":
-    # rt_parse_json()
+    #results = rt_parse_json()
+    # print(results)
     # rt_construct_json()
     # rt_get_movie_year("/m/can_you_ever_forgive_me")
-    imdb_get_data("Dunes")
+    imdb_get_data("Room")
