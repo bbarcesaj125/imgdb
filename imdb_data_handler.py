@@ -87,7 +87,7 @@ if __name__ == "__main__":
         "movie_year": "2019",
         "column": "averageRating"
     }
-    imdb_get_rating(imdb_search_criteria)
+    print(imdb_get_rating(imdb_search_criteria))
 
 # try:
 #     sqlite_connection = sqlite3.connect('./imdb_title_basics.db')

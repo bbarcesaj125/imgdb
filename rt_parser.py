@@ -21,14 +21,17 @@ def rt_construct_json():
     final_data = []
 
     for item in data:
+        print(f"Here we go!!!! {item['title']}")
+        # Random wait to avoid rate limits
+        sleep(uniform(1, 2.5))
         imdb_results = imdb_get_data(item["title"])
 
         movie_data = {
             "title": item["title"],
             "tomatoScore": item["tomatoScore"],
-            "imdbRating": "N/A",  # imdb_results["imdbRating"],
+            "imdbRating": imdb_results["imdbRating"],
             "dvdReleaseDate": item.get("dvdReleaseDate") if item.get("dvdReleaseDate") else "N/A",
-            "year": rt_get_movie_year(item["url"]),
+            # "year": rt_get_movie_year(item["url"]),
             "runtime": item.get("runtime") if item.get("runtime") else "N/A",
             "mpaaRating": item.get("mpaaRating") if item.get("mpaaRating") else "N/A",
             "thumbnailUrl": imdb_results["imdbThumbUrl"],
@@ -66,7 +69,7 @@ def rt_parse_json():
             full_results.extend(results)
     return full_results
 
-# Extracting the movie's release year from RT website
+# Extracting the movie's release year from RT website **Obsolete**
 
 
 def rt_get_movie_year(rurl):
@@ -126,8 +129,9 @@ def imdb_get_data(title):
     query = urllib.parse.quote_plus(movie_title)
     url = f"https://www.googleapis.com/customsearch/v1/siterestrict?key={gcsearch_api_key}&cx={imdb_custom_search_id}&num=10&q={query}"
     regex_url = r"(?<=UY1200)(.*?)(?=.(jpg|png|jpeg)\b)"
-    regex_title = r"\(([^)]+)\)"
+    regex_year_parentheses = r"\(([^)]+)\)"
     regex_year = r"\d+"
+    regex_title = r"(^.*?)(?=\s\()"
 
     try:
         res = urlopen(url)
@@ -170,43 +174,61 @@ def imdb_get_data(title):
                         regex_url, imdb_movie_cropped_poster_url)
                     imdb_poster_url = re.sub(
                         regex_url, "", imdb_movie_cropped_poster_url) if imdb_poster_url_pattern else imdb_movie_cropped_poster_url
-                    imdb_year_parenthesis = re.findall(
-                        regex_title, imdb_title)[0]
+
+                    imdb_year_parentheses_test = re.search(
+                        regex_year_parentheses, imdb_title)
+                    imdb_year_parentheses = re.findall(
+                        regex_year_parentheses, imdb_title)[0] if imdb_year_parentheses_test else "N/A"
+
+                    imdb_title_without_parentheses_test = re.search(
+                        regex_title, imdb_title)
+                    imdb_title_without_parentheses = re.findall(
+                        regex_title, imdb_title)[0] if imdb_title_without_parentheses_test else imdb_title
 
                     print(
                         f"The IMDB cropped poster URL is {imdb_movie_cropped_poster_url}")
                     print(
                         f"The IMDB poster URL is {imdb_poster_url}")
+                    print(
+                        f"Imdb extracted title without parentheses is: {imdb_title_without_parentheses} and test is: {imdb_title_without_parentheses_test}")
 
                     try:
-                        int(imdb_year_parenthesis)
+                        int(imdb_year_parentheses)
                         is_year_int = True
                     except ValueError:
                         is_year_int = False
 
+                    # If the value between the parentheses is not an integer, then we extract the first year value from the text inside the parentheses.
                     if not is_year_int:
                         imdb_year_string_test = re.search(
-                            regex_year, imdb_year_parenthesis)
+                            regex_year, imdb_year_parentheses)
                         if imdb_year_string_test:
                             imdb_year_from_string = re.findall(
-                                regex_year, imdb_year_parenthesis)[0]
+                                regex_year, imdb_year_parentheses)[0]
                         else:
-                            imdb_year_from_string = None
+                            imdb_year_from_string = "N/A"
 
                     imdb_search_criteria = {
-                        "movie_title": title,
+                        "movie_title": imdb_title_without_parentheses,
                         "media_type": "movie",
-                        "movie_year": imdb_year_parenthesis if is_year_int else imdb_year_from_string,
+                        "movie_year": imdb_year_parentheses if is_year_int else imdb_year_from_string,
                         "column": "averageRating"
                     }
 
-                    imdb_rating = imdb_get_rating(imdb_search_criteria)
+                    imdb_rating_value = imdb_get_rating(imdb_search_criteria)
+
+                    try:
+                        float(imdb_rating_value)
+                        is_rating_float = True
+                    except (ValueError, TypeError) as e:
+                        is_rating_float = False
+
                     print(
-                        f"IMDB rating is {imdb_rating}")
+                        f"IMDB rating is {imdb_rating_value}")
 
                     results = {
-                        "imdbYear": imdb_year_parenthesis if is_year_int else imdb_year_from_string,
-                        "imdbRating": imdb_rating,
+                        "imdbYear": imdb_year_parentheses if is_year_int else imdb_year_from_string,
+                        "imdbRating": imdb_rating_value if is_rating_float else "N/A",
                         "imdbThumbUrl": imdb_movie_thumbnail_url,
                         "imdbPosterUrl": imdb_poster_url
                     }
@@ -231,6 +253,6 @@ def write_json_to_file(json_dict):
 if __name__ == "__main__":
     #results = rt_parse_json()
     # print(results)
-    # rt_construct_json()
+    rt_construct_json()
     # rt_get_movie_year("/m/can_you_ever_forgive_me")
-    imdb_get_data("Room")
+    # imdb_get_data("Dunno")
