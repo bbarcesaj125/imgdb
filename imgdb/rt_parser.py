@@ -1,3 +1,4 @@
+import datetime
 import json
 from urllib.request import urlopen, Request
 import urllib.parse
@@ -7,7 +8,8 @@ from time import sleep
 import re
 from urllib.error import URLError, HTTPError
 import os
-from imdb_data_handler import imdb_get_rating
+from imdb_data_handler import imdb_get_data_from_datasets
+import click
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -31,7 +33,7 @@ def rt_construct_json():
             "tomatoScore": item["tomatoScore"],
             "imdbRating": imdb_results["imdbRating"],
             "dvdReleaseDate": item.get("dvdReleaseDate") if item.get("dvdReleaseDate") else "N/A",
-            # "year": rt_get_movie_year(item["url"]),
+            "year": rt_get_movie_year(item["url"]),
             "runtime": item.get("runtime") if item.get("runtime") else "N/A",
             "mpaaRating": item.get("mpaaRating") if item.get("mpaaRating") else "N/A",
             "thumbnailUrl": imdb_results["imdbThumbUrl"],
@@ -57,12 +59,14 @@ def rt_parse_json():
         try:
             res = urlopen(url)
         except HTTPError as e:
-            print('RT server couldn\'t fulfill the request.')
-            print('Error code: ', e.code)
+            print("RT server couldn't fulfill the request.")
+            print("Error code: ", e.code)
         except URLError as e:
+            print("We failed to reach RT server.")
             if hasattr(e, 'reason'):
-                print('We failed to reach RT server.')
-                print('Reason: ', e.reason)
+                print("Reason: ", e.reason)
+            else:
+                print("Error: ", e)
         else:
             data = json.loads(res.read().decode())
             results = data["results"]
@@ -89,12 +93,12 @@ def rt_get_movie_year(rurl):
 
     # Picking up a random user agents each time we make a connection to the server
     headers = {
-        'User-Agent': choice(user_agents_list),
-        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-        'Accept-Language': 'en-US,en;q=0.5',
-        'DNT': '1',
-        'Connection': 'keep-alive',
-        'Upgrade-Insecure-Requests': '1'
+        "User-Agent": choice(user_agents_list),
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
+        "Accept-Language": "en-US,en;q=0.5",
+        "DNT": "1",
+        "Connection": "keep-alive",
+        "Upgrade-Insecure-Requests": "1"
     }
 
     req = Request(full_url, headers=headers)
@@ -102,26 +106,45 @@ def rt_get_movie_year(rurl):
     try:
         response = urlopen(req)
     except HTTPError as e:
-        print('The server couldn\'t fulfill the request.')
-        print('Error code: ', e.code)
+        print("RT server couldn't fulfill the request.")
+        print("Error code: ", e.code)
     except URLError as e:
-        if hasattr(e, 'reason'):
-            print('We failed to reach a server.')
-            print('Reason: ', e.reason)
+        if hasattr(e, "reason"):
+            print("We failed to reach RT server.")
+            print("Reason: ", e.reason)
+        else:
+            print("Error: ", e)
     else:
         soup = BeautifulSoup(response.read(), 'html.parser')
-        title = soup.find("meta", property="og:title")["content"]
-        print("From RT: ", title)
-        regex = r"\(([\d^\)]+)\)"
-        year = re.search(regex, title).group(1) if title else ""
-        print(f"The movie's release year is {year}")
-    return year
+        try:
+            date = soup.find("time")["datetime"]
+        except Exception as e:
+            print("We couldn't retrieve the movie's release year from RT.")
+            print("Error: ", e)
+            year = datetime.datetime.now().year
+        else:
+            print("From rt_get_movie_year(): ", date)
+            try:
+                date_year = datetime.datetime.strptime(date, "%b %d, %Y").year
+                is_date_year_valid = True
+                print(
+                    "From rt_get_movie_year(), the movie's release year is:", date_year)
+            except Exception as e:
+                is_date_year_valid = False
+
+            # regex = r"\(([\d^\)]+)\)"
+            # year = re.search(regex, title).group(1) if title else ""
+            # print(f"The movie's release year is {year}")
+
+            year = date_year if is_date_year_valid else datetime.datetime.now().year
+            print("The movie's year is: ", year)
+        return year
 
 # Getting movie data from IMDB (rating, poster url)
 
 
 def imdb_get_data(title):
-    """ This function use Google Custom Search API to extract the poster url of IMDB movies. """
+    """ This function use Google Custom Search API to fetch the poster url and other data related to Imdb movies from Google Search JSON API. """
 
     movie_title = title
     gcsearch_api_key = os.getenv("GSEARCH_API_KEY")
@@ -136,12 +159,14 @@ def imdb_get_data(title):
     try:
         res = urlopen(url)
     except HTTPError as e:
-        print('Google Search server couldn\'t fulfill the request.')
-        print('Error code: ', e.code)
+        print("Google Search server couldn't fulfill the request.")
+        print("Error code: ", e.code)
     except URLError as e:
-        if hasattr(e, 'reason'):
-            print('We failed to reach Google Search server.')
-            print('Reason: ', e.reason)
+        print("We failed to reach Google Search server.")
+        if hasattr(e, "reason"):
+            print("Reason: ", e.reason)
+        else:
+            print("Error: ", e)
     else:
         data = json.loads(res.read().decode())
         item_list = data.get("items")
@@ -210,25 +235,36 @@ def imdb_get_data(title):
 
                     imdb_search_criteria = {
                         "movie_title": imdb_title_without_parentheses,
-                        "media_type": "movie",
-                        "movie_year": imdb_year_parentheses if is_year_int else imdb_year_from_string,
-                        "column": "averageRating"
+                        "media_type": "tvMiniSeries",
+                        "movie_year": imdb_year_parentheses if is_year_int else imdb_year_from_string
                     }
 
-                    imdb_rating_value = imdb_get_rating(imdb_search_criteria)
+                    imdb_movie_data = imdb_get_data_from_datasets(
+                        imdb_search_criteria)
+
+                    # If imdb_get_data_from_datasets() function doesn't return anything, then we assume that either the requested
+                    # movie doesn't exist on the dataset or that the media type was incorrect (e.g., specifying "tvSeries" instead of "movie" for a movie).
+                    try:
+                        if imdb_movie_data == None:
+                            raise TypeError
+                    except TypeError:
+                        print(
+                            "Either the requested title doesn't exit or that the media type was incorrectly specified!")
+                        return
 
                     try:
-                        float(imdb_rating_value)
+                        float(imdb_movie_data["averageRating"])
                         is_rating_float = True
                     except (ValueError, TypeError) as e:
                         is_rating_float = False
 
                     print(
-                        f"IMDB rating is {imdb_rating_value}")
+                        f"IMDB rating is: ", imdb_movie_data['averageRating'] if is_rating_float else "N/A")
 
                     results = {
                         "imdbYear": imdb_year_parentheses if is_year_int else imdb_year_from_string,
-                        "imdbRating": imdb_rating_value if is_rating_float else "N/A",
+                        "imdbRating": imdb_movie_data["averageRating"] if is_rating_float else "N/A",
+                        "imdbGenres": [imdb_movie_data["genres"]],
                         "imdbThumbUrl": imdb_movie_thumbnail_url,
                         "imdbPosterUrl": imdb_poster_url
                     }
@@ -246,13 +282,14 @@ def write_json_to_file(json_dict):
     """ This functions writes a dictionary (input) to a JSON file. """
 
     dict_input = json_dict
-    with open('results.json', 'w') as json_file:
+    with open("results.json", "w") as json_file:
         json.dump(dict_input, json_file, indent=4)
 
 
 if __name__ == "__main__":
     #results = rt_parse_json()
     # print(results)
-    rt_construct_json()
-    # rt_get_movie_year("/m/can_you_ever_forgive_me")
-    # imdb_get_data("Dunno")
+    # rt_construct_json()
+    # year = rt_get_movie_year("/m/can_you_ever_forgive_me")
+    # print(year)
+    imdb_get_data("Planet Earth")
