@@ -1,5 +1,7 @@
 from pathlib import Path
 import pandas as pd
+from utils import *
+logger("debug")
 
 base_path = Path(__file__).parent
 tsv_title_basics = (base_path / "../imdb_datasets/title.basics.tsv").resolve()
@@ -8,7 +10,6 @@ tsv_title_ratings = (
 tsv_title_basics_ratings = (
     base_path / "../imdb_datasets/title_basics_ratings.tsv").resolve()
 
-print(tsv_title_basics_ratings)
 
 # title_ratings_pd = pd.read_csv(tsv_title_ratings, sep="\t", header=0, dtype={"tconst": str, "averageRating": float, "numVotes": int})
 
@@ -90,10 +91,14 @@ def imdb_get_data_from_datasets(criteria={}):
                 "numVotes": imdb_movie_raw_data[10]
             }
 
-            print(f"The Imdb movie rating is: ",
+            print("The Imdb movie rating is: ",
                   imdb_movie_data["averageRating"])
+            logging.debug("The Imdb movie rating is: %s" %
+                          imdb_movie_data["averageRating"])
             print(
-                f"Loading {res.values[0]} from function ended!")
+                f"Retrieved this: {res.values[0]} from Imdb datasets!")
+            logging.info(
+                "The results we successefully retrieved from the datasets.")
             return imdb_movie_data
 
 
