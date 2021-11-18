@@ -16,6 +16,42 @@ load_dotenv()
 logger("debug")
 
 
+@click.command()
+@click.option("--mov", help="The title of the movie.")
+@click.option("--tv", help="The title of the series.")
+@click.option("--tvmini", help="The title of the mini series.")
+def imdb_cli_init(mov, tv, tvmini):
+    """ The main init function. """
+    options = {
+        "mov": mov,
+        "tv": tv,
+        "tvmini": tvmini
+    }
+
+    conflict_options = []
+    print(options)
+    for key, value in options.items():
+        if options[key] == None:
+            conflict_options.append(options[key])
+    print("Conflict: ", conflict_options)
+    sum_none_values = sum(val is None for val in conflict_options)
+    print("Number of None values in conflict_options is: ", sum_none_values)
+
+    if sum_none_values == len(options):
+        print("Please specify the media type argument!")
+    elif sum_none_values == len(options) - 1:
+        media_name = next(mname for mname in options.values()
+                          if mname is not None)
+        media_type = list(options.keys())[list(
+            options.values()).index(media_name)]
+
+        print("Media title: ", media_name)
+        print("Media type: ", list(options.keys())[
+              list(options.values()).index(media_name)])
+
+        imdb_get_data(mov, media_type)
+
+
 def rt_construct_json():
     """ This function creates a JSON file that contains a list of movies with their respective metadata. """
 
@@ -154,10 +190,11 @@ def rt_get_movie_year(rurl):
         return year
 
 
-def imdb_get_data(title):
-    """ This function use Google Custom Search API to fetch the poster url and other data related to Imdb movies from Google Search JSON API. """
+def imdb_get_data(title, mtype):
+    """ This function fetches the poster url and other data related to Imdb movies from Google Custom Search JSON API. """
 
     movie_title = title
+    media_type = mtype
     gcsearch_api_key = os.getenv("GSEARCH_API_KEY")
     imdb_custom_search_id = os.getenv("IMDB_GCUSTOM_SEARCH_ID")
     query = urllib.parse.quote_plus(movie_title)
@@ -259,9 +296,15 @@ def imdb_get_data(title):
                         else:
                             imdb_year_from_string = "N/A"
 
+                    imdb_media_types = {
+                        "mov": "movie",
+                        "tv": "tvSeries",
+                        "tvmini": "tvMiniSeries"
+                    }
+
                     imdb_search_criteria = {
                         "movie_title": imdb_title_without_parentheses,
-                        "media_type": "movie",
+                        "media_type": imdb_media_types[media_type],
                         "movie_year": imdb_year_parentheses if is_year_int else imdb_year_from_string
                     }
 
@@ -315,9 +358,10 @@ def write_json_to_file(json_dict):
 
 
 if __name__ == "__main__":
+    imdb_cli_init()
     #results = rt_parse_json()
     # print(results)
     # rt_construct_json()
     # year = rt_get_movie_year("/m/can_you_ever_forgive_me")
     # print(year)
-    imdb_get_data("kein system ist sicher")
+    # imdb_get_data("arrows")

@@ -45,7 +45,7 @@ tsv_title_basics_ratings = (
 # end2 = time.time()
 # print(f"Loading {res1.values[0]} ended: ", end2 - start2)
 
-# Fetching the movie's rating from the datasets
+
 def imdb_get_data_from_datasets(criteria={}):
     """ This function takes in a dictionary containing movie data as input to output the corresponding Imdb's data.
     The input dictionary has the following structure:
@@ -54,7 +54,7 @@ def imdb_get_data_from_datasets(criteria={}):
                         "media_type": (e.g., movie, tvSeries, etc.),
                         "movie_year": The release year of the movie
                     }
-"""
+    """
 
     argument_list = criteria
 
@@ -98,7 +98,7 @@ def imdb_get_data_from_datasets(criteria={}):
             print(
                 f"Retrieved this: {res.values[0]} from Imdb datasets!")
             logging.info(
-                "The results we successefully retrieved from the datasets.")
+                "The results were successfully retrieved from the datasets.")
             return imdb_movie_data
 
 
@@ -106,6 +106,6 @@ if __name__ == "__main__":
     imdb_search_criteria = {
         "movie_title": "Rams",
         "media_type": "movie",
-        "movie_year": "2020"
+        "movie_year": "2015"
     }
     print(imdb_get_data_from_datasets(imdb_search_criteria))

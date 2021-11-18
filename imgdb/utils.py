@@ -12,4 +12,4 @@ def logger(loglevel="WARNING"):
 
 
 if __name__ == "__main__":
-    logger(loglevel="WARNING")
+    logger()
