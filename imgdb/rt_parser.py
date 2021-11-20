@@ -22,6 +22,7 @@ logger("debug")
 @click.option("--tvmini", help="The title of the mini series.")
 def imdb_cli_init(mov, tv, tvmini):
     """ The main init function. """
+
     options = {
         "mov": mov,
         "tv": tv,
@@ -33,12 +34,15 @@ def imdb_cli_init(mov, tv, tvmini):
     for key, value in options.items():
         if options[key] == None:
             conflict_options.append(options[key])
-    print("Conflict: ", conflict_options)
+    print("Used options: ", conflict_options)
+    click.echo(click.style(
+        f"➜ Conflict: {conflict_options}", bg='red', fg='white', bold=True))
     sum_none_values = sum(val is None for val in conflict_options)
     print("Number of None values in conflict_options is: ", sum_none_values)
 
     if sum_none_values == len(options):
         print("Please specify the media type argument!")
+        click.echo("Please specify the media type argument!")
     elif sum_none_values == len(options) - 1:
         media_name = next(mname for mname in options.values()
                           if mname is not None)
@@ -49,7 +53,12 @@ def imdb_cli_init(mov, tv, tvmini):
         print("Media type: ", list(options.keys())[
               list(options.values()).index(media_name)])
 
-        imdb_get_data(mov, media_type)
+        imdb_get_data(media_name, media_type)
+    else:
+        mut_exclusive_options = [
+            ex for ex in options.values() if ex is not None]
+        print(" and ".join(mut_exclusive_options) +
+              " are conflicting options. Please use only one option at a time!")
 
 
 def rt_construct_json():
@@ -194,6 +203,7 @@ def imdb_get_data(title, mtype):
     """ This function fetches the poster url and other data related to Imdb movies from Google Custom Search JSON API. """
 
     movie_title = title
+    print("LJkljckjdkcjkdjc", title)
     media_type = mtype
     gcsearch_api_key = os.getenv("GSEARCH_API_KEY")
     imdb_custom_search_id = os.getenv("IMDB_GCUSTOM_SEARCH_ID")
@@ -319,7 +329,7 @@ def imdb_get_data(title, mtype):
                     except TypeError:
                         print(
                             "Either the requested title doesn't exit or that the media type was incorrectly specified!")
-                        logging.critical(
+                        logging.warning(
                             "Either the requested title doesn't exit or that the media type was incorrectly specified!")
                         return
 
