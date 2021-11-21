@@ -21,7 +21,8 @@ load_dotenv()
 @click.option("--tv", help="The title of the series.")
 @click.option("--tvmini", help="The title of the mini series.")
 @click.option("--debug", default="warning", help="The logging level of the application.")
-def imdb_cli_init(mov, tv, tvmini, debug):
+@click.option("-d", is_flag=True, default=False, help="The logging level of the application.")
+def imdb_cli_init(mov, tv, tvmini, debug, d):
     """ Imdb CLI search """
 
     logger(debug)
@@ -37,28 +38,32 @@ def imdb_cli_init(mov, tv, tvmini, debug):
     for key, value in options.items():
         if options[key] != None:
             used_options.append(options[key])
-
-    if len(used_options) == 0:
+    try:
+        if len(used_options) == 0:
+            raise InputError("Media type has to be specified!")
+    except InputError:
         #print("Please specify the media type argument!")
         click.echo("Please specify the media type argument!")
         logging.warning("Please specify the media type argument!")
-        raise InputError("lol", "FAGGGGGG")
-    elif len(used_options) == 1:
-        media_name = used_options[0]
-        media_type = list(options.keys())[list(
-            options.values()).index(media_name)]
-
-        #print("Media title: ", media_name)
-        #print("Media type: ", media_type)
-        logging.debug("Media title: %s" % media_name)
-        logging.debug("Media type: %s" % media_type)
-
-        imdb_get_data(media_name, media_type)
     else:
-        click.echo(" and ".join(used_options) +
-                   " are conflicting options. Please use only one option at a time!")
-        logging.warning(" and ".join(used_options) +
-                        " are conflicting options. Please use only one option at a time!")
+        if len(used_options) == 1:
+            media_name = used_options[0]
+            media_type = list(options.keys())[list(
+                options.values()).index(media_name)]
+
+            #print("Media title: ", media_name)
+            #print("Media type: ", media_type)
+            logging.debug("Media title: %s" % media_name)
+            logging.debug("Media type: %s" % media_type)
+
+            imdb_get_data(media_name, media_type)
+        else:
+            mut_exclusive_options = [
+                ex for ex in options.keys() if options[ex] is not None]
+            click.echo(" and ".join(mut_exclusive_options) +
+                       " are conflicting options. Please use only one option at a time!")
+            logging.warning(" and ".join(mut_exclusive_options) +
+                            " are conflicting options. Please use only one option at a time!")
 
 
 def rt_construct_json():

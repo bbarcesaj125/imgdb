@@ -8,10 +8,8 @@ class InputError(Error):
     """ Exception raised for errors in the input.
 
     Attributes:
-        context -- context in which the error occurred
         message -- explanation of the error
     """
 
-    def __init__(self, context, message):
-        self.context = context
+    def __init__(self, message):
         self.message = message
