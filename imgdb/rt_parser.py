@@ -12,6 +12,7 @@ from imdb_data_handler import imdb_get_data_from_datasets
 import click
 from utils import *
 from exceptions import InputError
+from imdb_poster_fetcher import imdb_download_poster
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -56,7 +57,12 @@ def imdb_cli_init(mov, tv, tvmini, debug, d):
             logging.debug("Media title: %s" % media_name)
             logging.debug("Media type: %s" % media_type)
 
-            imdb_get_data(media_name, media_type)
+            imdb_data = imdb_get_data(media_name, media_type)
+
+            if d:
+                imdb_download_poster(
+                    imdb_data["imdbPosterUrl"], imdb_data["imdbTitle"])
+
         else:
             mut_exclusive_options = [
                 ex for ex in options.keys() if options[ex] is not None]
@@ -74,7 +80,7 @@ def rt_construct_json():
 
     for item in data:
         print(f"Here we go! The movie's title is: {item['title']}")
-        logging.info(f"Here we go! The movie's title is: {item['title']}")
+        logging.info("Here we go! The movie's title is: %s" % item['title'])
         # Random wait to avoid rate limits
         sleep(uniform(1, 2.5))
         imdb_results = imdb_get_data(item["title"])
@@ -111,16 +117,16 @@ def rt_parse_json():
             print("RT server couldn't fulfill the request.")
             print("Error code: ", e.code)
             logging.critical("RT server couldn't fulfill the request.")
-            logging.debug("Error code: ", e.code)
+            logging.debug("Error code: %s" % e.code)
         except URLError as e:
             print("We failed to reach RT server.")
             logging.critical("We failed to reach RT server.")
             if hasattr(e, 'reason'):
                 print("Reason: ", e.reason)
-                logging.debug("Reason: ", e.reason)
+                logging.debug("Reason: %s" % e.reason)
             else:
                 print("Error: ", e)
-                logging.critical("Error: ", e)
+                logging.critical("Error: %s" % e)
         else:
             data = json.loads(res.read().decode())
             results = data["results"]
@@ -135,7 +141,7 @@ def rt_get_movie_year(rurl):
     relative_url = rurl
     full_url = base_url + relative_url
     print(f"The RT's full URL is {full_url}")
-    logging.info(f"The RT's full URL is {full_url}")
+    logging.info("The RT's full URL is: %s" % full_url)
 
     # Implementing a random wait timer to avoid some anti-scraping detection methods (not sure if it works but gonna keep it anyway).
     sleep(uniform(0.05, 0.1))
@@ -162,16 +168,16 @@ def rt_get_movie_year(rurl):
         print("RT server couldn't fulfill the request.")
         print("Error code: ", e.code)
         logging.critical("RT server couldn't fulfill the request.")
-        logging.debug("Error code: ", e.code)
+        logging.debug("Error code: %s" % e.code)
     except URLError as e:
         if hasattr(e, "reason"):
             print("We failed to reach RT server.")
             print("Reason: ", e.reason)
             logging.critical("We failed to reach RT server.")
-            logging.debug("Reason: ", e.reason)
+            logging.debug("Reason: %s" % e.reason)
         else:
             print("Error: ", e)
-            logging.critical("Error: ", e)
+            logging.critical("Error: %s" % e)
     else:
         soup = BeautifulSoup(response.read(), 'html.parser')
         try:
@@ -181,16 +187,16 @@ def rt_get_movie_year(rurl):
             print("Error: ", e)
             logging.critical(
                 "We couldn't retrieve the movie's release year from RT.")
-            logging.debug("Error: ", e)
+            logging.debug("Error: %s" % e)
             year = datetime.datetime.now().year
         else:
             print("The scrapped date is: ", date)
-            logging.debug("The scrapped date is: ", date)
+            logging.debug("The scrapped date is: %s" % date)
             try:
                 date_year = datetime.datetime.strptime(date, "%b %d, %Y").year
                 is_date_year_valid = True
                 print("The movie's release year is:", date_year)
-                logging.info("The movie's release year is:", date_year)
+                logging.info("The movie's release year is: %s" % date_year)
             except Exception as e:
                 is_date_year_valid = False
 
@@ -200,7 +206,7 @@ def rt_get_movie_year(rurl):
 
             year = date_year if is_date_year_valid else datetime.datetime.now().year
             print("The movie's release year is: ", year)
-            logging.info("The movie's release year is: ", year)
+            logging.info("The movie's release year is: %s" % year)
         return year
 
 
@@ -224,16 +230,16 @@ def imdb_get_data(title, mtype):
         print("Google Search server couldn't fulfill the request.")
         print("Error code: ", e.code)
         logging.critical("Google Search server couldn't fulfill the request.")
-        logging.debug("Error code: ", e.code)
+        logging.debug("Error code: %s" % e.code)
     except URLError as e:
         print("We failed to reach Google Search server.")
         logging.critical("We failed to reach Google Search server.")
         if hasattr(e, "reason"):
             print("Reason: ", e.reason)
-            logging.debug("Reason: ", e.reason)
+            logging.debug("Reason: %s" % e.reason)
         else:
             print("Error: ", e)
-            logging.critical("Error: ", e)
+            logging.critical("Error: %s" % e)
     else:
         data = json.loads(res.read().decode())
         item_list = data.get("items")
@@ -283,16 +289,16 @@ def imdb_get_data(title, mtype):
 
                     print(
                         f"The IMDB raw poster URL is {imdb_movie_cropped_poster_url}")
-                    logging.debug(
-                        f"The IMDB raw poster URL is {imdb_movie_cropped_poster_url}")
+                    logging.debug("The IMDB raw poster URL is: %s" %
+                                  imdb_movie_cropped_poster_url)
                     print(
                         f"The IMDB poster URL is {imdb_poster_url}")
-                    logging.debug(
-                        f"The IMDB poster URL is {imdb_poster_url}")
+                    logging.debug("The IMDB poster URL is: %s" %
+                                  imdb_poster_url)
                     print(
                         f"Imdb extracted title without parentheses is: {imdb_title_without_parentheses} and the regex test is: {imdb_title_without_parentheses_test}")
                     logging.debug(
-                        f"Imdb extracted title without parentheses is: {imdb_title_without_parentheses} and the regex test is: {imdb_title_without_parentheses_test}")
+                        "Imdb extracted title without parentheses is: %s" % imdb_title_without_parentheses)
 
                     try:
                         int(imdb_year_parentheses)
@@ -347,6 +353,7 @@ def imdb_get_data(title, mtype):
                         f"IMDB rating is: ", imdb_movie_data['averageRating'] if is_rating_float else "N/A")
 
                     results = {
+                        "imdbTitle": imdb_movie_data["primaryTitle"],
                         "imdbYear": imdb_year_parentheses if is_year_int else imdb_year_from_string,
                         "imdbRating": imdb_movie_data["averageRating"] if is_rating_float else "N/A",
                         "imdbGenres": [imdb_movie_data["genres"]],
@@ -354,7 +361,7 @@ def imdb_get_data(title, mtype):
                         "imdbPosterUrl": imdb_poster_url
                     }
                     print(f"Imdb's movie data: {results}")
-                    logging.info(f"Imdb's movie data: {results}")
+                    logging.info("Imdb's movie data: %s" % results)
                     return results
                 break
         else:
