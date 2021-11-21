@@ -1,7 +1,7 @@
 from pathlib import Path
 import pandas as pd
 from utils import *
-logger("debug")
+import logging
 
 base_path = Path(__file__).parent
 tsv_title_basics = (base_path / "../imdb_datasets/title.basics.tsv").resolve()

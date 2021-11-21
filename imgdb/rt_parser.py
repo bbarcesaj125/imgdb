@@ -11,54 +11,54 @@ import os
 from imdb_data_handler import imdb_get_data_from_datasets
 import click
 from utils import *
+from exceptions import InputError
 from dotenv import load_dotenv
 load_dotenv()
-logger("debug")
 
 
 @click.command()
 @click.option("--mov", help="The title of the movie.")
 @click.option("--tv", help="The title of the series.")
 @click.option("--tvmini", help="The title of the mini series.")
-def imdb_cli_init(mov, tv, tvmini):
-    """ The main init function. """
+@click.option("--debug", default="warning", help="The logging level of the application.")
+def imdb_cli_init(mov, tv, tvmini, debug):
+    """ Imdb CLI search """
 
+    logger(debug)
+    # Creating a dictionary containing a list of all mutually exclusive options
     options = {
         "mov": mov,
         "tv": tv,
         "tvmini": tvmini
     }
 
-    conflict_options = []
-    print(options)
-    for key, value in options.items():
-        if options[key] == None:
-            conflict_options.append(options[key])
-    print("Used options: ", conflict_options)
-    click.echo(click.style(
-        f"➜ Conflict: {conflict_options}", bg='red', fg='white', bold=True))
-    sum_none_values = sum(val is None for val in conflict_options)
-    print("Number of None values in conflict_options is: ", sum_none_values)
+    used_options = []
 
-    if sum_none_values == len(options):
-        print("Please specify the media type argument!")
+    for key, value in options.items():
+        if options[key] != None:
+            used_options.append(options[key])
+
+    if len(used_options) == 0:
+        #print("Please specify the media type argument!")
         click.echo("Please specify the media type argument!")
-    elif sum_none_values == len(options) - 1:
-        media_name = next(mname for mname in options.values()
-                          if mname is not None)
+        logging.warning("Please specify the media type argument!")
+        raise InputError("lol", "FAGGGGGG")
+    elif len(used_options) == 1:
+        media_name = used_options[0]
         media_type = list(options.keys())[list(
             options.values()).index(media_name)]
 
-        print("Media title: ", media_name)
-        print("Media type: ", list(options.keys())[
-              list(options.values()).index(media_name)])
+        #print("Media title: ", media_name)
+        #print("Media type: ", media_type)
+        logging.debug("Media title: %s" % media_name)
+        logging.debug("Media type: %s" % media_type)
 
         imdb_get_data(media_name, media_type)
     else:
-        mut_exclusive_options = [
-            ex for ex in options.values() if ex is not None]
-        print(" and ".join(mut_exclusive_options) +
-              " are conflicting options. Please use only one option at a time!")
+        click.echo(" and ".join(used_options) +
+                   " are conflicting options. Please use only one option at a time!")
+        logging.warning(" and ".join(used_options) +
+                        " are conflicting options. Please use only one option at a time!")
 
 
 def rt_construct_json():
@@ -203,7 +203,6 @@ def imdb_get_data(title, mtype):
     """ This function fetches the poster url and other data related to Imdb movies from Google Custom Search JSON API. """
 
     movie_title = title
-    print("LJkljckjdkcjkdjc", title)
     media_type = mtype
     gcsearch_api_key = os.getenv("GSEARCH_API_KEY")
     imdb_custom_search_id = os.getenv("IMDB_GCUSTOM_SEARCH_ID")
