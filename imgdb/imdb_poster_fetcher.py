@@ -2,6 +2,7 @@ from urllib.request import urlopen
 from urllib.error import URLError, HTTPError
 from tqdm import tqdm
 import logging
+import click
 
 
 def imdb_download_poster(url, name):
@@ -14,23 +15,22 @@ def imdb_download_poster(url, name):
     try:
         r = urlopen(url)
     except HTTPError as e:
-        print("Download server couldn't fulfill the request.")
-        print("Error code: %s" % e.code)
         logging.critical("Download server couldn't fulfill the request.")
         logging.debug("Error code: %s" % e.code)
     except URLError as e:
         if hasattr(e, "reason"):
-            print("We failed to reach the download server.")
-            print("Reason: %s" % e.reason)
             logging.critical("We failed to reach the download server.")
             logging.debug("Reason: %s" % e.reason)
         else:
-            print("Error: ", e)
             logging.critical("Error: %s" % e)
     else:
+        try:
+            file_size = int(r.getheader("Content-Length"))
+        except (TypeError, ValueError):
+            logging.critical("Filesize has to be an integer!")
 
-        file_size = int(r.getheader("Content-Length"))
-        print("Downloading: %s Size: %s" % (file_name, file_size))
+        click.echo("Downloading: %s Size: %s KiB" %
+                   (file_name, file_size / 1024))
 
         block_size = 1024
         progress_bar = tqdm(total=file_size, unit="iB", unit_scale=True)
@@ -44,7 +44,8 @@ def imdb_download_poster(url, name):
                 progress_bar.update(len(buffer))
         progress_bar.close()
         if file_size != 0 and progress_bar.n != file_size:
-            print("It looks like something unexpected happened. Aborting!")
+            logging.critical(
+                "It looks like something unexpected happened. Aborting!")
 
 
 if __name__ == "__main__":

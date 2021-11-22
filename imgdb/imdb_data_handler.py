@@ -86,17 +86,12 @@ def imdb_get_data_from_datasets(criteria={}):
                 "startYear": imdb_movie_raw_data[5],
                 "endYear": imdb_movie_raw_data[6],
                 "runtimeMinutes": imdb_movie_raw_data[7],
-                "genres": imdb_movie_raw_data[8],
+                "genres": imdb_movie_raw_data[8].split(","),
                 "averageRating": imdb_movie_raw_data[9],
                 "numVotes": imdb_movie_raw_data[10]
             }
 
-            print("The Imdb movie rating is: ",
-                  imdb_movie_data["averageRating"])
-            logging.debug("The Imdb movie rating is: %s" %
-                          imdb_movie_data["averageRating"])
-            print(
-                f"Retrieved this: {res.values[0]} from Imdb datasets!")
+            logging.debug("Imdb movie data: %s" % imdb_movie_data)
             logging.info(
                 "The results were successfully retrieved from the datasets.")
             return imdb_movie_data
