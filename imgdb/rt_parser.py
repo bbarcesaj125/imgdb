@@ -55,7 +55,6 @@ def imdb_cli_init(mov, tv, tvmini, debug, d):
         if len(used_options) == 0:
             raise InputError("Media type has to be specified!")
     except InputError:
-        # print("Please specify the media type argument!")
         click.echo(
             ansi_colors["warning"] + "Please specify the media type argument!" + ansi_colors["endc"])
         logging.warning("Please specify the media type argument!")
@@ -68,7 +67,11 @@ def imdb_cli_init(mov, tv, tvmini, debug, d):
             logging.debug("Media title: %s" % media_name)
             logging.debug("Media type: %s" % media_type)
 
+            click.echo(ansi_colors["ok_green"] +
+                       "Loading ..." + ansi_colors["endc"])
             imdb_data = imdb_get_data(media_name, media_type)
+            click.echo(
+                "Title: %s" % imdb_data["imdbTitle"] + "\nGenres: %s" % ",".join(map(str, imdb_data["imdbGenres"])) + "\nYear: %s" % imdb_data["imdbYear"] + "\nRating: %s" % imdb_data["imdbRating"])
 
             if d:
                 imdb_download_poster(
