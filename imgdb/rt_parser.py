@@ -22,7 +22,7 @@ load_dotenv()
 @click.option("--tv", help="The title of the series.")
 @click.option("--tvmini", help="The title of the mini series.")
 @click.option("--debug", default="warning", help="The logging level of the application.")
-@click.option("-d", is_flag=True, default=False, help="The logging level of the application.")
+@click.option("-d", is_flag=True, default=False, help="Download the movie's poster image.")
 def imdb_cli_init(mov, tv, tvmini, debug, d):
     """ Imdb CLI search """
 
@@ -44,7 +44,8 @@ def imdb_cli_init(mov, tv, tvmini, debug, d):
             raise InputError("Media type has to be specified!")
     except InputError:
         #print("Please specify the media type argument!")
-        click.echo("Please specify the media type argument!")
+        click.echo(
+            "\033[93m" + "Please specify the media type argument!" + "\033[0m")
         logging.warning("Please specify the media type argument!")
     else:
         if len(used_options) == 1:
@@ -86,7 +87,7 @@ def rt_construct_json():
         imdb_results = imdb_get_data(item["title"])
 
         movie_data = {
-            "title": item["title"],
+            "tomatoTitle": item["title"],
             "tomatoScore": item["tomatoScore"],
             "imdbRating": imdb_results["imdbRating"],
             "dvdReleaseDate": item.get("dvdReleaseDate") if item.get("dvdReleaseDate") else "N/A",
@@ -356,7 +357,7 @@ def imdb_get_data(title, mtype):
                         "imdbTitle": imdb_movie_data["primaryTitle"],
                         "imdbYear": imdb_year_parentheses if is_year_int else imdb_year_from_string,
                         "imdbRating": imdb_movie_data["averageRating"] if is_rating_float else "N/A",
-                        "imdbGenres": [imdb_movie_data["genres"]],
+                        "imdbGenres": imdb_movie_data["genres"].split(","),
                         "imdbThumbUrl": imdb_movie_thumbnail_url,
                         "imdbPosterUrl": imdb_poster_url
                     }

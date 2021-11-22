@@ -17,7 +17,7 @@ def imdb_download_poster(url, name):
         print("Download server couldn't fulfill the request.")
         print("Error code: %s" % e.code)
         logging.critical("Download server couldn't fulfill the request.")
-        logging.debug("Error code: ", e.code)
+        logging.debug("Error code: %s" % e.code)
     except URLError as e:
         if hasattr(e, "reason"):
             print("We failed to reach the download server.")
