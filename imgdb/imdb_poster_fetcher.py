@@ -1,6 +1,7 @@
 from urllib.request import urlopen
 from urllib.error import URLError, HTTPError
 from tqdm import tqdm
+from utils import Tcolors
 import logging
 import click
 
@@ -19,18 +20,28 @@ def imdb_download_poster(url, name):
     except HTTPError as e:
         logging.critical("Download server couldn't fulfill the request.")
         logging.debug("Error code: %s" % e.code)
+        click.echo(Tcolors.fail +
+                   "Download server couldn't fulfill the request." + Tcolors.endc)
     except URLError as e:
         if hasattr(e, "reason"):
             logging.critical("We failed to reach the download server.")
             logging.debug("Reason: %s" % e.reason)
+            click.echo(Tcolors.fail +
+                       "We failed to reach the download server." + Tcolors.endc)
         else:
             logging.critical("Error: %s" % e)
+            click.echo(Tcolors.fail +
+                       "Unexpected error: %s" % e + Tcolors.endc)
     else:
         try:
             file_size = int(r.getheader("Content-Length"))
         except (TypeError, ValueError):
             logging.critical("Filesize has to be an integer!")
+            click.echo(Tcolors.fail +
+                       "Filesize has to be an integer!" + Tcolors.endc)
 
+        logging.info("Downloading: %s Size: %s KiB" %
+                     (file_name, file_size / 1024))
         click.echo("Downloading: %s Size: %s KiB" %
                    (file_name, file_size / 1024))
 
@@ -48,8 +59,10 @@ def imdb_download_poster(url, name):
         if file_size != 0 and progress_bar.n != file_size:
             logging.critical(
                 "It looks like something unexpected happened. Aborting!")
+            click.echo(Tcolors.fail +
+                       "It looks like something unexpected happened. Aborting!" + Tcolors.endc)
 
 
 if __name__ == "__main__":
     imdb_download_poster(
-        "https://m.media-amazon.com/images/M/MV5BMDE0NDM0N2EtZDE5MS00Mzk0LWE5MWMtMjliODJkOTI4Y2FkXkEyXkFqcGdeQXVyMTkxNjUyNQ@@._V1_FMjpg_UX1000_.jpg", "The Paper Tigers")
+        "https://m.media-aazon.com/images/M/MV5BMDE0NDM0N2EtZDE5MS00Mzk0LWE5MWMtMjliODJkOTI4Y2FkXkEyXkFqcGdeQXVyMTkxNjUyNQ@@._V1_FMjpg_UX1000_.jpg", "The Paper Tigers")

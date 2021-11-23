@@ -36,6 +36,7 @@ def imdb_cli_init(mov, tv, tvmini, debug, d):
 
     used_options = []
 
+    # Retrieving all used options and storing them in a list
     for key, value in options.items():
         if options[key] != None:
             used_options.append(options[key])
@@ -43,10 +44,11 @@ def imdb_cli_init(mov, tv, tvmini, debug, d):
         if len(used_options) == 0:
             raise InputError("Media type has to be specified!")
     except InputError:
+        logging.warning("Please specify the media type argument!")
         click.echo(
             Tcolors.warning + "Please specify the media type argument!" + Tcolors.endc)
-        logging.warning("Please specify the media type argument!")
     else:
+        # Here, this code only executes when the user has specified only one option from the mutually exclusive options
         if len(used_options) == 1:
             media_name = used_options[0]
             media_type = list(options.keys())[list(
@@ -61,14 +63,13 @@ def imdb_cli_init(mov, tv, tvmini, debug, d):
             if imdb_data:
                 click.echo(
                     "Title: %s" % imdb_data["imdbTitle"] + "\nGenres: %s" % ", ".join(map(str, imdb_data["imdbGenres"])) + "\nYear: %s" % imdb_data["imdbYear"] + "\nRating: %s" % imdb_data["imdbRating"] + "\nDescription: %s" % imdb_data["imdbDescription"])
-            else:
-                click.echo(Tcolors.fail +
-                           "No results!" + Tcolors.endc)
+
             if d:
                 imdb_download_poster(
                     imdb_data["imdbPosterUrl"], imdb_data["imdbTitle"])
 
         else:
+            # The user has specified at least two mutually exclusive options
             mut_exclusive_options = [
                 ex for ex in options.keys() if options[ex] is not None]
             click.echo(" and ".join(mut_exclusive_options) +
@@ -120,12 +121,18 @@ def rt_parse_json():
         except HTTPError as e:
             logging.critical("RT server couldn't fulfill the request.")
             logging.debug("Error code: %s" % e.code)
+            click.echo(Tcolors.fail +
+                       "RT server couldn't fulfill the request." + Tcolors.endc)
         except URLError as e:
             logging.critical("We failed to reach RT server.")
+            click.echo(Tcolors.fail +
+                       "We failed to reach RT server." + Tcolors.endc)
             if hasattr(e, 'reason'):
                 logging.debug("Reason: %s" % e.reason)
             else:
                 logging.critical("Error: %s" % e)
+                click.echo(Tcolors.fail +
+                           "Unexpected error: %s" % e + Tcolors.endc)
         else:
             data = json.loads(res.read().decode())
             results = data["results"]
@@ -165,12 +172,18 @@ def rt_get_movie_year(rurl):
     except HTTPError as e:
         logging.critical("RT server couldn't fulfill the request.")
         logging.debug("Error code: %s" % e.code)
+        click.echo(Tcolors.fail +
+                   "RT server couldn't fulfill the request." + Tcolors.endc)
     except URLError as e:
         if hasattr(e, "reason"):
             logging.critical("We failed to reach RT server.")
             logging.debug("Reason: %s" % e.reason)
+            click.echo(Tcolors.fail +
+                       "We failed to reach RT server." + Tcolors.endc)
         else:
             logging.critical("Error: %s" % e)
+            click.echo(Tcolors.fail +
+                       "Unexpected error: %s" % e + Tcolors.endc)
     else:
         soup = BeautifulSoup(response.read(), 'html.parser')
         try:
@@ -179,6 +192,8 @@ def rt_get_movie_year(rurl):
             logging.critical(
                 "We couldn't retrieve the movie's release year from RT.")
             logging.debug("Error: %s" % e)
+            click.echo(Tcolors.fail +
+                       "We couldn't retrieve the movie's release year from RT." + Tcolors.endc)
             year = datetime.datetime.now().year
         else:
             logging.debug("The scrapped date is: %s" % date)
@@ -213,12 +228,18 @@ def imdb_get_data(title, mtype):
     except HTTPError as e:
         logging.critical("Google Search server couldn't fulfill the request.")
         logging.debug("Error code: %s" % e.code)
+        click.echo(Tcolors.fail +
+                   "Google Search server couldn't fulfill the request." + Tcolors.endc)
     except URLError as e:
         logging.critical("We failed to reach Google Search server.")
+        click.echo(Tcolors.fail +
+                   "We failed to reach Google Search server." + Tcolors.endc)
         if hasattr(e, "reason"):
             logging.debug("Reason: %s" % e.reason)
         else:
             logging.critical("Error: %s" % e)
+            click.echo(Tcolors.fail +
+                       "Unexpected error: %s" % e + Tcolors.endc)
     else:
         data = json.loads(res.read().decode())
         item_list = data.get("items")
@@ -234,13 +255,21 @@ def imdb_get_data(title, mtype):
                     imdb_movie_cropped_poster_url = item["pagemap"]["metatags"][0]["og:image"]
                 except KeyError as err:
                     logging.critical("KeyError: {0}".format(err))
+                    click.echo(Tcolors.fail +
+                               "KeyError: %s" % err + Tcolors.endc)
                     continue
                 except NameError as err:
                     logging.critical("NameError: {0}".format(err))
+                    click.echo(Tcolors.fail +
+                               "NameError: %s" % err + Tcolors.endc)
                 except IndexError as err:
                     logging.critical("IndexError: {0}".format(err))
+                    click.echo(Tcolors.fail +
+                               "IndexError: %s" % err + Tcolors.endc)
                 except Exception as e:
                     logging.critical("Unexpected error: {0}".format(e))
+                    click.echo(Tcolors.fail +
+                               "Unexpected error: %s" % e + Tcolors.endc)
                     raise
                 else:
                     # Google custom search engine changed their JSON response. Now, there is no need to process the imdb_movie_cropped_poster_url.
@@ -307,6 +336,8 @@ def imdb_get_data(title, mtype):
                         if imdb_movie_data == None:
                             raise TypeError
                     except TypeError:
+                        click.echo(
+                            Tcolors.fail + "Either the requested title doesn't exit or that the media type was incorrectly specified!" + Tcolors.endc)
                         logging.warning(
                             "Either the requested title doesn't exit or that the media type was incorrectly specified!")
                         return
@@ -331,9 +362,8 @@ def imdb_get_data(title, mtype):
                     return results
                 break
         else:
-            click.echo(
-                "No results!")
             logging.warning("No results!")
+            click.echo(Tcolors.warning + "No results!" + Tcolors.endc)
 
 
 def write_json_to_file(json_dict):
