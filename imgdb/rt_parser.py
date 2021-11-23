@@ -26,18 +26,6 @@ load_dotenv()
 def imdb_cli_init(mov, tv, tvmini, debug, d):
     """ Imdb CLI search """
 
-    ansi_colors = {
-        "header": "\033[95m",
-        "ok_blue": "\033[94m",
-        "ok_cyan": "\033[96m",
-        "ok_green": "\033[92m",
-        "warning": "\033[93m",
-        "fail": "\033[91m",
-        "endc": "\033[0m",
-        "bold": "\033[1m",
-        "underline": "\033[4m"
-    }
-
     logger(debug)
     # Creating a dictionary containing a list of all mutually exclusive options
     options = {
@@ -56,7 +44,7 @@ def imdb_cli_init(mov, tv, tvmini, debug, d):
             raise InputError("Media type has to be specified!")
     except InputError:
         click.echo(
-            ansi_colors["warning"] + "Please specify the media type argument!" + ansi_colors["endc"])
+            Tcolors.warning + "Please specify the media type argument!" + Tcolors.endc)
         logging.warning("Please specify the media type argument!")
     else:
         if len(used_options) == 1:
@@ -67,12 +55,15 @@ def imdb_cli_init(mov, tv, tvmini, debug, d):
             logging.debug("Media title: %s" % media_name)
             logging.debug("Media type: %s" % media_type)
 
-            click.echo(ansi_colors["ok_green"] +
-                       "Loading ..." + ansi_colors["endc"])
+            click.echo(Tcolors.ok_green +
+                       "Fetching data ..." + Tcolors.endc)
             imdb_data = imdb_get_data(media_name, media_type)
-            click.echo(
-                "Title: %s" % imdb_data["imdbTitle"] + "\nGenres: %s" % ",".join(map(str, imdb_data["imdbGenres"])) + "\nYear: %s" % imdb_data["imdbYear"] + "\nRating: %s" % imdb_data["imdbRating"])
-
+            if imdb_data:
+                click.echo(
+                    "Title: %s" % imdb_data["imdbTitle"] + "\nGenres: %s" % ", ".join(map(str, imdb_data["imdbGenres"])) + "\nYear: %s" % imdb_data["imdbYear"] + "\nRating: %s" % imdb_data["imdbRating"] + "\nDescription: %s" % imdb_data["imdbDescription"])
+            else:
+                click.echo(Tcolors.fail +
+                           "No results!" + Tcolors.endc)
             if d:
                 imdb_download_poster(
                     imdb_data["imdbPosterUrl"], imdb_data["imdbTitle"])
@@ -238,6 +229,7 @@ def imdb_get_data(title, mtype):
                 try:
                     imdb_title = item["title"]
                     # imdb_rating = item["pagemap"]["aggregaterating"][0]["ratingvalue"]
+                    imdb_description = item["pagemap"]["metatags"][0]["og:description"]
                     imdb_movie_thumbnail_url = item["pagemap"]["cse_thumbnail"][0]["src"]
                     imdb_movie_cropped_poster_url = item["pagemap"]["metatags"][0]["og:image"]
                 except KeyError as err:
@@ -330,6 +322,7 @@ def imdb_get_data(title, mtype):
                         "imdbYear": imdb_year_parentheses if is_year_int else imdb_year_from_string,
                         "imdbRating": imdb_movie_data["averageRating"] if is_rating_float else "N/A",
                         "imdbGenres": imdb_movie_data["genres"],
+                        "imdbDescription": imdb_description,
                         "imdbThumbUrl": imdb_movie_thumbnail_url,
                         "imdbPosterUrl": imdb_poster_url
                     }

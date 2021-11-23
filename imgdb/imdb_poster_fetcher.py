@@ -6,6 +6,8 @@ import click
 
 
 def imdb_download_poster(url, name):
+    """ This function downloads a file from a given URL. """
+
     poster_url = url
     url_test = "http://download.thinkbroadband.com/10MB.zip"
     ext = poster_url.split(".")[-1]
