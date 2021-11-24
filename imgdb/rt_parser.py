@@ -13,6 +13,9 @@ import click
 from utils import *
 from exceptions import InputError
 from imdb_poster_fetcher import imdb_download_poster
+from pathlib import Path
+import gzip
+import shutil
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -21,12 +24,37 @@ load_dotenv()
 @click.option("--mov", help="The title of the movie.")
 @click.option("--tv", help="The title of the series.")
 @click.option("--tvmini", help="The title of the mini series.")
-@click.option("--debug", default="warning", help="The logging level of the application.")
+@click.option("--debug", default="info", help="The logging level of the application.")
 @click.option("-d", is_flag=True, default=False, help="Download the movie's poster image.")
 def imdb_cli_init(mov, tv, tvmini, debug, d):
     """ Imdb CLI search """
 
     logger(debug)
+
+    base_path = Path("./imdb_datasets/").resolve()
+    print(base_path)
+    title_basics_url = "https://datasets.imdbws.com/title.basics.tsv.gz"
+    title_ratings_url = "https://datasets.imdbws.com/title.ratings.tsv.gz"
+    datasets_list = [title_basics_url, title_ratings_url]
+    regex_tsv_title = r"(?<=com/)(.*?)(?=.gz)"
+
+    for url in datasets_list:
+        file_name_url_test = re.search(regex_tsv_title, url)
+        if file_name_url_test:
+            tsv_file_name = re.findall(regex_tsv_title, url)[0]
+            tsv_gz_file_name = url.split("/")[-1]
+            tsv_gz_file_path = (base_path / tsv_gz_file_name).resolve()
+            tsv_file_path = (base_path / tsv_file_name).resolve()
+            print("DUUUUUDE!!!", tsv_gz_file_path)
+            is_file = tsv_file_path.is_file()
+            if not is_file:
+                imdb_download_poster(
+                    url, name=tsv_file_name, filepath=tsv_gz_file_path)
+                with gzip.open(tsv_gz_file_path, "rb") as gz_in:
+                    with open(tsv_file_path, "wb") as tsv_out:
+                        shutil.copyfileobj(gz_in, tsv_out)
+            print("Filename of tsv is %s" % tsv_file_name)
+    print("File path is %s and test is %s" % (tsv_file_path, is_file))
     # Creating a dictionary containing a list of all mutually exclusive options
     options = {
         "mov": mov,

@@ -6,14 +6,17 @@ import logging
 import click
 
 
-def imdb_download_poster(url, name):
+def imdb_download_poster(url, name=None, filepath=None):
     """ This function downloads a file from a given URL. """
 
-    poster_url = url
-    url_test = "http://download.thinkbroadband.com/10MB.zip"
-    ext = poster_url.split(".")[-1]
-    movie_name = name
-    file_name = movie_name.replace(" ", "_") + "." + ext
+    file_name = name
+    if not filepath:
+        poster_url = url
+        url_test = "http://download.thinkbroadband.com/10MB.zip"
+        ext = poster_url.split(".")[-1]
+        file_name_with_ext = file_name.replace(" ", "_") + "." + ext
+    else:
+        file_name_with_ext = filepath
 
     try:
         r = urlopen(url)
@@ -47,7 +50,7 @@ def imdb_download_poster(url, name):
 
         block_size = 1024
         progress_bar = tqdm(total=file_size, unit="iB", unit_scale=True)
-        with open(file_name, "wb") as f:
+        with open(file_name_with_ext, "wb") as f:
             while True:
                 buffer = r.read(block_size)
                 if not buffer:
@@ -65,4 +68,4 @@ def imdb_download_poster(url, name):
 
 if __name__ == "__main__":
     imdb_download_poster(
-        "https://m.media-aazon.com/images/M/MV5BMDE0NDM0N2EtZDE5MS00Mzk0LWE5MWMtMjliODJkOTI4Y2FkXkEyXkFqcGdeQXVyMTkxNjUyNQ@@._V1_FMjpg_UX1000_.jpg", "The Paper Tigers")
+        "https://m.media-amazon.com/images/M/MV5BNDU4Mzc3NzE5NV5BMl5BanBnXkFtZTgwMzE1NzI1NzM@._V1_FMjpg_UX1000_.jpg", name="Dunnu")
