@@ -2,6 +2,7 @@ from pathlib import Path
 import pandas as pd
 import logging
 import click
+from utils import Tcolors
 
 base_path = Path(__file__).parent
 tsv_title_basics_ratings = (
