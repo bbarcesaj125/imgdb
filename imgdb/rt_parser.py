@@ -16,6 +16,7 @@ from imdb_poster_fetcher import imdb_download_poster
 from pathlib import Path
 import gzip
 import shutil
+import pickle
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -37,6 +38,7 @@ def imdb_cli_init(mov, tv, tvmini, debug, d):
     title_ratings_url = "https://datasets.imdbws.com/title.ratings.tsv.gz"
     datasets_list = [title_basics_url, title_ratings_url]
     regex_tsv_title = r"(?<=com/)(.*?)(?=.gz)"
+    tsv_save = {}
 
     for url in datasets_list:
         file_name_url_test = re.search(regex_tsv_title, url)
@@ -50,10 +52,15 @@ def imdb_cli_init(mov, tv, tvmini, debug, d):
             if not is_file:
                 imdb_download_poster(
                     url, name=tsv_file_name, filepath=tsv_gz_file_path)
-                with gzip.open(tsv_gz_file_path, "rb") as gz_in:
-                    with open(tsv_file_path, "wb") as tsv_out:
-                        shutil.copyfileobj(gz_in, tsv_out)
+                unzip(tsv_gz_file_path, tsv_file_path)
+                # Merging the two tsv files here
+                # ....
+            tsv_save[tsv_file_name] = datetime.datetime.now()
             print("Filename of tsv is %s" % tsv_file_name)
+    tsv_save_pickle_path = (base_path / "tsv_save.pickle").resolve()
+    with open(tsv_save_pickle_path, "wb") as handle:
+        pickle.dump(tsv_save, handle, protocol=pickle.HIGHEST_PROTOCOL)
+    print(tsv_save)
     print("File path is %s and test is %s" % (tsv_file_path, is_file))
     # Creating a dictionary containing a list of all mutually exclusive options
     options = {
@@ -157,10 +164,7 @@ def rt_parse_json():
                        "We failed to reach RT server." + Tcolors.endc)
             if hasattr(e, 'reason'):
                 logging.debug("Reason: %s" % e.reason)
-            else:
-                logging.critical("Error: %s" % e)
-                click.echo(Tcolors.fail +
-                           "Unexpected error: %s" % e + Tcolors.endc)
+
         else:
             data = json.loads(res.read().decode())
             results = data["results"]
@@ -203,15 +207,12 @@ def rt_get_movie_year(rurl):
         click.echo(Tcolors.fail +
                    "RT server couldn't fulfill the request." + Tcolors.endc)
     except URLError as e:
+        logging.critical("We failed to reach RT server.")
+        click.echo(Tcolors.fail +
+                   "We failed to reach RT server." + Tcolors.endc)
         if hasattr(e, "reason"):
-            logging.critical("We failed to reach RT server.")
             logging.debug("Reason: %s" % e.reason)
-            click.echo(Tcolors.fail +
-                       "We failed to reach RT server." + Tcolors.endc)
-        else:
-            logging.critical("Error: %s" % e)
-            click.echo(Tcolors.fail +
-                       "Unexpected error: %s" % e + Tcolors.endc)
+
     else:
         soup = BeautifulSoup(response.read(), 'html.parser')
         try:
@@ -264,10 +265,7 @@ def imdb_get_data(title, mtype):
                    "We failed to reach Google Search server." + Tcolors.endc)
         if hasattr(e, "reason"):
             logging.debug("Reason: %s" % e.reason)
-        else:
-            logging.critical("Error: %s" % e)
-            click.echo(Tcolors.fail +
-                       "Unexpected error: %s" % e + Tcolors.endc)
+
     else:
         data = json.loads(res.read().decode())
         item_list = data.get("items")

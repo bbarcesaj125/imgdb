@@ -25,5 +25,18 @@ class Tcolors:
     underline = "\033[4m"
 
 
+def unzip(filepath_input, filepath_output):
+    """ This function uses gzip to unpack a gzipped file. """
+
+    with gzip.open(filepath_input, "rb") as gz_in:
+        with open(filepath_output, "wb") as tsv_out:
+            shutil.copyfileobj(gz_in, tsv_out)
+    try:
+        filepath_input.unlink()
+    except FileNotFoundError:
+        logging.warning(
+            "Couldn't delete %s: The file doesn't exist!" % filepath_input)
+
+
 if __name__ == "__main__":
     logger()

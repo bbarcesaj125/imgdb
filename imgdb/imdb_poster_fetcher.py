@@ -26,15 +26,12 @@ def imdb_download_poster(url, name=None, filepath=None):
         click.echo(Tcolors.fail +
                    "Download server couldn't fulfill the request." + Tcolors.endc)
     except URLError as e:
+        logging.critical("We failed to reach the download server.")
+        click.echo(Tcolors.fail +
+                   "We failed to reach the download server." + Tcolors.endc)
         if hasattr(e, "reason"):
-            logging.critical("We failed to reach the download server.")
             logging.debug("Reason: %s" % e.reason)
-            click.echo(Tcolors.fail +
-                       "We failed to reach the download server." + Tcolors.endc)
-        else:
-            logging.critical("Error: %s" % e)
-            click.echo(Tcolors.fail +
-                       "Unexpected error: %s" % e + Tcolors.endc)
+
     else:
         try:
             file_size = int(r.getheader("Content-Length"))
