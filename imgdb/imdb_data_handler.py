@@ -1,49 +1,48 @@
 from pathlib import Path
 import pandas as pd
-from utils import *
 import logging
+import click
 
 base_path = Path(__file__).parent
-tsv_title_basics = (base_path / "../imdb_datasets/title.basics.tsv").resolve()
-tsv_title_ratings = (
-    base_path / "../imdb_datasets/title.ratings.tsv").resolve()
 tsv_title_basics_ratings = (
     base_path / "../imdb_datasets/title_basics_ratings.tsv").resolve()
 
 
-# title_ratings_pd = pd.read_csv(tsv_title_ratings, sep="\t", header=0, dtype={"tconst": str, "averageRating": float, "numVotes": int})
+def merge_tsv_files(tsv_title_basics, tsv_title_ratings, base_path):
+    """ This function merges two tsv files. """
 
-# start = time.time()
-# title_basics_pd = pd.read_csv(tsv_title_basics, sep="\t", header=0, dtype={"tconst": str, "titeType": str, "primaryTitle": str, "originalTitle": str, "isAdult": str, "startYear": str, "endYear": str, "runtimeMinutes": str, "genres": str})
+    title_basics_ratings_file_path = (
+        base_path / "title_basics_ratings.tsv").resolve()
+    try:
+        title_basics_pd = pd.read_csv(tsv_title_basics, sep="\t", header=0, dtype={
+            "tconst": str, "titeType": str, "primaryTitle": str, "originalTitle": str, "isAdult": str, "startYear": str, "endYear": str, "runtimeMinutes": str, "genres": str})
+        title_ratings_pd = pd.read_csv(tsv_title_ratings, sep="\t", header=0, dtype={
+            "tconst": str, "averageRating": float, "numVotes": int})
+    except Exception as e:
+        logging.critical("We couldn't read the tsv files!")
+        logging.debug("Error: %s" % e)
+        click.echo(Tcolors.fail +
+                   "We couldn't read the tsv files!" + Tcolors.endc)
 
-# title_basics_ratings_pd=title_basics_pd.merge(title_ratings_pd, on="tconst")
-# title_basics_ratings_pd.to_csv("./imdb_datasets/title_basics_ratings.tsv", sep = "\t", index = False)
+    # Merging the two tsv files
+    try:
+        title_basics_ratings_pd = title_basics_pd.merge(
+            title_ratings_pd, on="tconst")
+    except Exception as e:
+        logging.critical("We failed to merge the tsv files!")
+        logging.debug("Error: %s" % e)
+        click.echo(Tcolors.fail +
+                   "We failed to merge the tsv files!" + Tcolors.endc)
 
-# res = title_basics_ratings_pd.loc[(title_basics_ratings_pd["primaryTitle"] == "The Hangover")
-#                                   & (title_basics_ratings_pd["titleType"] == "movie") & (title_basics_ratings_pd["startYear"] == "2009"), "averageRating"]
-# if not res.empty:
-#     print(res.values[0])
-
-
-# end = time.time()
-# print("Loading tsv ended: ", end - start)
-
-# start1 = time.time()
-# res = title_basics_pd.loc[(title_basics_pd["primaryTitle"] == "The Dark Side of the Moon")
-#                           & (title_basics_pd["titleType"] == "movie") & (title_basics_pd["startYear"] == "2015"), "primaryTitle"]
-# if not res.empty:
-#     print(res.values[0])
-# end1 = time.time()
-# print(f"Loading {res.values[0]} ended: ", end1 - start1)
-
-# start2 = time.time()
-# res1 = title_basics_pd.loc[(title_basics_pd["primaryTitle"] == "The Ghost of Peter Sellers")
-#                            & (title_basics_pd["titleType"] == "movie") & (title_basics_pd["startYear"] == "2018"), "primaryTitle"]
-
-# if not res1.empty:
-#     print(res1.values[0])
-# end2 = time.time()
-# print(f"Loading {res1.values[0]} ended: ", end2 - start2)
+    # Saving the merged file on disk
+    try:
+        title_basics_ratings_pd.to_csv(
+            title_basics_ratings_file_path, sep="\t", index=False)
+    except Exception as e:
+        logging.critical("We failed to write the merged tsv file!")
+        logging.debug("Error: %s" % e)
+        click.echo(Tcolors.fail +
+                   "We failed to write the merged tsv file!" + Tcolors.endc)
 
 
 def imdb_get_data_from_datasets(criteria={}):
@@ -104,3 +103,7 @@ if __name__ == "__main__":
         "movie_year": "2015"
     }
     print(imdb_get_data_from_datasets(imdb_search_criteria))
+    base_path = Path("./imdb_datasets/").resolve()
+
+    merge_tsv_files("/home/yusarch/Documents/Programming/Python/rt_movie_cover/imdb_datasets/title.basics.tsv",
+                    "/home/yusarch/Documents/Programming/Python/rt_movie_cover/imdb_datasets/title.ratings.tsv", base_path)

@@ -8,7 +8,7 @@ from time import sleep
 import re
 from urllib.error import URLError, HTTPError
 import os
-from imdb_data_handler import imdb_get_data_from_datasets
+from imdb_data_handler import imdb_get_data_from_datasets, merge_tsv_files
 import click
 from utils import *
 from exceptions import InputError
@@ -16,7 +16,6 @@ from imdb_poster_fetcher import imdb_download_poster
 from pathlib import Path
 import gzip
 import shutil
-import pickle
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -39,7 +38,8 @@ def imdb_cli_init(mov, tv, tvmini, debug, d):
     datasets_list = [title_basics_url, title_ratings_url]
     regex_tsv_title = r"(?<=com/)(.*?)(?=.gz)"
     tsv_time_saved = {}
-    date_now = datetime.datetime(2021, 11, 10, 23, 59, 59)
+    date_now = datetime.datetime(2021, 11, 11, 23, 59, 59)
+    tsv_files = []
 
     for url in datasets_list:
         file_name_url_test = re.search(regex_tsv_title, url)
@@ -48,22 +48,21 @@ def imdb_cli_init(mov, tv, tvmini, debug, d):
             tsv_gz_file_name = url.split("/")[-1]
             tsv_gz_file_path = (base_path / tsv_gz_file_name).resolve()
             tsv_file_path = (base_path / tsv_file_name).resolve()
+            tsv_files.append(tsv_file_path)
             print("DUUUUUDE!!!", tsv_gz_file_path)
             is_file = tsv_file_path.is_file()
             if not is_file:
                 imdb_download_poster(
                     url, name=tsv_file_name, filepath=tsv_gz_file_path)
                 unzip(tsv_gz_file_path, tsv_file_path)
-                # Merging the two tsv files here
-                # ....
             print("Filename of tsv is %s" % tsv_file_name)
+
     tsv_time_saved["time"] = date_now
     tsv_save_pickle_path = (base_path / "tsv_save.pickle").resolve()
-    with open(tsv_save_pickle_path, "wb") as handle:
-        pickle.dump(tsv_time_saved, handle, protocol=pickle.HIGHEST_PROTOCOL)
-    print(tsv_time_saved)
-    with open(tsv_save_pickle_path, "rb") as readpickle:
-        b = pickle.load(readpickle)
+    pickler(tsv_save_pickle_path, tsv_time_saved)
+    print("tsv files list: %s" % tsv_files)
+    #merge_tsv_files(tsv_files[0], tsv_files[1], base_path)
+    b = pickler(tsv_save_pickle_path)
     print("Pickle is: %s" % b)
     print("File path is %s and test is %s" % (tsv_file_path, is_file))
     # Creating a dictionary containing a list of all mutually exclusive options

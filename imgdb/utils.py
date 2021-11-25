@@ -1,4 +1,6 @@
 import logging
+import pickle
+import gzip
 
 
 def logger(loglevel="warning"):
@@ -36,6 +38,25 @@ def unzip(filepath_input, filepath_output):
     except FileNotFoundError:
         logging.warning(
             "Couldn't delete %s: The file doesn't exist!" % filepath_input)
+    except Exception as e:
+        logging.critical(
+            "Something went wrong while trying to delete the gzipped files!")
+        logging.debug("Error: %s" % e)
+        click.echo(Tcolors.fail +
+                   "Something went wrong while trying to delete the gzipped files!" + Tcolors.endc)
+
+
+def pickler(save_pickle_path, save_pickle_input=None):
+    """ This function uses the pickle library to serialize or de-serialize an input dictionary. """
+
+    if save_pickle_input:
+        with open(save_pickle_path, "wb") as handle:
+            pickle.dump(save_pickle_input, handle,
+                        protocol=pickle.HIGHEST_PROTOCOL)
+    else:
+        with open(save_pickle_path, "rb") as read_pickle:
+            unpickled_output = pickle.load(read_pickle)
+            return unpickled_output
 
 
 if __name__ == "__main__":
