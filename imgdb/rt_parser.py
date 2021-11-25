@@ -38,7 +38,8 @@ def imdb_cli_init(mov, tv, tvmini, debug, d):
     title_ratings_url = "https://datasets.imdbws.com/title.ratings.tsv.gz"
     datasets_list = [title_basics_url, title_ratings_url]
     regex_tsv_title = r"(?<=com/)(.*?)(?=.gz)"
-    tsv_save = {}
+    tsv_time_saved = {}
+    date_now = datetime.datetime(2021, 11, 10, 23, 59, 59)
 
     for url in datasets_list:
         file_name_url_test = re.search(regex_tsv_title, url)
@@ -55,12 +56,15 @@ def imdb_cli_init(mov, tv, tvmini, debug, d):
                 unzip(tsv_gz_file_path, tsv_file_path)
                 # Merging the two tsv files here
                 # ....
-            tsv_save[tsv_file_name] = datetime.datetime.now()
             print("Filename of tsv is %s" % tsv_file_name)
+    tsv_time_saved["time"] = date_now
     tsv_save_pickle_path = (base_path / "tsv_save.pickle").resolve()
     with open(tsv_save_pickle_path, "wb") as handle:
-        pickle.dump(tsv_save, handle, protocol=pickle.HIGHEST_PROTOCOL)
-    print(tsv_save)
+        pickle.dump(tsv_time_saved, handle, protocol=pickle.HIGHEST_PROTOCOL)
+    print(tsv_time_saved)
+    with open(tsv_save_pickle_path, "rb") as readpickle:
+        b = pickle.load(readpickle)
+    print("Pickle is: %s" % b)
     print("File path is %s and test is %s" % (tsv_file_path, is_file))
     # Creating a dictionary containing a list of all mutually exclusive options
     options = {
