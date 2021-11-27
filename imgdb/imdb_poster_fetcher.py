@@ -9,14 +9,15 @@ import click
 def imdb_download_poster(url, name=None, filepath=None):
     """ This function downloads a file from a given URL. """
 
-    file_name = name
+    file_url = url
+    url_test = "http://download.thinkbroadband.com/10MB.zip"
     if not filepath:
-        poster_url = url
-        url_test = "http://download.thinkbroadband.com/10MB.zip"
-        ext = poster_url.split(".")[-1]
-        file_name_with_ext = file_name.replace(" ", "_") + "." + ext
+        file_name = name
+        ext = file_url.split(".")[-1]
+        file_path = file_name.replace(" ", "_") + "." + ext
     else:
-        file_name_with_ext = filepath
+        file_path = filepath
+        file_name = file_url.split("/")[-1]
 
     try:
         r = urlopen(url)
@@ -47,7 +48,7 @@ def imdb_download_poster(url, name=None, filepath=None):
 
         block_size = 1024
         progress_bar = tqdm(total=file_size, unit="iB", unit_scale=True)
-        with open(file_name_with_ext, "wb") as f:
+        with open(file_path, "wb") as f:
             while True:
                 buffer = r.read(block_size)
                 if not buffer:

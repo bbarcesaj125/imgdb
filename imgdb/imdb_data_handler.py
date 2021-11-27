@@ -64,14 +64,6 @@ def imdb_get_data_from_datasets(criteria={}):
 
     for chunk in pd.read_csv(tsv_title_basics_ratings, sep="\t", chunksize=chunk_size, dtype=dtypes, header=0):
 
-        # print(chunk["primaryTitle"] == "Die Welt von Maurice Chevalier")
-        # chunk_pd = pd.read_csv(chunk, sep="\t", header=0)
-
-        # for index, row in chunk.iterrows():
-        #     # print(row["startYear"])
-        #     if row["primaryTitle"] == "The Expanse":2001
-        #         print(row["startYear"])
-
         res = chunk.loc[(chunk["primaryTitle"] == argument_list["movie_title"])
                         & (chunk["titleType"] == argument_list["media_type"]) & (chunk["startYear"] == argument_list["movie_year"])]
 

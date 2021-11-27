@@ -22,25 +22,65 @@ load_dotenv()
 @click.option("--mov", help="The title of the movie.")
 @click.option("--tv", help="The title of the series.")
 @click.option("--tvmini", help="The title of the mini series.")
-@click.option("--debug", default="info", help="The logging level of the application.")
+@click.option("--debug", default="debug", help="The logging level of the application.")
+@click.option("--freq", default="weekly", help="The update frequency of the datasets.")
 @click.option("-d", is_flag=True, default=False, help="Download the movie's poster image.")
-def imdb_cli_init(mov, tv, tvmini, debug, d):
+def imdb_cli_init(mov, tv, tvmini, debug, freq, d):
     """ Imdb CLI search """
 
     logger(debug)
 
     base_path = Path("./imdb_datasets/").resolve()
-    print(base_path)
+    logging.debug("The base path is: %s" % base_path)
     title_basics_url = "https://datasets.imdbws.com/title.basics.tsv.gz"
     title_ratings_url = "https://datasets.imdbws.com/title.ratings.tsv.gz"
     datasets_list = [title_basics_url, title_ratings_url]
     regex_tsv_title = r"(?<=com/)(.*?)(?=.gz)"
     tsv_time_saved = {}
-    date_now = datetime.datetime(2021, 11, 21, 23, 59, 59)
+    date_now = datetime.datetime.now()
+    date_test = datetime.datetime(2021, 11, 22, 23, 59, 59)
     tsv_files = []
     tsv_save_pickle_path = (base_path / "tsv_save.pickle").resolve()
+    regex_freq = r"(^[0-9]{1,}h)$"
+    freq_test = re.search(regex_freq, freq)
+    is_pickle = tsv_save_pickle_path.is_file()
 
+    if is_pickle:
+        saved_pickle = pickler(tsv_save_pickle_path)
+        time_difference = (
+            date_now - saved_pickle["time"]).total_seconds()
+        logging.debug("Content of pickle file: %s" % saved_pickle)
+
+    update_freq = {
+        "daily": 86400,
+        "weekly": 604800,
+        "bi-weekly": 1209600
+    }
+
+    count_freq = 0
+    for key, value in update_freq.items():
+        count_freq += 1
+        if key == freq:
+            threshold = update_freq[key]
+            break
+        elif freq_test:
+            threshold = int(freq[:-1]) * 3600
+            break
+        elif count_freq == len(update_freq):
+            logging.warning(
+                "The update frequency format is wrong. Using 'weekly' as a fallback!")
+            click.echo(
+                Tcolors().warning + "The update frequency format is wrong. Using 'weekly' as a fallback!" + Tcolors.endc)
+            threshold = update_freq["weekly"]
+            loggin.debug("Threshold inside loop is %s" % threshold)
+        else:
+            continue
+
+    logging.debug("The threshold is %s" % threshold)
+
+    count_url = 0
     for url in datasets_list:
+        count_url += 1
         file_name_url_test = re.search(regex_tsv_title, url)
         if file_name_url_test:
             tsv_file_name = re.findall(regex_tsv_title, url)[0]
@@ -48,28 +88,26 @@ def imdb_cli_init(mov, tv, tvmini, debug, d):
             tsv_gz_file_path = (base_path / tsv_gz_file_name).resolve()
             tsv_file_path = (base_path / tsv_file_name).resolve()
             tsv_files.append(tsv_file_path)
-            print("DUUUUUDE!!!", tsv_gz_file_path)
-            print("Filename of tsv is %s" % tsv_file_name)
+            logging.debug("the filename of the tsv file is: %s" %
+                          tsv_file_name)
             is_file = tsv_file_path.is_file()
-            if not is_file:
-                imdb_download_poster(
-                    url, name=tsv_file_name, filepath=tsv_gz_file_path)
-                unzip(tsv_gz_file_path, tsv_file_path)
-            else:
-                saved_pickle = pickler(tsv_save_pickle_path)
-                time_difference = (
-                    datetime.datetime.now() - saved_pickle["time"]).total_seconds()
-                if time_difference > 604800:
-                    imdb_download_poster(
-                        url, name=tsv_file_name, filepath=tsv_gz_file_path)
-                    unzip(tsv_gz_file_path, tsv_file_path)
 
-    tsv_time_saved["time"] = date_now
-    pickler(tsv_save_pickle_path, tsv_time_saved)
-    print("tsv files list: %s" % tsv_files)
-    #merge_tsv_files(tsv_files[0], tsv_files[1], base_path)
-    #print("Pickle is: %s" % b)
-    print("File path is %s and test is %s" % (tsv_file_path, is_file))
+            if (not is_file or not is_pickle) or (is_pickle and time_difference > threshold):
+                logging.debug(
+                    "Downloading dataset file %s... yay :)" % tsv_gz_file_name)
+                # imdb_download_poster(
+                #     url, name=tsv_file_name, filepath=tsv_gz_file_path)
+                # unzip(tsv_gz_file_path, tsv_file_path)
+
+                if count_url == len(datasets_list):
+                    tsv_time_saved["time"] = date_test
+                    logging.debug("Time inside pickle file is: %s" % date_test)
+                    pickler(tsv_save_pickle_path, tsv_time_saved)
+
+                    logging.debug("The tsv list: %s" % tsv_files)
+                    #merge_tsv_files(tsv_files[0], tsv_files[1], base_path)
+                    logging.debug("The tsv files were merged successfully!")
+
     # Creating a dictionary containing a list of all mutually exclusive options
     options = {
         "mov": mov,
@@ -105,7 +143,12 @@ def imdb_cli_init(mov, tv, tvmini, debug, d):
             imdb_data = imdb_get_data(media_name, media_type)
             if imdb_data:
                 click.echo(
-                    "Title: %s" % imdb_data["imdbTitle"] + "\nGenres: %s" % ", ".join(map(str, imdb_data["imdbGenres"])) + "\nYear: %s" % imdb_data["imdbYear"] + "\nRating: %s" % imdb_data["imdbRating"] + "\nDescription: %s" % imdb_data["imdbDescription"])
+                    "Title: %s" % imdb_data["imdbTitle"] + "\nGenres: %s" % ", ".join(
+                        map(str, imdb_data["imdbGenres"]))
+                    + "\nYear: %s" % imdb_data["imdbYear"]
+                    + "\nRuntime: %s" % imdb_data["imdbRuntime"] +
+                    "\nRating: %s" % imdb_data["imdbRating"]
+                    + "\nDescription: %s" % imdb_data["imdbDescription"])
 
             if d:
                 imdb_download_poster(
@@ -387,6 +430,7 @@ def imdb_get_data(title, mtype):
                         "imdbYear": imdb_year_parentheses if is_year_int else imdb_year_from_string,
                         "imdbRating": imdb_movie_data["averageRating"] if is_rating_float else "N/A",
                         "imdbGenres": imdb_movie_data["genres"],
+                        "imdbRuntime": imdb_movie_data["runtimeMinutes"],
                         "imdbDescription": imdb_description,
                         "imdbThumbUrl": imdb_movie_thumbnail_url,
                         "imdbPosterUrl": imdb_poster_url
