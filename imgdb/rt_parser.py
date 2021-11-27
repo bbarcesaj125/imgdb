@@ -72,7 +72,7 @@ def imdb_cli_init(mov, tv, tvmini, debug, freq, d):
             click.echo(
                 Tcolors().warning + "The update frequency format is wrong. Using 'weekly' as a fallback!" + Tcolors.endc)
             threshold = update_freq["weekly"]
-            loggin.debug("Threshold inside loop is %s" % threshold)
+            logging.debug("Threshold inside loop is %s" % threshold)
         else:
             continue
 
@@ -88,7 +88,7 @@ def imdb_cli_init(mov, tv, tvmini, debug, freq, d):
             tsv_gz_file_path = (base_path / tsv_gz_file_name).resolve()
             tsv_file_path = (base_path / tsv_file_name).resolve()
             tsv_files.append(tsv_file_path)
-            logging.debug("the filename of the tsv file is: %s" %
+            logging.debug("The filename of the tsv file is: %s" %
                           tsv_file_name)
             is_file = tsv_file_path.is_file()
 
@@ -143,12 +143,12 @@ def imdb_cli_init(mov, tv, tvmini, debug, freq, d):
             imdb_data = imdb_get_data(media_name, media_type)
             if imdb_data:
                 click.echo(
-                    "Title: %s" % imdb_data["imdbTitle"] + "\nGenres: %s" % ", ".join(
-                        map(str, imdb_data["imdbGenres"]))
-                    + "\nYear: %s" % imdb_data["imdbYear"]
-                    + "\nRuntime: %s" % imdb_data["imdbRuntime"] +
-                    "\nRating: %s" % imdb_data["imdbRating"]
-                    + "\nDescription: %s" % imdb_data["imdbDescription"])
+                    "Title: %s" % imdb_data["imdbTitle"] +
+                    "\nGenres: %s" % ", ".join(map(str, imdb_data["imdbGenres"])) +
+                    "\nYear: %s" % imdb_data["imdbYear"] +
+                    "\nRuntime: %s min" % imdb_data["imdbRuntime"] +
+                    "\nRating: %s" % imdb_data["imdbRating"] +
+                    "\nDescription: %s" % imdb_data["imdbDescription"])
 
             if d:
                 imdb_download_poster(

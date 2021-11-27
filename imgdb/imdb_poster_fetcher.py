@@ -12,9 +12,10 @@ def imdb_download_poster(url, name=None, filepath=None):
     file_url = url
     url_test = "http://download.thinkbroadband.com/10MB.zip"
     if not filepath:
-        file_name = name
+        naked_file_name = name
         ext = file_url.split(".")[-1]
-        file_path = file_name.replace(" ", "_") + "." + ext
+        file_name = naked_file_name + "." + ext
+        file_path = naked_file_name.replace(" ", "_") + "." + ext
     else:
         file_path = filepath
         file_name = file_url.split("/")[-1]
@@ -43,7 +44,7 @@ def imdb_download_poster(url, name=None, filepath=None):
 
         logging.info("Downloading: %s Size: %s KiB" %
                      (file_name, file_size / 1024))
-        click.echo("Downloading: %s Size: %s KiB" %
+        click.echo("\n➜ Downloading: %s Size: %s KiB\n" %
                    (file_name, file_size / 1024))
 
         block_size = 1024
