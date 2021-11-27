@@ -3,6 +3,7 @@ import pickle
 import gzip
 import shutil
 import click
+import sys
 
 
 def logger(loglevel="warning"):
@@ -10,7 +11,9 @@ def logger(loglevel="warning"):
 
     numeric_level = getattr(logging, loglevel.upper(), None)
     if not isinstance(numeric_level, int):
-        raise ValueError("Invalid log level: %s" % loglevel)
+        click.echo(Tcolors.warning + "Invalid log level: %s. Using 'warning' as a fallback!" %
+                   loglevel + Tcolors.endc)
+        numeric_level = 30
     logging.basicConfig(
         level=numeric_level, format="%(asctime)s - %(name)s - %(levelname)-8s [%(filename)s:%(lineno)d] %(message)s", datefmt="%m/%d/%Y %I:%M:%S %p")
 
@@ -32,9 +35,18 @@ class Tcolors:
 def unzip(filepath_input, filepath_output):
     """ This function uses gzip to unpack a gzipped file. """
 
-    with gzip.open(filepath_input, "rb") as gz_in:
-        with open(filepath_output, "wb") as tsv_out:
-            shutil.copyfileobj(gz_in, tsv_out)
+    try:
+        with gzip.open(filepath_input, "rb") as gz_in:
+            with open(filepath_output, "wb") as tsv_out:
+                shutil.copyfileobj(gz_in, tsv_out)
+    except Exception as e:
+        logging.critical(
+            "Something went wrong while trying to open the gzipped files!")
+        logging.debug("Error: %s" % e)
+        click.echo(Tcolors.fail +
+                   "Something went wrong while trying to open the gzipped files!" + Tcolors.endc)
+        sys.exit()
+
     try:
         filepath_input.unlink()
     except FileNotFoundError:
@@ -46,19 +58,35 @@ def unzip(filepath_input, filepath_output):
         logging.debug("Error: %s" % e)
         click.echo(Tcolors.fail +
                    "Something went wrong while trying to delete the gzipped files!" + Tcolors.endc)
+        sys.exit()
 
 
 def pickler(save_pickle_path, save_pickle_input=None):
     """ This function uses the pickle library to serialize or de-serialize an input dictionary. """
 
     if save_pickle_input:
-        with open(save_pickle_path, "wb") as handle:
-            pickle.dump(save_pickle_input, handle,
-                        protocol=pickle.HIGHEST_PROTOCOL)
+        try:
+            with open(save_pickle_path, "wb") as handle:
+                pickle.dump(save_pickle_input, handle,
+                            protocol=pickle.HIGHEST_PROTOCOL)
+        except Exception as e:
+            logging.critical(
+                "Something went wrong while trying to save the program's state!")
+            logging.debug("Error: %s" % e)
+            click.echo(Tcolors.fail +
+                       "Something went wrong while trying to save the program's state!" + Tcolors.endc)
     else:
-        with open(save_pickle_path, "rb") as read_pickle:
-            unpickled_output = pickle.load(read_pickle)
-            return unpickled_output
+        try:
+            with open(save_pickle_path, "rb") as read_pickle:
+                unpickled_output = pickle.load(read_pickle)
+                return unpickled_output
+        except Exception as e:
+            logging.critical(
+                "Something went wrong while trying to read the program's state!")
+            logging.debug("Error: %s" % e)
+            click.echo(Tcolors.fail +
+                       "Something went wrong while trying to read the program's state!" + Tcolors.endc)
+            sys.exit()
 
 
 if __name__ == "__main__":

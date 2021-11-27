@@ -8,7 +8,7 @@ from time import sleep
 import re
 from urllib.error import URLError, HTTPError
 import os
-from imdb_data_handler import imdb_get_data_from_datasets, merge_tsv_files
+from imdb_data_handler import imdb_get_data_from_datasets, merge_tsv_files, datasets_updater
 import click
 from utils import *
 from exceptions import InputError
@@ -30,83 +30,10 @@ def imdb_cli_init(mov, tv, tvmini, debug, freq, d):
 
     logger(debug)
 
+    # Updating the datasets
     base_path = Path("./imdb_datasets/").resolve()
     logging.debug("The base path is: %s" % base_path)
-    title_basics_url = "https://datasets.imdbws.com/title.basics.tsv.gz"
-    title_ratings_url = "https://datasets.imdbws.com/title.ratings.tsv.gz"
-    datasets_list = [title_basics_url, title_ratings_url]
-    regex_tsv_title = r"(?<=com/)(.*?)(?=.gz)"
-    tsv_time_saved = {}
-    date_now = datetime.datetime.now()
-    date_test = datetime.datetime(2021, 11, 22, 23, 59, 59)
-    tsv_files = []
-    tsv_save_pickle_path = (base_path / "tsv_save.pickle").resolve()
-    regex_freq = r"(^[0-9]{1,}h)$"
-    freq_test = re.search(regex_freq, freq)
-    is_pickle = tsv_save_pickle_path.is_file()
-
-    if is_pickle:
-        saved_pickle = pickler(tsv_save_pickle_path)
-        time_difference = (
-            date_now - saved_pickle["time"]).total_seconds()
-        logging.debug("Content of pickle file: %s" % saved_pickle)
-
-    update_freq = {
-        "daily": 86400,
-        "weekly": 604800,
-        "bi-weekly": 1209600
-    }
-
-    count_freq = 0
-    for key, value in update_freq.items():
-        count_freq += 1
-        if key == freq:
-            threshold = update_freq[key]
-            break
-        elif freq_test:
-            threshold = int(freq[:-1]) * 3600
-            break
-        elif count_freq == len(update_freq):
-            logging.warning(
-                "The update frequency format is wrong. Using 'weekly' as a fallback!")
-            click.echo(
-                Tcolors().warning + "The update frequency format is wrong. Using 'weekly' as a fallback!" + Tcolors.endc)
-            threshold = update_freq["weekly"]
-            logging.debug("Threshold inside loop is %s" % threshold)
-        else:
-            continue
-
-    logging.debug("The threshold is %s" % threshold)
-
-    count_url = 0
-    for url in datasets_list:
-        count_url += 1
-        file_name_url_test = re.search(regex_tsv_title, url)
-        if file_name_url_test:
-            tsv_file_name = re.findall(regex_tsv_title, url)[0]
-            tsv_gz_file_name = url.split("/")[-1]
-            tsv_gz_file_path = (base_path / tsv_gz_file_name).resolve()
-            tsv_file_path = (base_path / tsv_file_name).resolve()
-            tsv_files.append(tsv_file_path)
-            logging.debug("The filename of the tsv file is: %s" %
-                          tsv_file_name)
-            is_file = tsv_file_path.is_file()
-
-            if (not is_file or not is_pickle) or (is_pickle and time_difference > threshold):
-                logging.debug(
-                    "Downloading dataset file %s... yay :)" % tsv_gz_file_name)
-                # imdb_download_poster(
-                #     url, name=tsv_file_name, filepath=tsv_gz_file_path)
-                # unzip(tsv_gz_file_path, tsv_file_path)
-
-                if count_url == len(datasets_list):
-                    tsv_time_saved["time"] = date_test
-                    logging.debug("Time inside pickle file is: %s" % date_test)
-                    pickler(tsv_save_pickle_path, tsv_time_saved)
-
-                    logging.debug("The tsv list: %s" % tsv_files)
-                    #merge_tsv_files(tsv_files[0], tsv_files[1], base_path)
-                    logging.debug("The tsv files were merged successfully!")
+    datasets_updater(freq, base_path)
 
     # Creating a dictionary containing a list of all mutually exclusive options
     options = {
@@ -123,9 +50,10 @@ def imdb_cli_init(mov, tv, tvmini, debug, freq, d):
             used_options.append(options[key])
     try:
         if len(used_options) == 0:
-            raise InputError("Media type has to be specified!")
-    except InputError:
+            raise InputError
+    except InputError as e:
         logging.warning("Please specify the media type argument!")
+        logging.debug("Error: %s" % e.name)
         click.echo(
             Tcolors.warning + "Please specify the media type argument!" + Tcolors.endc)
     else:
@@ -414,9 +342,9 @@ def imdb_get_data(title, mtype):
                             raise TypeError
                     except TypeError:
                         click.echo(
-                            Tcolors.fail + "Either the requested title doesn't exit or that the media type was incorrectly specified!" + Tcolors.endc)
+                            Tcolors.fail + "Either the requested title doesn't exist or that the media type was incorrectly specified!" + Tcolors.endc)
                         logging.warning(
-                            "Either the requested title doesn't exit or that the media type was incorrectly specified!")
+                            "Either the requested title doesn't exist or that the media type was incorrectly specified!")
                         return
 
                     try:
@@ -438,7 +366,6 @@ def imdb_get_data(title, mtype):
 
                     logging.info("Imdb's movie data: %s" % results)
                     return results
-                break
         else:
             logging.warning("No results!")
             click.echo(Tcolors.warning + "No results!" + Tcolors.endc)

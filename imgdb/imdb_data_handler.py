@@ -2,11 +2,97 @@ from pathlib import Path
 import pandas as pd
 import logging
 import click
-from utils import Tcolors
+import datetime
+from utils import Tcolors, unzip, pickler
+import re
 
 base_path = Path(__file__).parent
 tsv_title_basics_ratings = (
     base_path / "../imdb_datasets/title_basics_ratings.tsv").resolve()
+
+
+def datasets_updater(freq, basepath):
+    """ This functions downloads Imdb's datasets and updates them according to a user-defined interval: """
+
+    title_basics_url = "https://datasets.imdbws.com/title.basics.tsv.gz"
+    title_ratings_url = "https://datasets.imdbws.com/title.ratings.tsv.gz"
+    datasets_list = [title_basics_url, title_ratings_url]
+    regex_tsv_title = r"(?<=com/)(.*?)(?=.gz)"
+    tsv_time_saved = {}
+    date_now = datetime.datetime.now()
+    date_test = datetime.datetime(2021, 11, 24, 23, 59, 59)
+    tsv_files = []
+    tsv_save_pickle_path = (basepath / "tsv_save.pickle").resolve()
+    regex_freq = r"(^[0-9]{1,}h|d)$"
+    freq_test = re.search(regex_freq, freq)
+    is_pickle = tsv_save_pickle_path.is_file()
+
+    if is_pickle:
+        saved_pickle = pickler(tsv_save_pickle_path)
+        time_difference = (
+            date_now - saved_pickle["time"]).total_seconds()
+        logging.debug("Time difference is: %s" % time_difference)
+        logging.debug("Content of pickle file: %s" % saved_pickle)
+
+    update_freq = {
+        "daily": 86400,
+        "weekly": 604800,
+        "bi-weekly": 1209600
+    }
+
+    count_freq = 0
+    for key, value in update_freq.items():
+        count_freq += 1
+        if key == freq:
+            threshold = update_freq[key]
+            break
+        elif freq_test:
+            if freq[-1:] == "h":
+                threshold = int(freq[:-1]) * 3600
+            elif freq[-1:] == "d":
+                threshold = int(freq[:-1]) * 86400
+            break
+        elif count_freq == len(update_freq):
+            logging.warning(
+                "The update frequency format is wrong. Using 'weekly' as a fallback!")
+            click.echo(
+                Tcolors().warning + "The update frequency format is wrong. Using 'weekly' as a fallback!" + Tcolors.endc)
+            threshold = update_freq["weekly"]
+            logging.debug("Threshold inside loop is %s" % threshold)
+        else:
+            continue
+
+    logging.debug("The threshold is %s" % threshold)
+
+    count_url = 0
+    for url in datasets_list:
+        count_url += 1
+        file_name_url_test = re.search(regex_tsv_title, url)
+        if file_name_url_test:
+            tsv_file_name = re.findall(regex_tsv_title, url)[0]
+            tsv_gz_file_name = url.split("/")[-1]
+            tsv_gz_file_path = (basepath / tsv_gz_file_name).resolve()
+            tsv_file_path = (basepath / tsv_file_name).resolve()
+            tsv_files.append(tsv_file_path)
+            logging.debug("The filename of the tsv file is: %s" %
+                          tsv_file_name)
+            is_file = tsv_file_path.is_file()
+
+            if (not is_file or not is_pickle) or (is_pickle and time_difference > threshold):
+                logging.debug(
+                    "Downloading dataset file %s... yay :)" % tsv_gz_file_name)
+                # imdb_download_poster(
+                #     url, name=tsv_file_name, filepath=tsv_gz_file_path)
+                # unzip(tsv_gz_file_path, tsv_file_path)
+
+                if count_url == len(datasets_list):
+                    tsv_time_saved["time"] = date_test
+                    logging.debug("Time inside pickle file is: %s" % date_test)
+                    pickler(tsv_save_pickle_path, tsv_time_saved)
+
+                    logging.debug("The tsv list: %s" % tsv_files)
+                    #merge_tsv_files(tsv_files[0], tsv_files[1], basepath)
+                    logging.debug("The tsv files were merged successfully!")
 
 
 def merge_tsv_files(tsv_title_basics, tsv_title_ratings, base_path):
