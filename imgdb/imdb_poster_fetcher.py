@@ -2,9 +2,9 @@ from urllib.request import urlopen
 from urllib.error import URLError, HTTPError
 from tqdm import tqdm
 from utils import Tcolors, logger
-from exceptions import InputError
 import logging
 import click
+import re
 import sys
 logger("debug")
 
@@ -17,8 +17,27 @@ def imdb_download_poster(url, name=None, filepath=None):
     if not filepath:
         naked_file_name = name
         ext = file_url.split(".")[-1]
-        file_name = naked_file_name + "." + ext
-        file_path = naked_file_name.replace(" ", "_") + "." + ext
+
+        special_letters = "àáâäæãåāăąçćčđďèéêëēėęěğǵḧîïíīįìıİłḿñńǹňôöòóœøōõőṕŕřßśšşșťțûüùúūǘůűųẃẍÿýžźż"
+        normal_letters = "aaaaaaaaaacccddeeeeeeeegghiiiiiiiilmnnnnoooooooooprrsssssttuuuuuuuuuwxyyzzz"
+        regex_special_letters = r"|".join(list(special_letters))
+        regex_special_characters = r"[\\~#%&*{}\/:,;<>?|\"-.\s]{1,}"
+        regex_special_letters_test = re.search(
+            regex_special_letters, naked_file_name)
+
+        if regex_special_letters_test:
+            name_no_special_letters = re.sub(regex_special_letters, lambda x: list(
+                normal_letters)[list(special_letters).index(x.group())], naked_file_name)
+        else:
+            name_no_special_letters = naked_file_name
+
+        name_no_special_characters = re.sub(
+            regex_special_characters, "_", name_no_special_letters)
+        print("No special letters: %s" % name_no_special_letters)
+        print("No special chars: %s" % name_no_special_characters)
+
+        file_name = name_no_special_characters + "." + ext
+        file_path = file_name
     else:
         file_path = filepath
         file_name = file_url.split("/")[-1]
@@ -50,8 +69,8 @@ def imdb_download_poster(url, name=None, filepath=None):
 
         logging.info("Downloading: %s Size: %s KiB" %
                      (file_name, file_size / 1024))
-        click.echo("\n➜ Downloading: %s Size: %s KiB\n" %
-                   (file_name, file_size / 1024))
+        click.echo(Tcolors.ok_green + "\n➜ Downloading: %s Size: %s KiB\n" %
+                   (file_name, file_size / 1024) + Tcolors.endc)
 
         block_size = 1024
         progress_bar = tqdm(total=file_size, unit="iB", unit_scale=True)
@@ -75,5 +94,5 @@ def imdb_download_poster(url, name=None, filepath=None):
 
 if __name__ == "__main__":
     f = imdb_download_poster(
-        "https://m.media-azon.co/images/M/MV5BNDU4Mzc3NzE5NV5BMl5BanBnXkFtZTgwMzE1NzI1NzM@._V1_FMjpg_UX1000_.jpg", name="Dunnu")
+        "https://m.media-amazon.com/images/M/MV5BYjc1ZTFiNGItMzQyYy00OTFlLThjOGYtNzA2NWY1M2E4MTAzXkEyXkFqcGdeQXVyMTkxNjUyNQ@@._V1_FMjpg_UX1000_.jpg", name="Dunnu éla#dopeáj ffrg")
     print(f)

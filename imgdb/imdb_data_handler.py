@@ -12,7 +12,7 @@ tsv_title_basics_ratings = (
 
 
 def datasets_updater(freq, basepath):
-    """ This functions downloads Imdb's datasets and updates them according to a user-defined interval: """
+    """ This functions downloads Imdb's datasets and updates them according to a user-defined interval. """
 
     title_basics_url = "https://datasets.imdbws.com/title.basics.tsv.gz"
     title_ratings_url = "https://datasets.imdbws.com/title.ratings.tsv.gz"

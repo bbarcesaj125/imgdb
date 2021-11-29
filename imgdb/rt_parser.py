@@ -28,6 +28,7 @@ load_dotenv()
 def imdb_cli_init(mov, tv, tvmini, debug, freq, d):
     """ Imdb CLI search """
 
+    # Setting up a logger
     logger(debug)
 
     # Updating the datasets
@@ -78,16 +79,16 @@ def imdb_cli_init(mov, tv, tvmini, debug, freq, d):
                     "\nRating: %s" % imdb_data["imdbRating"] +
                     "\nDescription: %s" % imdb_data["imdbDescription"])
 
-            if d:
-                imdb_download_poster(
-                    imdb_data["imdbPosterUrl"], imdb_data["imdbTitle"])
+                if d:
+                    imdb_download_poster(
+                        imdb_data["imdbPosterUrl"], imdb_data["imdbTitle"])
 
         else:
             # The user has specified at least two mutually exclusive options
             mut_exclusive_options = [
                 ex for ex in options.keys() if options[ex] is not None]
-            click.echo(" and ".join(mut_exclusive_options) +
-                       " are conflicting options. Please use only one option at a time!")
+            click.echo(Tcolors.warning + " and ".join(mut_exclusive_options) +
+                       " are conflicting options. Please use only one option at a time!" + Tcolors.endc)
             logging.warning(" and ".join(mut_exclusive_options) +
                             " are conflicting options. Please use only one option at a time!")
 
