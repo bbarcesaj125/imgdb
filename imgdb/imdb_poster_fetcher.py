@@ -21,13 +21,13 @@ def imdb_download_poster(url, name=None, filepath=None):
         special_letters = "àáâäæãåāăąçćčđďèéêëēėęěğǵḧîïíīįìıİłḿñńǹňôöòóœøōõőṕŕřßśšşșťțûüùúūǘůűųẃẍÿýžźż"
         normal_letters = "aaaaaaaaaacccddeeeeeeeegghiiiiiiiilmnnnnoooooooooprrsssssttuuuuuuuuuwxyyzzz"
         regex_special_letters = r"|".join(list(special_letters))
-        regex_special_characters = r"[\\~#%&*{}\/:,;<>?|\"-.\s]{1,}"
+        regex_special_characters = r"[\\~#%&*{}\/:,;<>?!|\"-.\s]{1,}"
         regex_special_letters_test = re.search(
             regex_special_letters, naked_file_name)
 
         if regex_special_letters_test:
-            name_no_special_letters = re.sub(regex_special_letters, lambda x: list(
-                normal_letters)[list(special_letters).index(x.group())], naked_file_name)
+            name_no_special_letters = re.sub(regex_special_letters, lambda reg: list(
+                normal_letters)[list(special_letters).index(reg.group())], naked_file_name)
         else:
             name_no_special_letters = naked_file_name
 
@@ -68,9 +68,9 @@ def imdb_download_poster(url, name=None, filepath=None):
             sys.exit()
 
         logging.info("Downloading: %s Size: %s KiB" %
-                     (file_name, file_size / 1024))
+                     (file_name, file_size // 1024))
         click.echo(Tcolors.ok_green + "\n➜ Downloading: %s Size: %s KiB\n" %
-                   (file_name, file_size / 1024) + Tcolors.endc)
+                   (file_name, file_size // 1024) + Tcolors.endc)
 
         block_size = 1024
         progress_bar = tqdm(total=file_size, unit="iB", unit_scale=True)

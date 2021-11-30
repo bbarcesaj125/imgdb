@@ -9,10 +9,10 @@ import re
 from urllib.error import URLError, HTTPError
 import os
 from imdb_data_handler import imdb_get_data_from_datasets, merge_tsv_files, datasets_updater
+from imdb_poster_fetcher import imdb_download_poster
 import click
 from utils import *
 from exceptions import InputError
-from imdb_poster_fetcher import imdb_download_poster
 from pathlib import Path
 from dotenv import load_dotenv
 load_dotenv()
@@ -77,7 +77,7 @@ def imdb_cli_init(mov, tv, tvmini, debug, freq, d):
                     "\nYear: %s" % imdb_data["imdbYear"] +
                     "\nRuntime: %s min" % imdb_data["imdbRuntime"] +
                     "\nRating: %s" % imdb_data["imdbRating"] +
-                    "\nDescription: %s" % imdb_data["imdbDescription"])
+                    "\nDescription: %s" % replace_every_nth(50, " ", "\n", imdb_data["imdbDescription"]))
 
                 if d:
                     imdb_download_poster(
@@ -359,7 +359,7 @@ def imdb_get_data(title, mtype):
                         "imdbYear": imdb_year_parentheses if is_year_int else imdb_year_from_string,
                         "imdbRating": imdb_movie_data["averageRating"] if is_rating_float else "N/A",
                         "imdbGenres": imdb_movie_data["genres"],
-                        "imdbRuntime": imdb_movie_data["runtimeMinutes"],
+                        "imdbRuntime": imdb_movie_data["runtimeMinutes"] if imdb_movie_data["runtimeMinutes"] != "\\N" else "N/A",
                         "imdbDescription": imdb_description,
                         "imdbThumbUrl": imdb_movie_thumbnail_url,
                         "imdbPosterUrl": imdb_poster_url

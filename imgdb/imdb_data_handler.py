@@ -4,6 +4,7 @@ import logging
 import click
 import datetime
 from utils import Tcolors, unzip, pickler
+from imdb_poster_fetcher import imdb_download_poster
 import re
 
 base_path = Path(__file__).parent
@@ -81,17 +82,17 @@ def datasets_updater(freq, basepath):
             if (not is_file or not is_pickle) or (is_pickle and time_difference > threshold):
                 logging.debug(
                     "Downloading dataset file %s... yay :)" % tsv_gz_file_name)
-                # imdb_download_poster(
-                #     url, name=tsv_file_name, filepath=tsv_gz_file_path)
-                # unzip(tsv_gz_file_path, tsv_file_path)
+                imdb_download_poster(
+                    url, name=tsv_file_name, filepath=tsv_gz_file_path)
+                unzip(tsv_gz_file_path, tsv_file_path)
 
                 if count_url == len(datasets_list):
-                    tsv_time_saved["time"] = date_test
-                    logging.debug("Time inside pickle file is: %s" % date_test)
+                    tsv_time_saved["time"] = date_now
+                    logging.debug("Time inside pickle file is: %s" % date_now)
                     pickler(tsv_save_pickle_path, tsv_time_saved)
 
                     logging.debug("The tsv list: %s" % tsv_files)
-                    #merge_tsv_files(tsv_files[0], tsv_files[1], basepath)
+                    merge_tsv_files(tsv_files[0], tsv_files[1], basepath)
                     logging.debug("The tsv files were merged successfully!")
 
 

@@ -89,5 +89,22 @@ def pickler(save_pickle_path, save_pickle_input=None):
             sys.exit()
 
 
+def replace_every_nth(nth, pattern, drop, string):
+    """ This function replaces every nth character in a string with a pre-defined text or character (drop). """
+
+    string_to_list = list(string)
+    cursor = 0
+    for idx in range(len(string_to_list)):
+        if string_to_list[idx] == pattern:
+            if len(string_to_list[cursor:idx]) >= nth:
+                string_to_list.insert(idx+1, drop + "             ")
+                cursor = idx
+
+    list_to_string = "".join(string_to_list)
+    return list_to_string
+
+
 if __name__ == "__main__":
-    logger()
+    string = "True Detective: Created by Nic Pizzolatto. With Matthew McConaughey, Colin Farrell, Mahershala Ali, Woody Harrelson. Seasonal anthology series in which police investigations unearth the personal and professional secrets of those involved, both within and outside the law."
+    s = replace_every_nth(50, " ", "\n", string)
+    print(s)
