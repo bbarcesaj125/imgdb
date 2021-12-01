@@ -9,6 +9,7 @@ python-dotenv = "*"
 pandas = "*"
 click = "*"
 tqdm = "*"
+pyyaml = "*"
 
 [dev-packages]
 pylint = "*"

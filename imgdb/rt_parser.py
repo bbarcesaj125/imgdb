@@ -51,10 +51,9 @@ def imdb_cli_init(mov, tv, tvmini, debug, freq, d):
             used_options.append(options[key])
     try:
         if len(used_options) == 0:
-            raise InputError
+            raise InputError("Command launched without options!")
     except InputError as e:
-        logging.warning("Please specify the media type argument!")
-        logging.debug("Error: %s" % e.name)
+        logging.warning("Error: %s. Context: %s" % (e.name, e.error_ctx))
         click.echo(
             Tcolors.warning + "Please specify the media type argument!" + Tcolors.endc)
     else:

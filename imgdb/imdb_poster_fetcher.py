@@ -33,8 +33,6 @@ def imdb_download_poster(url, name=None, filepath=None):
 
         name_no_special_characters = re.sub(
             regex_special_characters, "_", name_no_special_letters)
-        print("No special letters: %s" % name_no_special_letters)
-        print("No special chars: %s" % name_no_special_characters)
 
         file_name = name_no_special_characters + "." + ext
         file_path = file_name
