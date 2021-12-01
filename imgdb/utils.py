@@ -11,8 +11,8 @@ def logger(loglevel="warning"):
 
     numeric_level = getattr(logging, loglevel.upper(), None)
     if not isinstance(numeric_level, int):
-        click.echo(Tcolors.warning + "Invalid log level: %s. Using 'warning' as a fallback!" %
-                   loglevel + Tcolors.endc)
+        click.echo(Tcolors.WARNING + "Invalid log level: %s. Using 'warning' as a fallback!" %
+                   loglevel + Tcolors.ENDC)
         numeric_level = 30
     logging.basicConfig(
         level=numeric_level, format="%(asctime)s - %(name)s - %(levelname)-8s [%(filename)s:%(lineno)d] %(message)s", datefmt="%m/%d/%Y %I:%M:%S %p")
@@ -21,15 +21,15 @@ def logger(loglevel="warning"):
 class Tcolors:
     """ A set of ANSI colors. """
 
-    header = "\033[95m"
-    ok_blue = "\033[94m"
-    ok_cyan = "\033[96m"
-    ok_green = "\033[92m"
-    warning = "\033[93m"
-    fail = "\033[91m"
-    endc = "\033[0m"
-    bold = "\033[1m"
-    underline = "\033[4m"
+    HEADER = "\033[95m"
+    OK_BLUE = "\033[94m"
+    OK_CYAN = "\033[96m"
+    OK_GREEN = "\033[92m"
+    WARNING = "\033[93m"
+    FAIL = "\033[91m"
+    ENDC = "\033[0m"
+    BOLD = "\033[1m"
+    UNDERLINE = "\033[4m"
 
 
 def unzip(filepath_input, filepath_output):
@@ -43,8 +43,8 @@ def unzip(filepath_input, filepath_output):
         logging.critical(
             "Something went wrong while trying to open the gzipped files!")
         logging.debug("Error: %s" % e)
-        click.echo(Tcolors.fail +
-                   "Something went wrong while trying to open the gzipped files!" + Tcolors.endc)
+        click.echo(Tcolors.FAIL +
+                   "Something went wrong while trying to open the gzipped files!" + Tcolors.ENDC)
         sys.exit()
 
     try:
@@ -56,8 +56,8 @@ def unzip(filepath_input, filepath_output):
         logging.critical(
             "Something went wrong while trying to delete the gzipped files!")
         logging.debug("Error: %s" % e)
-        click.echo(Tcolors.fail +
-                   "Something went wrong while trying to delete the gzipped files!" + Tcolors.endc)
+        click.echo(Tcolors.FAIL +
+                   "Something went wrong while trying to delete the gzipped files!" + Tcolors.ENDC)
         sys.exit()
 
 
@@ -73,8 +73,8 @@ def pickler(save_pickle_path, save_pickle_input=None):
             logging.critical(
                 "Something went wrong while trying to save the program's state!")
             logging.debug("Error: %s" % e)
-            click.echo(Tcolors.fail +
-                       "Something went wrong while trying to save the program's state!" + Tcolors.endc)
+            click.echo(Tcolors.FAIL +
+                       "Something went wrong while trying to save the program's state!" + Tcolors.ENDC)
     else:
         try:
             with open(save_pickle_path, "rb") as read_pickle:
@@ -84,13 +84,13 @@ def pickler(save_pickle_path, save_pickle_input=None):
             logging.critical(
                 "Something went wrong while trying to read the program's state!")
             logging.debug("Error: %s" % e)
-            click.echo(Tcolors.fail +
-                       "Something went wrong while trying to read the program's state!" + Tcolors.endc)
+            click.echo(Tcolors.FAIL +
+                       "Something went wrong while trying to read the program's state!" + Tcolors.ENDC)
             sys.exit()
 
 
 def replace_every_nth(nth, pattern, drop, string):
-    """ This function replaces every nth character in a string with a pre-defined text or character (drop). """
+    """ This function replaces every nth character (pattern) in a string with a pre-defined text or character (drop). """
 
     string_to_list = list(string)
     cursor = 0

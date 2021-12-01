@@ -45,13 +45,13 @@ def imdb_download_poster(url, name=None, filepath=None):
     except HTTPError as e:
         logging.critical("Download server couldn't fulfill the request.")
         logging.debug("Error code: %s" % e.code)
-        click.echo(Tcolors.fail +
-                   "Download server couldn't fulfill the request." + Tcolors.endc)
+        click.echo(Tcolors.FAIL +
+                   "Download server couldn't fulfill the request." + Tcolors.ENDC)
         sys.exit()
     except URLError as e:
         logging.critical("We failed to reach the download server.")
-        click.echo(Tcolors.fail +
-                   "We failed to reach the download server." + Tcolors.endc)
+        click.echo(Tcolors.FAIL +
+                   "We failed to reach the download server." + Tcolors.ENDC)
         if hasattr(e, "reason"):
             logging.debug("Reason: %s" % e.reason)
         sys.exit()
@@ -61,14 +61,14 @@ def imdb_download_poster(url, name=None, filepath=None):
             file_size = int(r.getheader("Content-Length"))
         except (TypeError, ValueError):
             logging.critical("Filesize has to be an integer!")
-            click.echo(Tcolors.fail +
-                       "Filesize has to be an integer!" + Tcolors.endc)
+            click.echo(Tcolors.FAIL +
+                       "Filesize has to be an integer!" + Tcolors.ENDC)
             sys.exit()
 
         logging.info("Downloading: %s Size: %s KiB" %
                      (file_name, file_size // 1024))
-        click.echo(Tcolors.ok_green + "\n➜ Downloading: %s Size: %s KiB\n" %
-                   (file_name, file_size // 1024) + Tcolors.endc)
+        click.echo(Tcolors.OK_GREEN + "\n➜ Downloading: %s Size: %s KiB\n" %
+                   (file_name, file_size // 1024) + Tcolors.ENDC)
 
         block_size = 1024
         progress_bar = tqdm(total=file_size, unit="iB", unit_scale=True)
@@ -85,8 +85,8 @@ def imdb_download_poster(url, name=None, filepath=None):
         if file_size != 0 and progress_bar.n != file_size:
             logging.critical(
                 "It looks like something unexpected happened. Aborting!")
-            click.echo(Tcolors.fail +
-                       "It looks like something unexpected happened. Aborting!" + Tcolors.endc)
+            click.echo(Tcolors.FAIL +
+                       "It looks like something unexpected happened. Aborting!" + Tcolors.ENDC)
             sys.exit()
 
 

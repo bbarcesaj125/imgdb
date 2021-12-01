@@ -57,7 +57,7 @@ def datasets_updater(freq, basepath):
             logging.warning(
                 "The update frequency format is wrong. Using 'weekly' as a fallback!")
             click.echo(
-                Tcolors().warning + "The update frequency format is wrong. Using 'weekly' as a fallback!" + Tcolors.endc)
+                Tcolors().WARNING + "The update frequency format is wrong. Using 'weekly' as a fallback!" + Tcolors.ENDC)
             threshold = update_freq["weekly"]
             logging.debug("Threshold inside loop is %s" % threshold)
         else:
@@ -109,8 +109,8 @@ def merge_tsv_files(tsv_title_basics, tsv_title_ratings, base_path):
     except Exception as e:
         logging.critical("We couldn't read the tsv files!")
         logging.debug("Error: %s" % e)
-        click.echo(Tcolors.fail +
-                   "We couldn't read the tsv files!" + Tcolors.endc)
+        click.echo(Tcolors.FAIL +
+                   "We couldn't read the tsv files!" + Tcolors.ENDC)
 
     # Merging the two tsv files
     try:
@@ -119,8 +119,8 @@ def merge_tsv_files(tsv_title_basics, tsv_title_ratings, base_path):
     except Exception as e:
         logging.critical("We failed to merge the tsv files!")
         logging.debug("Error: %s" % e)
-        click.echo(Tcolors.fail +
-                   "We failed to merge the tsv files!" + Tcolors.endc)
+        click.echo(Tcolors.FAIL +
+                   "We failed to merge the tsv files!" + Tcolors.ENDC)
 
     # Saving the merged file on disk
     try:
@@ -129,8 +129,8 @@ def merge_tsv_files(tsv_title_basics, tsv_title_ratings, base_path):
     except Exception as e:
         logging.critical("We failed to write the merged tsv file!")
         logging.debug("Error: %s" % e)
-        click.echo(Tcolors.fail +
-                   "We failed to write the merged tsv file!" + Tcolors.endc)
+        click.echo(Tcolors.FAIL +
+                   "We failed to write the merged tsv file!" + Tcolors.ENDC)
 
 
 def imdb_get_data_from_datasets(criteria={}):

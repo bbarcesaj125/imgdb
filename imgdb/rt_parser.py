@@ -55,7 +55,7 @@ def imdb_cli_init(mov, tv, tvmini, debug, freq, d):
     except InputError as e:
         logging.warning("Error: %s. Context: %s" % (e.name, e.error_ctx))
         click.echo(
-            Tcolors.warning + "Please specify the media type argument!" + Tcolors.endc)
+            Tcolors.WARNING + "Please specify the media type argument!" + Tcolors.ENDC)
     else:
         # Here, this code only executes when the user has specified only one option from the mutually exclusive options
         if len(used_options) == 1:
@@ -66,8 +66,8 @@ def imdb_cli_init(mov, tv, tvmini, debug, freq, d):
             logging.debug("Media title: %s" % media_name)
             logging.debug("Media type: %s" % media_type)
 
-            click.echo(Tcolors.ok_green +
-                       "Fetching data ..." + Tcolors.endc)
+            click.echo(Tcolors.OK_GREEN +
+                       "Fetching data ..." + Tcolors.ENDC)
             imdb_data = imdb_get_data(media_name, media_type)
             if imdb_data:
                 click.echo(
@@ -86,8 +86,8 @@ def imdb_cli_init(mov, tv, tvmini, debug, freq, d):
             # The user has specified at least two mutually exclusive options
             mut_exclusive_options = [
                 ex for ex in options.keys() if options[ex] is not None]
-            click.echo(Tcolors.warning + " and ".join(mut_exclusive_options) +
-                       " are conflicting options. Please use only one option at a time!" + Tcolors.endc)
+            click.echo(Tcolors.WARNING + " and ".join(mut_exclusive_options) +
+                       " are conflicting options. Please use only one option at a time!" + Tcolors.ENDC)
             logging.warning(" and ".join(mut_exclusive_options) +
                             " are conflicting options. Please use only one option at a time!")
 
@@ -135,12 +135,12 @@ def rt_parse_json():
         except HTTPError as e:
             logging.critical("RT server couldn't fulfill the request.")
             logging.debug("Error code: %s" % e.code)
-            click.echo(Tcolors.fail +
-                       "RT server couldn't fulfill the request." + Tcolors.endc)
+            click.echo(Tcolors.FAIL +
+                       "RT server couldn't fulfill the request." + Tcolors.ENDC)
         except URLError as e:
             logging.critical("We failed to reach RT server.")
-            click.echo(Tcolors.fail +
-                       "We failed to reach RT server." + Tcolors.endc)
+            click.echo(Tcolors.FAIL +
+                       "We failed to reach RT server." + Tcolors.ENDC)
             if hasattr(e, 'reason'):
                 logging.debug("Reason: %s" % e.reason)
 
@@ -183,12 +183,12 @@ def rt_get_movie_year(rurl):
     except HTTPError as e:
         logging.critical("RT server couldn't fulfill the request.")
         logging.debug("Error code: %s" % e.code)
-        click.echo(Tcolors.fail +
-                   "RT server couldn't fulfill the request." + Tcolors.endc)
+        click.echo(Tcolors.FAIL +
+                   "RT server couldn't fulfill the request." + Tcolors.ENDC)
     except URLError as e:
         logging.critical("We failed to reach RT server.")
-        click.echo(Tcolors.fail +
-                   "We failed to reach RT server." + Tcolors.endc)
+        click.echo(Tcolors.FAIL +
+                   "We failed to reach RT server." + Tcolors.ENDC)
         if hasattr(e, "reason"):
             logging.debug("Reason: %s" % e.reason)
 
@@ -200,8 +200,8 @@ def rt_get_movie_year(rurl):
             logging.critical(
                 "We couldn't retrieve the movie's release year from RT.")
             logging.debug("Error: %s" % e)
-            click.echo(Tcolors.fail +
-                       "We couldn't retrieve the movie's release year from RT." + Tcolors.endc)
+            click.echo(Tcolors.FAIL +
+                       "We couldn't retrieve the movie's release year from RT." + Tcolors.ENDC)
             year = datetime.datetime.now().year
         else:
             logging.debug("The scrapped date is: %s" % date)
@@ -236,12 +236,12 @@ def imdb_get_data(title, mtype):
     except HTTPError as e:
         logging.critical("Google Search server couldn't fulfill the request.")
         logging.debug("Error code: %s" % e.code)
-        click.echo(Tcolors.fail +
-                   "Google Search server couldn't fulfill the request." + Tcolors.endc)
+        click.echo(Tcolors.FAIL +
+                   "Google Search server couldn't fulfill the request." + Tcolors.ENDC)
     except URLError as e:
         logging.critical("We failed to reach Google Search server.")
-        click.echo(Tcolors.fail +
-                   "We failed to reach Google Search server." + Tcolors.endc)
+        click.echo(Tcolors.FAIL +
+                   "We failed to reach Google Search server." + Tcolors.ENDC)
         if hasattr(e, "reason"):
             logging.debug("Reason: %s" % e.reason)
 
@@ -260,21 +260,21 @@ def imdb_get_data(title, mtype):
                     imdb_movie_cropped_poster_url = item["pagemap"]["metatags"][0]["og:image"]
                 except KeyError as err:
                     logging.critical("KeyError: {0}".format(err))
-                    click.echo(Tcolors.fail +
-                               "KeyError: %s" % err + Tcolors.endc)
+                    click.echo(Tcolors.FAIL +
+                               "KeyError: %s" % err + Tcolors.ENDC)
                     continue
                 except NameError as err:
                     logging.critical("NameError: {0}".format(err))
-                    click.echo(Tcolors.fail +
-                               "NameError: %s" % err + Tcolors.endc)
+                    click.echo(Tcolors.FAIL +
+                               "NameError: %s" % err + Tcolors.ENDC)
                 except IndexError as err:
                     logging.critical("IndexError: {0}".format(err))
-                    click.echo(Tcolors.fail +
-                               "IndexError: %s" % err + Tcolors.endc)
+                    click.echo(Tcolors.FAIL +
+                               "IndexError: %s" % err + Tcolors.ENDC)
                 except Exception as e:
                     logging.critical("Unexpected error: {0}".format(e))
-                    click.echo(Tcolors.fail +
-                               "Unexpected error: %s" % e + Tcolors.endc)
+                    click.echo(Tcolors.FAIL +
+                               "Unexpected error: %s" % e + Tcolors.ENDC)
                     raise
                 else:
                     # Google custom search engine changed their JSON response. Now, there is no need to process the imdb_movie_cropped_poster_url.
@@ -342,7 +342,7 @@ def imdb_get_data(title, mtype):
                             raise TypeError
                     except TypeError:
                         click.echo(
-                            Tcolors.fail + "Either the requested title doesn't exist or that the media type was incorrectly specified!" + Tcolors.endc)
+                            Tcolors.FAIL + "Either the requested title doesn't exist or that the media type was incorrectly specified!" + Tcolors.ENDC)
                         logging.warning(
                             "Either the requested title doesn't exist or that the media type was incorrectly specified!")
                         return
@@ -368,7 +368,7 @@ def imdb_get_data(title, mtype):
                     return results
         else:
             logging.warning("No results!")
-            click.echo(Tcolors.warning + "No results!" + Tcolors.endc)
+            click.echo(Tcolors.WARNING + "No results!" + Tcolors.ENDC)
 
 
 def write_json_to_file(json_dict):
