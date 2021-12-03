@@ -43,11 +43,9 @@ def check_config_file():
 
     config_file = Config.CONFIG
     if config_file.is_file():
-        rd = read_config_yaml(config_file)
-        return rd
+        return read_config_yaml(config_file)
     else:
-        cr = create_default_yaml(config_file)
-        return cr
+        return create_default_yaml(config_file)
 
 
 def create_default_yaml(config_file):
@@ -151,7 +149,7 @@ def parse_config_yaml(current_config):
                         else:
                             raise ParseError(
                                 "Unknown option <%s> in %s section!" % (
-                                    gen_key, key)
+                                    api_key, key)
                                 if not isinstance(api_value, dict)
                                 else "Invalid value <%s> for option <%s> in '%s' section!" % (api_value, api_key, key))
                 else:
