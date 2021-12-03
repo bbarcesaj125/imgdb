@@ -137,7 +137,8 @@ def parse_config_yaml(current_config):
                     used_options[gen_key] = gen_value
                 else:
                     raise ParseError(
-                        "Unknown option <%s> in %s section!" % (gen_key, key) if not isinstance(gen_value, dict)
+                        "Unknown option <%s> in %s section!" % (gen_key, key)
+                        if not isinstance(gen_value, dict)
                         else "Invalid value <%s> for option <%s> in '%s' section!" % (gen_value, gen_key, key))
         elif key == "interface" and isinstance(config_options[key], dict):
             for inter_key, inter_value in value.items():
@@ -149,7 +150,9 @@ def parse_config_yaml(current_config):
                             used_options[api_key] = api_value
                         else:
                             raise ParseError(
-                                "Unknown option <%s> in %s section!" % (gen_key, key) if not isinstance(api_value, dict)
+                                "Unknown option <%s> in %s section!" % (
+                                    gen_key, key)
+                                if not isinstance(api_value, dict)
                                 else "Invalid value <%s> for option <%s> in '%s' section!" % (api_value, api_key, key))
                 else:
                     raise ParseError(
