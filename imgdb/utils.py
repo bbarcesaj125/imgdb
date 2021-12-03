@@ -96,7 +96,7 @@ def replace_every_nth(nth, pattern, drop, string):
     cursor = 0
     for idx in range(len(string_to_list)):
         if string_to_list[idx] == pattern:
-            if len(string_to_list[cursor:idx]) >= nth:
+            if len(string_to_list[cursor+1:idx]) >= nth:
                 string_to_list.insert(idx+1, drop + "             ")
                 cursor = idx
 

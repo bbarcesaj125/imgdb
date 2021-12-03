@@ -3,7 +3,9 @@ from pathlib import Path
 import yaml
 import click
 import logging
-from utils import Tcolors
+from utils import Tcolors, logger
+from exceptions import ParseError
+logger("debug")
 
 
 class Config():
@@ -40,11 +42,12 @@ def check_config_file():
     """ This function checks if a config file exists in the CONFIG directory. """
 
     config_file = Config.CONFIG
-    print(config_file)
     if config_file.is_file():
-        read_config_yaml(config_file)
+        rd = read_config_yaml(config_file)
+        return rd
     else:
-        create_default_yaml(config_file)
+        cr = create_default_yaml(config_file)
+        return cr
 
 
 def create_default_yaml(config_file):
@@ -86,24 +89,81 @@ def read_config_yaml(config_file):
     try:
         with open(config_file_path, "r") as config:
             current_config = yaml.safe_load(config)
-            print("Current config:", current_config)
-            return current_config
+            logging.debug("Current configuration dictionary: %s" %
+                          current_config)
+            return parse_config_yaml(current_config)
     except yaml.YAMLError as exc:
-        if hasattr(exc, 'problem_mark'):
+        if hasattr(exc, "problem_mark"):
             mark = exc.problem_mark
-            print("Error position: (%s:%s)" % (mark.line+1, mark.column+1))
+            logging.critical(
+                "The configuration file is malformatted. Error(s) at line %s and column %s!" % (mark.line+1, mark.column+1))
+            click.echo(Tcolors.FAIL +
+                       "The configuration file is malformatted. Error(s) at line %s and column %s!" % (mark.line+1, mark.column+1) + Tcolors.ENDC)
+        else:
+            logging.critical(
+                "Failed to parse the configuratiom file!")
+            click.echo(Tcolors.FAIL +
+                       "Failed to parse the configuratiom file!" + Tcolors.ENDC)
+        return 0
     except Exception as e:
-        logging.critical(
-            "Something went wrong while trying to read the program's configuration file!")
-        print(e)
-        logging.debug("Error: %s" % e)
-        click.echo(Tcolors.FAIL +
-                   "Something went wrong while trying to read the program's configuration file!" + Tcolors.ENDC)
+        if hasattr(e, "error_ctx"):
+            logging.critical("Error: %s. Context: %s" %
+                             (e.name, e.error_ctx))
+            click.echo(Tcolors.FAIL +
+                       e.error_ctx + Tcolors.ENDC)
+        else:
+            logging.critical(
+                "Something went wrong while trying to read the program's configuration file!")
+            logging.debug("Error: %s" % e)
+            click.echo(Tcolors.FAIL +
+                       "Something went wrong while trying to read the program's configuration file!" + Tcolors.ENDC)
         return 0
 
 
+def parse_config_yaml(current_config):
+    """ This function parses the configuration values contained in the configuration dictionary obtained by reading the YAML file. """
+
+    config_options = current_config
+    used_options = {}
+
+    for key, value in config_options.items():
+        if key == "general" and isinstance(value, dict):
+            for gen_key, gen_value in config_options[key].items():
+                if gen_key == "log file path" and not isinstance(gen_value, dict):
+                    used_options[gen_key] = gen_value
+                elif gen_key == "log level" and not isinstance(gen_value, dict):
+                    used_options[gen_key] = gen_value
+                elif gen_key == "update frequency" and not isinstance(gen_value, dict):
+                    used_options[gen_key] = gen_value
+                else:
+                    raise ParseError(
+                        "Unknown option <%s> in %s section!" % (gen_key, key) if not isinstance(gen_value, dict)
+                        else "Invalid value <%s> for option <%s> in '%s' section!" % (gen_value, gen_key, key))
+        elif key == "interface" and isinstance(config_options[key], dict):
+            for inter_key, inter_value in value.items():
+                if inter_key == "api" and isinstance(inter_value, dict):
+                    for api_key, api_value in value[inter_key].items():
+                        if api_key == "google search api key" and not isinstance(api_value, dict):
+                            used_options[api_key] = api_value
+                        elif api_key == "imdb custom search id" and not isinstance(api_value, dict):
+                            used_options[api_key] = api_value
+                        else:
+                            raise ParseError(
+                                "Unknown option <%s> in %s section!" % (gen_key, key) if not isinstance(api_value, dict)
+                                else "Invalid value <%s> for option <%s> in '%s' section!" % (api_value, api_key, key))
+                else:
+                    raise ParseError(
+                        "Unknown option <%s> in '%s' section!" % (inter_key, key))
+        else:
+            raise ParseError(
+                "Unknown section <%s> in the configuration file!" % key)
+
+    print(used_options)
+
+
 if __name__ == "__main__":
-    check_config_file()
+    a = check_config_file()
+    print("Returned value is: %s" % a)
     # create_default_yaml(Config.CONFIG)
     print("XDG HOME", Config.XDG_CONFIG_HOME)
     print("XDG DATA HOME", Config.XDG_DATA_HOME)
