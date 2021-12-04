@@ -4,26 +4,12 @@ import yaml
 import click
 import logging
 from utils import Tcolors, logger
-from exceptions import ParseError
+from exceptions import ParseError, ConfigError
 logger("debug")
 
 
 class Config():
     """ Default configuration. """
-
-    DEFAULT_CONFIG = {
-        "general": {
-            "update frequency": "weekly",
-            "log level": "warning",
-            "log file path": ""
-        },
-        "interface": {
-            "api": {
-                "google search api key": "AIzaSyANWkWTK4gmJIRHferGPmqCTdffdIT8XFjhk",
-                "imdb custom search id": "32b1e112kdf754be1f"
-            }
-        }
-    }
 
     #HOME = Path.home()
     HOME = Path("./config_test").resolve()
@@ -36,6 +22,20 @@ class Config():
     IMGDB_CONFIG_HOME = Path(XDG_CONFIG_HOME / "imgdb")
     IMGDB_DATA_HOME = Path(XDG_DATA_HOME / "imgdb")
     CONFIG = Path(IMGDB_CONFIG_HOME / "imgdb.yaml")
+
+    DEFAULT_CONFIG = {
+        "general": {
+            "update frequency": "weekly",
+            "log level": "warning",
+            "log file path": str(Path(IMGDB_DATA_HOME / "imgdb.log"))
+        },
+        "interface": {
+            "api": {
+                "google search api key": "AIzaSyANWkWTK4gmJIRHferGPmqCTdffdIT8XFjhk",
+                "imdb custom search id": "32b1e112kdf754be1f"
+            }
+        }
+    }
 
 
 def check_config_file():
@@ -78,6 +78,7 @@ def create_default_yaml(config_file):
         click.echo(Tcolors.FAIL +
                    "Something went wrong while trying to save the program's configuration file!" + Tcolors.ENDC)
         return 0
+    return parse_config_yaml(Config.DEFAULT_CONFIG)
 
 
 def read_config_yaml(config_file):
@@ -94,9 +95,9 @@ def read_config_yaml(config_file):
         if hasattr(exc, "problem_mark"):
             mark = exc.problem_mark
             logging.critical(
-                "The configuration file is malformatted. Error(s) at line %s and column %s!" % (mark.line+1, mark.column+1))
+                "The configuration file is malformatted. Error(s) at line %s, column %s!" % (mark.line+1, mark.column+1))
             click.echo(Tcolors.FAIL +
-                       "The configuration file is malformatted. Error(s) at line %s and column %s!" % (mark.line+1, mark.column+1) + Tcolors.ENDC)
+                       "The configuration file is malformatted. Error(s) at line %s, column %s!" % (mark.line+1, mark.column+1) + Tcolors.ENDC)
         else:
             logging.critical(
                 "Failed to parse the configuratiom file!")
@@ -123,6 +124,9 @@ def parse_config_yaml(current_config):
 
     config_options = current_config
     used_options = {}
+
+    if config_options is None:
+        return validate_config(cfg_error=True, cfg_error_ctx="The configuration file cannot be empty!")
 
     for key, value in config_options.items():
         if key == "general" and isinstance(value, dict):
@@ -159,10 +163,34 @@ def parse_config_yaml(current_config):
             raise ParseError(
                 "Unknown section <%s> in the configuration file!" % key)
 
-    print(used_options)
+    return validate_config(used_options)
+
+
+def validate_config(config_options={}, cfg_error=None, cfg_error_ctx=None):
+    """ This function checks if configuration values are not empty or null. """
+
+    if cfg_error and cfg_error_ctx:
+        raise ConfigError(cfg_error_ctx)
+
+    if config_options:
+        runtime_config = config_options
+
+    for key, value in config_options.items():
+        try:
+            if value is None or value == "":
+                raise ConfigError(
+                    "The <%s> option in the configuration file cannot be empty!" % key)
+        except ConfigError as e:
+            logging.critical("Error: %s. Context: %s" %
+                             (e.name, e.error_ctx))
+            click.echo(
+                Tcolors.FAIL + e.error_ctx + Tcolors.ENDC)
+            return 0
+    return config_options
 
 
 if __name__ == "__main__":
+    #print(Path(IMGDB_DATA_HOME / "imgdb.log"))
     a = check_config_file()
     print("Returned value is: %s" % a)
     # create_default_yaml(Config.CONFIG)

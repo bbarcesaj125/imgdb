@@ -6,7 +6,6 @@ import logging
 import click
 import re
 import sys
-logger("debug")
 
 
 def imdb_download_poster(url, name=None, filepath=None):

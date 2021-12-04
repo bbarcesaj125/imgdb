@@ -12,7 +12,8 @@ from imdb_data_handler import imdb_get_data_from_datasets, merge_tsv_files, data
 from imdb_poster_fetcher import imdb_download_poster
 import click
 from utils import *
-from exceptions import InputError
+from exceptions import InputError, ConfigError
+from config import check_config_file
 from pathlib import Path
 from dotenv import load_dotenv
 load_dotenv()
@@ -22,19 +23,32 @@ load_dotenv()
 @click.option("--mov", help="The title of the movie.")
 @click.option("--tv", help="The title of the series.")
 @click.option("--tvmini", help="The title of the mini series.")
-@click.option("--debug", default="debug", help="The logging level of the application.")
-@click.option("--freq", default="weekly", help="The update frequency of the datasets.")
+@click.option("--debug", help="The logging level of the application.")
+@click.option("--logfile", help="The path of the log file.")
+@click.option("--freq", help="The update frequency of the datasets.")
 @click.option("-d", is_flag=True, default=False, help="Download the movie's poster image.")
-def imdb_cli_init(mov, tv, tvmini, debug, freq, d):
+def imdb_cli_init(mov, tv, tvmini, debug, logfile, freq, d):
     """ Imdb CLI search """
 
+    # Checking and creating or getting current config info
+    current_config = check_config_file()
+    if current_config == 0:
+        return
+
+    runtime_options = {
+        "debug": debug if debug else current_config.get("log level"),
+        "log file path": logfile if logfile else current_config.get("log file path"),
+        "freq": freq if freq else current_config.get("update frequency")
+    }
+
+    print("Executable options: ", runtime_options)
     # Setting up a logger
-    logger(debug)
+    logger(runtime_options["debug"])
 
     # Updating the datasets
     base_path = Path("./imdb_datasets/").resolve()
     logging.debug("The base path is: %s" % base_path)
-    datasets_updater(freq, base_path)
+    datasets_updater(runtime_options["freq"], base_path)
 
     # Creating a dictionary containing a list of all mutually exclusive options
     options = {

@@ -18,3 +18,11 @@ class ParseError(Error):
 
     def __init__(self, error_ctx):
         self.error_ctx = error_ctx
+
+
+class ConfigError(Error):
+    """ Exception raised for empty configuration values. """
+    name = "ConfigError"
+
+    def __init__(self, error_ctx):
+        self.error_ctx = error_ctx
