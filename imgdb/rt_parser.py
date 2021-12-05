@@ -12,7 +12,7 @@ from imdb_data_handler import imdb_get_data_from_datasets, merge_tsv_files, data
 from imdb_poster_fetcher import imdb_download_poster
 import click
 from utils import *
-from exceptions import InputError, ConfigError
+from exceptions import InputError
 from config import check_config_file
 from pathlib import Path
 from dotenv import load_dotenv
@@ -35,13 +35,14 @@ def imdb_cli_init(mov, tv, tvmini, debug, logfile, freq, d):
     if current_config == 0:
         return
 
+    # Making sure that command-line options override those present in the configuration file
     runtime_options = {
         "debug": debug if debug else current_config.get("log level"),
         "log file path": logfile if logfile else current_config.get("log file path"),
         "freq": freq if freq else current_config.get("update frequency")
     }
+    logging.debug("Runtime options: %s" % runtime_options)
 
-    print("Executable options: ", runtime_options)
     # Setting up a logger
     logger(runtime_options["debug"])
 

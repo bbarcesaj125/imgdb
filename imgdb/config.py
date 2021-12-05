@@ -121,13 +121,14 @@ def read_config_yaml(config_file):
 
 def parse_config_yaml(current_config):
     """ This function parses the configuration values contained in the configuration dictionary obtained by reading the YAML file. """
-
     config_options = current_config
+    print(config_options)
     used_options = {}
 
     if config_options is None:
         return validate_config(cfg_error=True, cfg_error_ctx="The configuration file cannot be empty!")
 
+    # Aggressively parsing the current configuration options not allowing neither empty nor unknown options
     for key, value in config_options.items():
         if key == "general" and isinstance(value, dict):
             for gen_key, gen_value in config_options[key].items():
@@ -142,6 +143,7 @@ def parse_config_yaml(current_config):
                         "Unknown option <%s> in %s section!" % (gen_key, key)
                         if not isinstance(gen_value, dict)
                         else "Invalid value <%s> for option <%s> in '%s' section!" % (gen_value, gen_key, key))
+
         elif key == "interface" and isinstance(config_options[key], dict):
             for inter_key, inter_value in value.items():
                 if inter_key == "api" and isinstance(inter_value, dict):
@@ -162,7 +164,6 @@ def parse_config_yaml(current_config):
         else:
             raise ParseError(
                 "Unknown section <%s> in the configuration file!" % key)
-
     return validate_config(used_options)
 
 
@@ -171,9 +172,7 @@ def validate_config(config_options={}, cfg_error=None, cfg_error_ctx=None):
 
     if cfg_error and cfg_error_ctx:
         raise ConfigError(cfg_error_ctx)
-
-    if config_options:
-        runtime_config = config_options
+        return 0
 
     for key, value in config_options.items():
         try:
@@ -186,6 +185,7 @@ def validate_config(config_options={}, cfg_error=None, cfg_error_ctx=None):
             click.echo(
                 Tcolors.FAIL + e.error_ctx + Tcolors.ENDC)
             return 0
+    print(config_options)
     return config_options
 
 

@@ -1,5 +1,5 @@
 import unittest
-from imgdb.utils import replace_every_nth
+from utils import replace_every_nth
 
 
 class TestUtils(unittest.TestCase):
