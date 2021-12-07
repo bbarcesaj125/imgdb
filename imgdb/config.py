@@ -121,8 +121,8 @@ def read_config_yaml(config_file):
 
 def parse_config_yaml(current_config):
     """ This function parses the configuration values contained in the configuration dictionary obtained by reading the YAML file. """
+
     config_options = current_config
-    print(config_options)
     used_options = {}
 
     if config_options is None:
@@ -185,7 +185,6 @@ def validate_config(config_options={}, cfg_error=None, cfg_error_ctx=None):
             click.echo(
                 Tcolors.FAIL + e.error_ctx + Tcolors.ENDC)
             return 0
-    print(config_options)
     return config_options
 
 
