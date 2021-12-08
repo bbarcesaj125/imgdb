@@ -44,6 +44,29 @@ def imdb_cli_init(mov, tv, tvmini, debug, logfile, freq, d):
     logging.debug("Runtime options: %s" % runtime_options)
 
     # Setting up a logger
+    if runtime_options["log file path"]:
+        if runtime_options["log file path"].split(".")[-1] == "log":
+            logfile_directory = Path(
+                runtime_options["log file path"]).resolve().parents[0]
+            print("Logfile dir", logfile_directory)
+            is_logfile_path = logfile_directory.is_dir()
+            print("Dir test", is_logfile_path)
+            if is_logfile_path:
+                # logger(runtime_options["debug"],
+                #        runtime_options["log file path"])
+                pass
+            else:
+                logging.warning("The log file's directory does not exist!")
+                click.echo(Tcolors.WARNING +
+                           "The log file's directory does not exist!" + Tcolors.ENDC)
+                return
+        else:
+            logging.warning(
+                "Either the log file's path is invalid or it doesn't end with the .log extension!")
+            click.echo(Tcolors.WARNING +
+                       "Either the log file's path is invalid or that it doesn't end with the .log extension!" + Tcolors.ENDC)
+            return
+
     logger(runtime_options["debug"])
 
     # Updating the datasets

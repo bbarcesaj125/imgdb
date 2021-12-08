@@ -5,7 +5,7 @@ import click
 import logging
 from utils import Tcolors, logger
 from exceptions import ParseError, ConfigError
-logger("debug")
+# logger("debug")
 
 
 class Config():
@@ -176,7 +176,7 @@ def validate_config(config_options={}, cfg_error=None, cfg_error_ctx=None):
 
     for key, value in config_options.items():
         try:
-            if value is None or value == "":
+            if not value:
                 raise ConfigError(
                     "The <%s> option in the configuration file cannot be empty!" % key)
         except ConfigError as e:
