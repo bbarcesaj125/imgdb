@@ -8,7 +8,12 @@ from time import sleep
 import re
 from urllib.error import URLError, HTTPError
 import os
-from imdb_data_handler import imdb_get_data_from_datasets, merge_tsv_files, datasets_updater
+from io import StringIO
+from imdb_data_handler import (
+    imdb_get_data_from_datasets,
+    merge_tsv_files,
+    datasets_updater,
+)
 from imdb_poster_fetcher import imdb_download_poster
 import click
 from utils import *
@@ -16,6 +21,7 @@ from exceptions import InputError
 from config import check_config_file
 from pathlib import Path
 from dotenv import load_dotenv
+
 load_dotenv()
 
 
@@ -26,10 +32,13 @@ load_dotenv()
 @click.option("--debug", help="The logging level of the application.")
 @click.option("--logfile", help="The path of the log file.")
 @click.option("--freq", help="The update frequency of the datasets.")
-@click.option("-d", is_flag=True, default=False, help="Download the movie's poster image.")
+@click.option(
+    "-d", is_flag=True, default=False, help="Download the movie's poster image."
+)
 def imdb_cli_init(mov, tv, tvmini, debug, logfile, freq, d):
-    """ Imdb CLI search """
-
+    """Imdb CLI search"""
+    logfile_stream = StringIO()
+    logger("debug", logfile_stream)
     # Checking and creating or getting current config info
     current_config = check_config_file()
     if current_config == 0:
@@ -39,35 +48,53 @@ def imdb_cli_init(mov, tv, tvmini, debug, logfile, freq, d):
     runtime_options = {
         "debug": debug if debug else current_config.get("log level"),
         "log file path": logfile if logfile else current_config.get("log file path"),
-        "freq": freq if freq else current_config.get("update frequency")
+        "freq": freq if freq else current_config.get("update frequency"),
     }
     logging.debug("Runtime options: %s" % runtime_options)
 
     # Setting up a logger
     if runtime_options["log file path"]:
         if runtime_options["log file path"].split(".")[-1] == "log":
-            logfile_directory = Path(
-                runtime_options["log file path"]).resolve().parents[0]
+            log_file_path = Path(runtime_options["log file path"]).resolve()
+            logfile_directory = log_file_path.parents[0]
             print("Logfile dir", logfile_directory)
+            is_logfile = log_file_path.is_file()
             is_logfile_path = logfile_directory.is_dir()
             print("Dir test", is_logfile_path)
+            print("Logfile path", log_file_path)
             if is_logfile_path:
-                # logger(runtime_options["debug"],
-                #        runtime_options["log file path"])
-                pass
+                log_write_mode = "w" if not is_logfile else "a"
+
+                print("log write mode", log_write_mode)
+                print(logfile_stream.getvalue())
+                with open(log_file_path, log_write_mode) as logfile:
+                    logfile_stream.seek(0)
+                    shutil.copyfileobj(logfile_stream, logfile)
+
+                log = logging.getLogger("main")
+                formatter = logging.Formatter(
+                    "%(asctime)s - %(name)s - %(levelname)-8s [%(filename)s:%(lineno)d] %(message)s",
+                    datefmt="%m/%d/%Y %I:%M:%S %p",
+                )
+                logfile_handler = logging.FileHandler(log_file_path, mode="a")
+                logfile_handler.setLevel(level=logging.DEBUG)
+                logfile_handler.setFormatter(formatter)
+                log.addHandler(logfile_handler)
+                log.debug("The log file's path is: %s" % log_file_path)
             else:
-                logging.warning("The log file's directory does not exist!")
-                click.echo(Tcolors.WARNING +
-                           "The log file's directory does not exist!" + Tcolors.ENDC)
+                click.echo(
+                    Tcolors.WARNING
+                    + "The log file's directory does not exist!"
+                    + Tcolors.ENDC
+                )
                 return
         else:
-            logging.warning(
-                "Either the log file's path is invalid or it doesn't end with the .log extension!")
-            click.echo(Tcolors.WARNING +
-                       "Either the log file's path is invalid or that it doesn't end with the .log extension!" + Tcolors.ENDC)
+            click.echo(
+                Tcolors.WARNING
+                + "Either the log file's path is invalid or that it doesn't end with the .log extension!"
+                + Tcolors.ENDC
+            )
             return
-
-    logger(runtime_options["debug"])
 
     # Updating the datasets
     base_path = Path("./imdb_datasets/").resolve()
@@ -75,11 +102,7 @@ def imdb_cli_init(mov, tv, tvmini, debug, logfile, freq, d):
     datasets_updater(runtime_options["freq"], base_path)
 
     # Creating a dictionary containing a list of all mutually exclusive options
-    options = {
-        "mov": mov,
-        "tv": tv,
-        "tvmini": tvmini
-    }
+    options = {"mov": mov, "tv": tv, "tvmini": tvmini}
 
     used_options = []
 
@@ -93,51 +116,60 @@ def imdb_cli_init(mov, tv, tvmini, debug, logfile, freq, d):
     except InputError as e:
         logging.warning("Error: %s. Context: %s" % (e.name, e.error_ctx))
         click.echo(
-            Tcolors.WARNING + "Please specify the media type argument!" + Tcolors.ENDC)
+            Tcolors.WARNING + "Please specify the media type argument!" + Tcolors.ENDC
+        )
     else:
         # Here, this code only executes when the user has specified only one option from the mutually exclusive options
         if len(used_options) == 1:
             media_name = used_options[0]
-            media_type = list(options.keys())[list(
-                options.values()).index(media_name)]
+            media_type = list(options.keys())[list(options.values()).index(media_name)]
 
             logging.debug("Media title: %s" % media_name)
             logging.debug("Media type: %s" % media_type)
 
-            click.echo(Tcolors.OK_GREEN +
-                       "Fetching data ..." + Tcolors.ENDC)
+            click.echo(Tcolors.OK_GREEN + "Fetching data ..." + Tcolors.ENDC)
             imdb_data = imdb_get_data(media_name, media_type)
             if imdb_data:
                 click.echo(
-                    "Title: %s" % imdb_data["imdbTitle"] +
-                    "\nGenres: %s" % ", ".join(map(str, imdb_data["imdbGenres"])) +
-                    "\nYear: %s" % imdb_data["imdbYear"] +
-                    "\nRuntime: %s min" % imdb_data["imdbRuntime"] +
-                    "\nRating: %s" % imdb_data["imdbRating"] +
-                    "\nDescription: %s" % replace_every_nth(50, " ", "\n", imdb_data["imdbDescription"]))
+                    "Title: %s" % imdb_data["imdbTitle"]
+                    + "\nGenres: %s" % ", ".join(map(str, imdb_data["imdbGenres"]))
+                    + "\nYear: %s" % imdb_data["imdbYear"]
+                    + "\nRuntime: %s min" % imdb_data["imdbRuntime"]
+                    + "\nRating: %s" % imdb_data["imdbRating"]
+                    + "\nDescription: %s"
+                    % replace_every_nth(50, " ", "\n", imdb_data["imdbDescription"])
+                )
 
                 if d:
                     imdb_download_poster(
-                        imdb_data["imdbPosterUrl"], imdb_data["imdbTitle"])
+                        imdb_data["imdbPosterUrl"], imdb_data["imdbTitle"]
+                    )
 
         else:
             # The user has specified at least two mutually exclusive options
             mut_exclusive_options = [
-                ex for ex in options.keys() if options[ex] is not None]
-            click.echo(Tcolors.WARNING + " and ".join(mut_exclusive_options) +
-                       " are conflicting options. Please use only one option at a time!" + Tcolors.ENDC)
-            logging.warning(" and ".join(mut_exclusive_options) +
-                            " are conflicting options. Please use only one option at a time!")
+                ex for ex in options.keys() if options[ex] is not None
+            ]
+            click.echo(
+                Tcolors.WARNING
+                + " and ".join(mut_exclusive_options)
+                + " are conflicting options. Please use only one option at a time!"
+                + Tcolors.ENDC
+            )
+            logging.warning(
+                " and ".join(mut_exclusive_options)
+                + " are conflicting options. Please use only one option at a time!"
+            )
 
 
 def rt_construct_json():
-    """ This function creates a JSON file that contains a list of movies with their respective metadata. """
+    """This function creates a JSON file that contains a list of movies with their respective metadata."""
 
     data = rt_parse_json()
     final_data = []
 
     for item in data:
-        logging.info("Here we go! The movie's title is: %s" % item['title'])
+        logging.info("Here we go! The movie's title is: %s" % item["title"])
         # Random wait to avoid rate limits
         sleep(uniform(1, 2.5))
         imdb_results = imdb_get_data(item["title"])
@@ -146,12 +178,14 @@ def rt_construct_json():
             "tomatoTitle": item["title"],
             "tomatoScore": item["tomatoScore"],
             "imdbRating": imdb_results["imdbRating"],
-            "dvdReleaseDate": item.get("dvdReleaseDate") if item.get("dvdReleaseDate") else "N/A",
+            "dvdReleaseDate": item.get("dvdReleaseDate")
+            if item.get("dvdReleaseDate")
+            else "N/A",
             "year": rt_get_movie_year(item["url"]),
             "runtime": item.get("runtime") if item.get("runtime") else "N/A",
             "mpaaRating": item.get("mpaaRating") if item.get("mpaaRating") else "N/A",
             "thumbnailUrl": imdb_results["imdbThumbUrl"],
-            "posterUrl": imdb_results["imdbPosterUrl"]
+            "posterUrl": imdb_results["imdbPosterUrl"],
         }
 
         final_data.append(movie_data.copy())
@@ -161,10 +195,12 @@ def rt_construct_json():
 
 
 def rt_parse_json():
-    """ This is a function that fetches and parses JSON data from a url (RottenTomatoes semi-public API). """
+    """This is a function that fetches and parses JSON data from a url (RottenTomatoes semi-public API)."""
 
-    api_urls = ["https://www.rottentomatoes.com/api/private/v2.0/browse?minTomato=70&maxTomato=100&maxPopcorn=100&services=amazon%3Bhbo_go%3Bitunes%3Bnetflix_iw%3Bvudu%3Bamazon_prime%3Bfandango_now&certified=true&sortBy=release&type=cf-dvd-streaming-all",
-                "https://www.rottentomatoes.com/api/private/v2.0/browse?maxTomato=100&services=amazon%3Bhbo_go%3Bitunes%3Bnetflix_iw%3Bvudu%3Bamazon_prime%3Bfandango_now&certified&sortBy=release&type=cf-dvd-streaming-all&page=2"]
+    api_urls = [
+        "https://www.rottentomatoes.com/api/private/v2.0/browse?minTomato=70&maxTomato=100&maxPopcorn=100&services=amazon%3Bhbo_go%3Bitunes%3Bnetflix_iw%3Bvudu%3Bamazon_prime%3Bfandango_now&certified=true&sortBy=release&type=cf-dvd-streaming-all",
+        "https://www.rottentomatoes.com/api/private/v2.0/browse?maxTomato=100&services=amazon%3Bhbo_go%3Bitunes%3Bnetflix_iw%3Bvudu%3Bamazon_prime%3Bfandango_now&certified&sortBy=release&type=cf-dvd-streaming-all&page=2",
+    ]
     full_results = []
 
     for url in api_urls:
@@ -173,13 +209,13 @@ def rt_parse_json():
         except HTTPError as e:
             logging.critical("RT server couldn't fulfill the request.")
             logging.debug("Error code: %s" % e.code)
-            click.echo(Tcolors.FAIL +
-                       "RT server couldn't fulfill the request." + Tcolors.ENDC)
+            click.echo(
+                Tcolors.FAIL + "RT server couldn't fulfill the request." + Tcolors.ENDC
+            )
         except URLError as e:
             logging.critical("We failed to reach RT server.")
-            click.echo(Tcolors.FAIL +
-                       "We failed to reach RT server." + Tcolors.ENDC)
-            if hasattr(e, 'reason'):
+            click.echo(Tcolors.FAIL + "We failed to reach RT server." + Tcolors.ENDC)
+            if hasattr(e, "reason"):
                 logging.debug("Reason: %s" % e.reason)
 
         else:
@@ -190,7 +226,7 @@ def rt_parse_json():
 
 
 def rt_get_movie_year(rurl):
-    """ This is a function that takes in the relative url of a RT movie and return its release year. """
+    """This is a function that takes in the relative url of a RT movie and return its release year."""
 
     base_url = "https://www.rottentomatoes.com"
     relative_url = rurl
@@ -201,8 +237,17 @@ def rt_get_movie_year(rurl):
     sleep(uniform(0.05, 0.1))
 
     # Creating a list of user agents to use with urllib
-    user_agents_list = ["Mozilla/5.0 (Windows NT 5.1; rv:11.0) Gecko Firefox/11.0 (via ggpht.com GoogleImageProxy)", "CheckMarkNetwork/1.0 (+http://www.checkmarknetwork.com/spider.html)", "Mozilla/5.0 (iPhone; CPU iPhone OS 13_3_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 [FBAN/FBIOS;FBDV/iPhone11,8;FBMD/iPhone;FBSN/iOS;FBSV/13.3.1;FBSS/2;FBID/phone;FBLC/en_US;FBOP/5;FBCR/]", "Mozilla/5.0 CK={} (Windows NT 6.1; WOW64; Trident/7.0; rv:11.0) like Gecko", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/52.0.2743.116 Safari/537.36 Edge/15.15063",
-                        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.105 Safari/537.36", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/11.1.2 Safari/605.1.15", "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.87 Safari/537.36", "Mozilla/5.0 (Linux; Android 7.1.2; AFTMM Build/NS6265; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/70.0.3538.110 Mobile Safari/537.36"]
+    user_agents_list = [
+        "Mozilla/5.0 (Windows NT 5.1; rv:11.0) Gecko Firefox/11.0 (via ggpht.com GoogleImageProxy)",
+        "CheckMarkNetwork/1.0 (+http://www.checkmarknetwork.com/spider.html)",
+        "Mozilla/5.0 (iPhone; CPU iPhone OS 13_3_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 [FBAN/FBIOS;FBDV/iPhone11,8;FBMD/iPhone;FBSN/iOS;FBSV/13.3.1;FBSS/2;FBID/phone;FBLC/en_US;FBOP/5;FBCR/]",
+        "Mozilla/5.0 CK={} (Windows NT 6.1; WOW64; Trident/7.0; rv:11.0) like Gecko",
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/52.0.2743.116 Safari/537.36 Edge/15.15063",
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.105 Safari/537.36",
+        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/11.1.2 Safari/605.1.15",
+        "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.87 Safari/537.36",
+        "Mozilla/5.0 (Linux; Android 7.1.2; AFTMM Build/NS6265; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/70.0.3538.110 Mobile Safari/537.36",
+    ]
 
     # Picking up a random user agents each time we make a connection to the server
     headers = {
@@ -211,7 +256,7 @@ def rt_get_movie_year(rurl):
         "Accept-Language": "en-US,en;q=0.5",
         "DNT": "1",
         "Connection": "keep-alive",
-        "Upgrade-Insecure-Requests": "1"
+        "Upgrade-Insecure-Requests": "1",
     }
 
     req = Request(full_url, headers=headers)
@@ -221,25 +266,27 @@ def rt_get_movie_year(rurl):
     except HTTPError as e:
         logging.critical("RT server couldn't fulfill the request.")
         logging.debug("Error code: %s" % e.code)
-        click.echo(Tcolors.FAIL +
-                   "RT server couldn't fulfill the request." + Tcolors.ENDC)
+        click.echo(
+            Tcolors.FAIL + "RT server couldn't fulfill the request." + Tcolors.ENDC
+        )
     except URLError as e:
         logging.critical("We failed to reach RT server.")
-        click.echo(Tcolors.FAIL +
-                   "We failed to reach RT server." + Tcolors.ENDC)
+        click.echo(Tcolors.FAIL + "We failed to reach RT server." + Tcolors.ENDC)
         if hasattr(e, "reason"):
             logging.debug("Reason: %s" % e.reason)
 
     else:
-        soup = BeautifulSoup(response.read(), 'html.parser')
+        soup = BeautifulSoup(response.read(), "html.parser")
         try:
             date = soup.find("time")["datetime"]
         except Exception as e:
-            logging.critical(
-                "We couldn't retrieve the movie's release year from RT.")
+            logging.critical("We couldn't retrieve the movie's release year from RT.")
             logging.debug("Error: %s" % e)
-            click.echo(Tcolors.FAIL +
-                       "We couldn't retrieve the movie's release year from RT." + Tcolors.ENDC)
+            click.echo(
+                Tcolors.FAIL
+                + "We couldn't retrieve the movie's release year from RT."
+                + Tcolors.ENDC
+            )
             year = datetime.datetime.now().year
         else:
             logging.debug("The scrapped date is: %s" % date)
@@ -256,7 +303,7 @@ def rt_get_movie_year(rurl):
 
 
 def imdb_get_data(title, mtype):
-    """ This function fetches the poster url and other data related to Imdb movies from Google Custom Search JSON API. """
+    """This function fetches the poster url and other data related to Imdb movies from Google Custom Search JSON API."""
 
     movie_title = title
     media_type = mtype
@@ -274,12 +321,16 @@ def imdb_get_data(title, mtype):
     except HTTPError as e:
         logging.critical("Google Search server couldn't fulfill the request.")
         logging.debug("Error code: %s" % e.code)
-        click.echo(Tcolors.FAIL +
-                   "Google Search server couldn't fulfill the request." + Tcolors.ENDC)
+        click.echo(
+            Tcolors.FAIL
+            + "Google Search server couldn't fulfill the request."
+            + Tcolors.ENDC
+        )
     except URLError as e:
         logging.critical("We failed to reach Google Search server.")
-        click.echo(Tcolors.FAIL +
-                   "We failed to reach Google Search server." + Tcolors.ENDC)
+        click.echo(
+            Tcolors.FAIL + "We failed to reach Google Search server." + Tcolors.ENDC
+        )
         if hasattr(e, "reason"):
             logging.debug("Reason: %s" % e.reason)
 
@@ -294,25 +345,25 @@ def imdb_get_data(title, mtype):
                     imdb_title = item["title"]
                     # imdb_rating = item["pagemap"]["aggregaterating"][0]["ratingvalue"]
                     imdb_description = item["pagemap"]["metatags"][0]["og:description"]
-                    imdb_movie_thumbnail_url = item["pagemap"]["cse_thumbnail"][0]["src"]
-                    imdb_movie_cropped_poster_url = item["pagemap"]["metatags"][0]["og:image"]
+                    imdb_movie_thumbnail_url = item["pagemap"]["cse_thumbnail"][0][
+                        "src"
+                    ]
+                    imdb_movie_cropped_poster_url = item["pagemap"]["metatags"][0][
+                        "og:image"
+                    ]
                 except KeyError as err:
                     logging.critical("KeyError: {0}".format(err))
-                    click.echo(Tcolors.FAIL +
-                               "KeyError: %s" % err + Tcolors.ENDC)
+                    click.echo(Tcolors.FAIL + "KeyError: %s" % err + Tcolors.ENDC)
                     continue
                 except NameError as err:
                     logging.critical("NameError: {0}".format(err))
-                    click.echo(Tcolors.FAIL +
-                               "NameError: %s" % err + Tcolors.ENDC)
+                    click.echo(Tcolors.FAIL + "NameError: %s" % err + Tcolors.ENDC)
                 except IndexError as err:
                     logging.critical("IndexError: {0}".format(err))
-                    click.echo(Tcolors.FAIL +
-                               "IndexError: %s" % err + Tcolors.ENDC)
+                    click.echo(Tcolors.FAIL + "IndexError: %s" % err + Tcolors.ENDC)
                 except Exception as e:
                     logging.critical("Unexpected error: {0}".format(e))
-                    click.echo(Tcolors.FAIL +
-                               "Unexpected error: %s" % e + Tcolors.ENDC)
+                    click.echo(Tcolors.FAIL + "Unexpected error: %s" % e + Tcolors.ENDC)
                     raise
                 else:
                     # Google custom search engine changed their JSON response. Now, there is no need to process the imdb_movie_cropped_poster_url.
@@ -321,26 +372,40 @@ def imdb_get_data(title, mtype):
                     # But I will leave the part that deals with substitutions intact as Google can change their API anytime they want.
 
                     imdb_poster_url_pattern = re.search(
-                        regex_url, imdb_movie_cropped_poster_url)
-                    imdb_poster_url = re.sub(
-                        regex_url, "", imdb_movie_cropped_poster_url) if imdb_poster_url_pattern else imdb_movie_cropped_poster_url
+                        regex_url, imdb_movie_cropped_poster_url
+                    )
+                    imdb_poster_url = (
+                        re.sub(regex_url, "", imdb_movie_cropped_poster_url)
+                        if imdb_poster_url_pattern
+                        else imdb_movie_cropped_poster_url
+                    )
 
                     imdb_year_parentheses_test = re.search(
-                        regex_year_parentheses, imdb_title)
-                    imdb_year_parentheses = re.findall(
-                        regex_year_parentheses, imdb_title)[0] if imdb_year_parentheses_test else "N/A"
+                        regex_year_parentheses, imdb_title
+                    )
+                    imdb_year_parentheses = (
+                        re.findall(regex_year_parentheses, imdb_title)[0]
+                        if imdb_year_parentheses_test
+                        else "N/A"
+                    )
 
                     imdb_title_without_parentheses_test = re.search(
-                        regex_title, imdb_title)
-                    imdb_title_without_parentheses = re.findall(
-                        regex_title, imdb_title)[0] if imdb_title_without_parentheses_test else imdb_title
+                        regex_title, imdb_title
+                    )
+                    imdb_title_without_parentheses = (
+                        re.findall(regex_title, imdb_title)[0]
+                        if imdb_title_without_parentheses_test
+                        else imdb_title
+                    )
 
-                    logging.debug("The IMDB raw poster URL is: %s" %
-                                  imdb_movie_cropped_poster_url)
-                    logging.debug("The IMDB poster URL is: %s" %
-                                  imdb_poster_url)
                     logging.debug(
-                        "Imdb extracted title without parentheses is: %s" % imdb_title_without_parentheses)
+                        "The IMDB raw poster URL is: %s" % imdb_movie_cropped_poster_url
+                    )
+                    logging.debug("The IMDB poster URL is: %s" % imdb_poster_url)
+                    logging.debug(
+                        "Imdb extracted title without parentheses is: %s"
+                        % imdb_title_without_parentheses
+                    )
 
                     try:
                         int(imdb_year_parentheses)
@@ -351,27 +416,30 @@ def imdb_get_data(title, mtype):
                     # If the value between the parentheses is not an integer, then we extract the first year value from the text inside the parentheses.
                     if not is_year_int:
                         imdb_year_string_test = re.search(
-                            regex_year, imdb_year_parentheses)
+                            regex_year, imdb_year_parentheses
+                        )
                         if imdb_year_string_test:
                             imdb_year_from_string = re.findall(
-                                regex_year, imdb_year_parentheses)[0]
+                                regex_year, imdb_year_parentheses
+                            )[0]
                         else:
                             imdb_year_from_string = "N/A"
 
                     imdb_media_types = {
                         "mov": "movie",
                         "tv": "tvSeries",
-                        "tvmini": "tvMiniSeries"
+                        "tvmini": "tvMiniSeries",
                     }
 
                     imdb_search_criteria = {
                         "movie_title": imdb_title_without_parentheses,
                         "media_type": imdb_media_types[media_type],
-                        "movie_year": imdb_year_parentheses if is_year_int else imdb_year_from_string
+                        "movie_year": imdb_year_parentheses
+                        if is_year_int
+                        else imdb_year_from_string,
                     }
 
-                    imdb_movie_data = imdb_get_data_from_datasets(
-                        imdb_search_criteria)
+                    imdb_movie_data = imdb_get_data_from_datasets(imdb_search_criteria)
 
                     # If imdb_get_data_from_datasets() function doesn't return anything, then we assume that either the requested
                     # movie doesn't exist on the dataset or that the media type was incorrect (e.g., specifying "tvSeries" instead of "movie" for a movie).
@@ -380,9 +448,13 @@ def imdb_get_data(title, mtype):
                             raise TypeError
                     except TypeError:
                         click.echo(
-                            Tcolors.FAIL + "Either the requested title doesn't exist or that the media type was incorrectly specified!" + Tcolors.ENDC)
+                            Tcolors.FAIL
+                            + "Either the requested title doesn't exist or that the media type was incorrectly specified!"
+                            + Tcolors.ENDC
+                        )
                         logging.warning(
-                            "Either the requested title doesn't exist or that the media type was incorrectly specified!")
+                            "Either the requested title doesn't exist or that the media type was incorrectly specified!"
+                        )
                         return
 
                     try:
@@ -393,13 +465,19 @@ def imdb_get_data(title, mtype):
 
                     results = {
                         "imdbTitle": imdb_movie_data["primaryTitle"],
-                        "imdbYear": imdb_year_parentheses if is_year_int else imdb_year_from_string,
-                        "imdbRating": imdb_movie_data["averageRating"] if is_rating_float else "N/A",
+                        "imdbYear": imdb_year_parentheses
+                        if is_year_int
+                        else imdb_year_from_string,
+                        "imdbRating": imdb_movie_data["averageRating"]
+                        if is_rating_float
+                        else "N/A",
                         "imdbGenres": imdb_movie_data["genres"],
-                        "imdbRuntime": imdb_movie_data["runtimeMinutes"] if imdb_movie_data["runtimeMinutes"] != "\\N" else "N/A",
+                        "imdbRuntime": imdb_movie_data["runtimeMinutes"]
+                        if imdb_movie_data["runtimeMinutes"] != "\\N"
+                        else "N/A",
                         "imdbDescription": imdb_description,
                         "imdbThumbUrl": imdb_movie_thumbnail_url,
-                        "imdbPosterUrl": imdb_poster_url
+                        "imdbPosterUrl": imdb_poster_url,
                     }
 
                     logging.info("Imdb's movie data: %s" % results)
@@ -410,7 +488,7 @@ def imdb_get_data(title, mtype):
 
 
 def write_json_to_file(json_dict):
-    """ This functions writes a dictionary (input) to a JSON file. """
+    """This functions writes a dictionary (input) to a JSON file."""
 
     dict_input = json_dict
     with open("results.json", "w") as json_file:

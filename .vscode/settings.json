@@ -1,7 +1,7 @@
 {
-    "python.pythonPath": "/home/yusarch/.local/share/virtualenvs/rt_movie_cover-BKNwWD9D/bin/python",
+    "python.pythonPath": ".venv/bin/python",
     "python.linting.enabled": true,
-    "python.formatting.provider": "autopep8",
+    "python.formatting.provider": "black",
     "[python]": {
         "editor.tabSize": 4,
         "editor.insertSpaces": true,

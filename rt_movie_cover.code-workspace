@@ -5,7 +5,7 @@
 		}
 	],
 	"settings": {
-		"python.pythonPath": "/home/yusarch/.local/share/virtualenvs/rt_movie_cover-BKNwWD9D/bin/python",
+		"python.pythonPath": "/home/yusarch/.local/share/virtualenvs/scripts-mxwZ6Ass/bin/python",
 		"cSpell.enableFiletypes": [
 			"!python"
 		]

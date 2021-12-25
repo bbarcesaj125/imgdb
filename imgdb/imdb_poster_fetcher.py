@@ -1,7 +1,7 @@
 from urllib.request import urlopen
 from urllib.error import URLError, HTTPError
 from tqdm import tqdm
-from utils import Tcolors, logger
+from utils import Tcolors
 import logging
 import click
 import re
