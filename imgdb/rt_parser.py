@@ -8,7 +8,6 @@ from time import sleep
 import re
 from urllib.error import URLError, HTTPError
 import os
-from io import StringIO
 from imdb_data_handler import (
     imdb_get_data_from_datasets,
     merge_tsv_files,
@@ -18,7 +17,7 @@ from imdb_poster_fetcher import imdb_download_poster
 import click
 from utils import *
 from exceptions import InputError
-from config import check_config_file
+from config import check_config_file, Config
 from pathlib import Path
 from dotenv import load_dotenv
 
@@ -29,7 +28,7 @@ load_dotenv()
 @click.option("--mov", help="The title of the movie.")
 @click.option("--tv", help="The title of the series.")
 @click.option("--tvmini", help="The title of the mini series.")
-@click.option("--debug", help="The logging level of the application.")
+@click.option("--debug", default="debug", help="The logging level of the application.")
 @click.option("--logfile", help="The path of the log file.")
 @click.option("--freq", help="The update frequency of the datasets.")
 @click.option(
@@ -37,16 +36,15 @@ load_dotenv()
 )
 def imdb_cli_init(mov, tv, tvmini, debug, logfile, freq, d):
     """Imdb CLI search"""
-    logfile_stream = StringIO()
-    logger("debug", logfile_stream)
+
     # Checking and creating or getting current config info
-    current_config = check_config_file()
+    current_config = check_config_file(debug)
     if current_config == 0:
         return
 
     # Making sure that command-line options override those present in the configuration file
     runtime_options = {
-        "debug": debug if debug else current_config.get("log level"),
+        "download": d if d else current_config.get("download"),
         "log file path": logfile if logfile else current_config.get("log file path"),
         "freq": freq if freq else current_config.get("update frequency"),
     }
@@ -62,44 +60,56 @@ def imdb_cli_init(mov, tv, tvmini, debug, logfile, freq, d):
             is_logfile_path = logfile_directory.is_dir()
             print("Dir test", is_logfile_path)
             print("Logfile path", log_file_path)
-            if is_logfile_path:
-                log_write_mode = "w" if not is_logfile else "a"
+            print("Log path in config: ", runtime_options["log file path"])
+            print(
+                "Log path in default config: ",
+                Config.DEFAULT_CONFIG["general"]["log file path"],
+            )
+            test_log_paths = (
+                str(log_file_path) == Config.DEFAULT_CONFIG["general"]["log file path"]
+            )
 
-                print("log write mode", log_write_mode)
-                print(logfile_stream.getvalue())
-                with open(log_file_path, log_write_mode) as logfile:
-                    logfile_stream.seek(0)
-                    shutil.copyfileobj(logfile_stream, logfile)
-
-                log = logging.getLogger("main")
-                formatter = logging.Formatter(
-                    "%(asctime)s - %(name)s - %(levelname)-8s [%(filename)s:%(lineno)d] %(message)s",
-                    datefmt="%m/%d/%Y %I:%M:%S %p",
-                )
-                logfile_handler = logging.FileHandler(log_file_path, mode="a")
-                logfile_handler.setLevel(level=logging.DEBUG)
-                logfile_handler.setFormatter(formatter)
-                log.addHandler(logfile_handler)
-                log.debug("The log file's path is: %s" % log_file_path)
-            else:
-                click.echo(
-                    Tcolors.WARNING
-                    + "The log file's directory does not exist!"
-                    + Tcolors.ENDC
-                )
-                return
+            print("Log path test: ", test_log_paths)
+            if not test_log_paths:
+                if is_logfile_path:
+                    try:
+                        os.symlink(
+                            Config.DEFAULT_CONFIG["general"]["log file path"],
+                            log_file_path,
+                        )
+                    except PermissionError:
+                        click.echo(
+                            Tcolors.FAIL
+                            + "Permission denied. You don't have the required permissions on '%s'!"
+                            % logfile_directory
+                            + Tcolors.ENDC
+                        )
+                        logging.critical(
+                            "Permission denied. You don't have the required permissions on '%s'!"
+                            % logfile_directory
+                        )
+                        return
+                else:
+                    click.echo(
+                        Tcolors.WARNING
+                        + "The log file's directory does not exist!"
+                        + Tcolors.ENDC
+                    )
+                    logging.warning("The log file's directory does not exist!")
+                    return
         else:
             click.echo(
                 Tcolors.WARNING
                 + "Either the log file's path is invalid or that it doesn't end with the .log extension!"
                 + Tcolors.ENDC
             )
+            logging.warning(
+                "Either the log file's path is invalid or that it doesn't end with the .log extension!"
+            )
             return
 
     # Updating the datasets
-    base_path = Path("./imdb_datasets/").resolve()
-    logging.debug("The base path is: %s" % base_path)
-    datasets_updater(runtime_options["freq"], base_path)
+    datasets_updater(runtime_options["freq"])
 
     # Creating a dictionary containing a list of all mutually exclusive options
     options = {"mov": mov, "tv": tv, "tvmini": tvmini}
@@ -140,10 +150,15 @@ def imdb_cli_init(mov, tv, tvmini, debug, logfile, freq, d):
                     % replace_every_nth(50, " ", "\n", imdb_data["imdbDescription"])
                 )
 
-                if d:
+                if runtime_options["download"] == True:
                     imdb_download_poster(
                         imdb_data["imdbPosterUrl"], imdb_data["imdbTitle"]
                     )
+                elif runtime_options["download"]:
+                    click.echo(
+                        Tcolors.FAIL + "The download option is invalid!" + Tcolors.ENDC
+                    )
+                    logging.critical("The download option is invalid!")
 
         else:
             # The user has specified at least two mutually exclusive options

@@ -8,7 +8,6 @@ import sys
 
 def logger(loglevel, filepath):
     """This function serves as a logger."""
-    print("FAAAAG", filepath)
 
     numeric_level = getattr(logging, loglevel.upper(), None)
     if not isinstance(numeric_level, int):
@@ -22,7 +21,7 @@ def logger(loglevel, filepath):
         level=numeric_level,
         format="%(asctime)s - %(name)s - %(levelname)-8s [%(filename)s:%(lineno)d] %(message)s",
         datefmt="%m/%d/%Y %I:%M:%S %p",
-        stream=filepath,
+        filename=filepath,
     )
 
 

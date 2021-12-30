@@ -3,7 +3,7 @@ from pathlib import Path
 import yaml
 import click
 import logging
-from utils import Tcolors
+from utils import Tcolors, logger
 from exceptions import ParseError, ConfigError
 
 # logger("debug")
@@ -29,13 +29,15 @@ class Config:
     )
     IMGDB_CONFIG_HOME = Path(XDG_CONFIG_HOME / "imgdb")
     IMGDB_DATA_HOME = Path(XDG_DATA_HOME / "imgdb")
+    IMGDB_CACHE_HOME = Path(XDG_CACHE_HOME / "imgdb")
     CONFIG = Path(IMGDB_CONFIG_HOME / "imgdb.yaml")
+    IMDB_DATASETS_DIR = Path(IMGDB_DATA_HOME / "imdb_datasets")
 
     DEFAULT_CONFIG = {
         "general": {
             "update frequency": "weekly",
-            "log level": "warning",
-            "log file path": str(Path(IMGDB_DATA_HOME / "imgdb.log")),
+            "download": False,
+            "log file path": str(Path(IMGDB_CACHE_HOME / "imgdb.log")),
         },
         "interface": {
             "api": {
@@ -46,8 +48,30 @@ class Config:
     }
 
 
-def check_config_file():
+def check_config_file(debug):
     """This function checks if a config file exists in the CONFIG directory."""
+
+    # Preparing necessary configuration & data directories
+    imdb_datasets_dir = (Config.IMDB_DATASETS_DIR, "Imdb datasets")
+    imgdb_cache_dir = (Config.IMGDB_CACHE_HOME, "cache")
+    dir_list = [imdb_datasets_dir, imgdb_cache_dir]
+    for d in dir_list:
+        if not d[0].is_dir():
+            try:
+                d[0].mkdir(parents=True)
+            except Exception as e:
+                click.echo(
+                    Tcolors.FAIL
+                    + "Something went wrong while trying to create the '%s' directory!"
+                    % d[1]
+                    + Tcolors.ENDC
+                )
+                return 0
+
+    logger(
+        debug,
+        Config.DEFAULT_CONFIG["general"]["log file path"],
+    )
 
     config_file = Config.CONFIG
     if config_file.is_file():
@@ -217,7 +241,7 @@ def validate_config(config_options={}, cfg_error=None, cfg_error_ctx=None):
 
     for key, value in config_options.items():
         try:
-            if not value:
+            if value is None or value == "":
                 raise ConfigError(
                     "The <%s> option in the configuration file cannot be empty!" % key
                 )
@@ -230,11 +254,12 @@ def validate_config(config_options={}, cfg_error=None, cfg_error_ctx=None):
 
 if __name__ == "__main__":
     # print(Path(IMGDB_DATA_HOME / "imgdb.log"))
-    a = check_config_file()
-    print("Returned value is: %s" % a)
+    # a = check_config_file()
+    # print("Returned value is: %s" % a)
     # create_default_yaml(Config.CONFIG)
     print("XDG HOME", Config.XDG_CONFIG_HOME)
     print("XDG DATA HOME", Config.XDG_DATA_HOME)
     print("IMGDB CONFIG HOME", Config.IMGDB_CONFIG_HOME)
     print("IMGDB DATA HOME", Config.IMGDB_DATA_HOME)
     print("CONFIG", Config.CONFIG)
+    print("DATASETS DIR", Config.IMDB_DATASETS_DIR)
