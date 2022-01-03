@@ -19,9 +19,6 @@ from utils import *
 from exceptions import InputError
 from config import check_config_file, Config
 from pathlib import Path
-from dotenv import load_dotenv
-
-load_dotenv()
 
 
 @click.command()
@@ -41,26 +38,30 @@ def imdb_cli_init(mov, tv, tvmini, debug, logfile, freq, d):
     current_config = check_config_file(debug)
     if current_config == 0:
         return
-
+    print("CURRENT", current_config)
     # Making sure that command-line options override those present in the configuration file
     runtime_options = {
         "download": d if d else current_config.get("download"),
-        "log file path": logfile if logfile else current_config.get("log file path"),
+        "log_file_path": logfile if logfile else current_config.get("log_file_path"),
         "freq": freq if freq else current_config.get("update frequency"),
+        "gsearch_api_key": current_config.get("google search api key"),
+        "imdb_gsearch_id": current_config.get("imdb custom search id"),
     }
+
+    print("RUNTIME", runtime_options)
     logging.debug("Runtime options: %s" % runtime_options)
 
     # Setting up a logger
-    if runtime_options["log file path"]:
-        if runtime_options["log file path"].split(".")[-1] == "log":
-            log_file_path = Path(runtime_options["log file path"]).resolve()
+    if runtime_options["log_file_path"]:
+        if runtime_options["log_file_path"].split(".")[-1] == "log":
+            log_file_path = Path(runtime_options["log_file_path"]).resolve()
             logfile_directory = log_file_path.parents[0]
             print("Logfile dir", logfile_directory)
             is_logfile = log_file_path.is_file()
             is_logfile_path = logfile_directory.is_dir()
             print("Dir test", is_logfile_path)
             print("Logfile path", log_file_path)
-            print("Log path in config: ", runtime_options["log file path"])
+            print("Log path in config: ", runtime_options["log_file_path"])
             print(
                 "Log path in default config: ",
                 Config.DEFAULT_CONFIG["general"]["log file path"],
@@ -73,7 +74,7 @@ def imdb_cli_init(mov, tv, tvmini, debug, logfile, freq, d):
             if not test_log_paths:
                 if is_logfile_path:
                     try:
-                        os.symlink(
+                        os.link(
                             Config.DEFAULT_CONFIG["general"]["log file path"],
                             log_file_path,
                         )
@@ -137,8 +138,15 @@ def imdb_cli_init(mov, tv, tvmini, debug, logfile, freq, d):
             logging.debug("Media title: %s" % media_name)
             logging.debug("Media type: %s" % media_type)
 
-            click.echo(Tcolors.OK_GREEN + "Fetching data ..." + Tcolors.ENDC)
-            imdb_data = imdb_get_data(media_name, media_type)
+            click.echo(Tcolors.OK_GREEN + "Fetching data..." + Tcolors.ENDC)
+            imdb_data = imdb_get_data(
+                media_name,
+                media_type,
+                api_keys=[
+                    runtime_options["gsearch_api_key"],
+                    runtime_options["imdb_gsearch_id"],
+                ],
+            )
             if imdb_data:
                 click.echo(
                     "Title: %s" % imdb_data["imdbTitle"]
@@ -317,13 +325,13 @@ def rt_get_movie_year(rurl):
         return year
 
 
-def imdb_get_data(title, mtype):
+def imdb_get_data(title, mtype, api_keys=[]):
     """This function fetches the poster url and other data related to Imdb movies from Google Custom Search JSON API."""
 
     movie_title = title
     media_type = mtype
-    gcsearch_api_key = os.getenv("GSEARCH_API_KEY")
-    imdb_custom_search_id = os.getenv("IMDB_GCUSTOM_SEARCH_ID")
+    gcsearch_api_key = api_keys[0]
+    imdb_custom_search_id = api_keys[1]
     query = urllib.parse.quote_plus(movie_title)
     url = f"https://www.googleapis.com/customsearch/v1/siterestrict?key={gcsearch_api_key}&cx={imdb_custom_search_id}&num=10&q={query}"
     regex_url = r"(?<=UY1200)(.*?)(?=.(jpg|png|jpeg)\b)"

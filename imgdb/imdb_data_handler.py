@@ -141,7 +141,7 @@ def merge_tsv_files(tsv_title_basics, tsv_title_ratings, base_path):
         logging.debug("Error: %s" % e)
         click.echo(Tcolors.FAIL + "We failed to merge the tsv files!" + Tcolors.ENDC)
 
-    # Saving the merged file on disk
+    # Saving the merged file to disk
     try:
         title_basics_ratings_pd.to_csv(
             title_basics_ratings_file_path, sep="\t", index=False

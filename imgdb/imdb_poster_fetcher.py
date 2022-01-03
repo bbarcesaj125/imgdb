@@ -75,11 +75,11 @@ def imdb_download_poster(
             sys.exit()
 
         logging.info(
-            "%s: %s Size: %s KiB" % (download_or_update, file_name, file_size // 1024)
+            "%s: %s - Size: %s KiB" % (download_or_update, file_name, file_size // 1024)
         )
         click.echo(
             Tcolors.OK_GREEN
-            + "\n➜ %s: %s Size: %s KiB\n"
+            + "\n➜ %s: %s - Size: %s KiB\n"
             % (download_or_update, file_name, file_size // 1024)
             + Tcolors.ENDC
         )
