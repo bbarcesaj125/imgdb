@@ -4,7 +4,7 @@ import yaml
 import click
 import logging
 from utils import Tcolors, logger
-from exceptions import ParseError, ConfigError
+from exceptions import ParseError, ConfigError, ApiError
 
 # logger("debug")
 
@@ -41,8 +41,8 @@ class Config:
         },
         "interface": {
             "api": {
-                "google search api key": "AIzaSyANWkWTK4gmJIRHferGPmqCTdffdIT8XFjhk",
-                "imdb custom search id": "32b1e112kdf754be1f",
+                "google search api key": "",
+                "imdb custom search id": "",
             }
         },
     }
@@ -127,7 +127,7 @@ def create_default_yaml(config_file):
             + Tcolors.ENDC
         )
         return 0
-    return parse_config_yaml(Config.DEFAULT_CONFIG)
+    return parse_config_yaml(Config.DEFAULT_CONFIG, first_run=True)
 
 
 def read_config_yaml(config_file):
@@ -175,7 +175,7 @@ def read_config_yaml(config_file):
         return 0
 
 
-def parse_config_yaml(current_config):
+def parse_config_yaml(current_config, first_run=False):
     """This function parses the configuration values contained in the configuration dictionary obtained by reading the YAML file."""
 
     config_options = current_config
@@ -229,15 +229,40 @@ def parse_config_yaml(current_config):
                     )
         else:
             raise ParseError("Unknown section <%s> in the configuration file!" % key)
-    return validate_config(used_options)
+    return validate_config(used_options, check_api=first_run)
 
 
-def validate_config(config_options={}, cfg_error=None, cfg_error_ctx=None):
+def validate_config(
+    config_options={}, check_api=False, cfg_error=None, cfg_error_ctx=None
+):
     """This function checks if configuration values are not empty or null."""
 
     if cfg_error and cfg_error_ctx:
         raise ConfigError(cfg_error_ctx)
         return 0
+
+    try:
+        if check_api:
+            raise ApiError(
+                "You are running the application for the first time. Please, provide a working Google Search API key in the configuration file!"
+            )
+    except ApiError as e:
+        logging.critical("Error: %s. Context: %s" % (e.name, e.error_ctx))
+        click.echo(Tcolors.FAIL + e.error_ctx + Tcolors.ENDC)
+        return 0
+
+    api_keys = ["google search api key", "imdb custom search id"]
+    for key in api_keys:
+        try:
+            if key not in config_options:
+                raise ConfigError(
+                    "You must provide a working Google Custom Search API key in the configuration file!"
+                )
+                break
+        except ConfigError as e:
+            logging.critical("Error: %s. Context: %s" % (e.name, e.error_ctx))
+            click.echo(Tcolors.FAIL + e.error_ctx + Tcolors.ENDC)
+            return 0
 
     for key, value in config_options.items():
         try:
