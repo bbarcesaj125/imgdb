@@ -47,8 +47,6 @@ def imdb_cli_init(mov, tv, tvmini, debug, logfile, freq, d):
         "gsearch_api_key": current_config.get("google search api key"),
         "imdb_gsearch_id": current_config.get("imdb custom search id"),
     }
-
-    print("RUNTIME", runtime_options)
     logging.debug("Runtime options: %s" % runtime_options)
 
     # Setting up a logger
@@ -56,21 +54,12 @@ def imdb_cli_init(mov, tv, tvmini, debug, logfile, freq, d):
         if runtime_options["log_file_path"].split(".")[-1] == "log":
             log_file_path = Path(runtime_options["log_file_path"]).resolve()
             logfile_directory = log_file_path.parents[0]
-            print("Logfile dir", logfile_directory)
             is_logfile = log_file_path.is_file()
             is_logfile_path = logfile_directory.is_dir()
-            print("Dir test", is_logfile_path)
-            print("Logfile path", log_file_path)
-            print("Log path in config: ", runtime_options["log_file_path"])
-            print(
-                "Log path in default config: ",
-                Config.DEFAULT_CONFIG["general"]["log file path"],
-            )
             test_log_paths = (
                 str(log_file_path) == Config.DEFAULT_CONFIG["general"]["log file path"]
             )
 
-            print("Log path test: ", test_log_paths)
             if not test_log_paths:
                 if is_logfile_path:
                     try:
@@ -149,18 +138,22 @@ def imdb_cli_init(mov, tv, tvmini, debug, logfile, freq, d):
             )
             if imdb_data:
                 click.echo(
-                    "Title: %s" % imdb_data["imdbTitle"]
-                    + "\nGenres: %s" % ", ".join(map(str, imdb_data["imdbGenres"]))
-                    + "\nYear: %s" % imdb_data["imdbYear"]
-                    + "\nRuntime: %s min" % imdb_data["imdbRuntime"]
-                    + "\nRating: %s" % imdb_data["imdbRating"]
+                    "Title: %s" % imdb_data["imdb_title"]
+                    + "\nGenres: %s" % ", ".join(map(str, imdb_data["imdb_genres"]))
+                    + "\nYear: %s" % imdb_data["imdb_year"]
+                    + "\nRuntime: %s min" % imdb_data["imdb_runtime"]
+                    + "\nIMDb Rating: %s" % imdb_data["imdb_rating"]
+                    + "\nRottenTomatoes Rating: %s"
+                    % rt_get_data(
+                        imdb_data["imdb_title"], media_type, imdb_data["imdb_year"]
+                    )["rt_rating"]
                     + "\nDescription: %s"
-                    % replace_every_nth(50, " ", "\n", imdb_data["imdbDescription"])
+                    % replace_every_nth(50, " ", "\n", imdb_data["imdb_description"])
                 )
 
                 if runtime_options["download"] == True:
                     imdb_download_poster(
-                        imdb_data["imdbPosterUrl"], imdb_data["imdbTitle"]
+                        imdb_data["imdb_poster_url"], imdb_data["imdb_title"]
                     )
                 elif runtime_options["download"]:
                     click.echo(
@@ -200,15 +193,15 @@ def rt_construct_json():
         movie_data = {
             "tomatoTitle": item["title"],
             "tomatoScore": item["tomatoScore"],
-            "imdbRating": imdb_results["imdbRating"],
+            "imdb_rating": imdb_results["imdb_rating"],
             "dvdReleaseDate": item.get("dvdReleaseDate")
             if item.get("dvdReleaseDate")
             else "N/A",
             "year": rt_get_movie_year(item["url"]),
             "runtime": item.get("runtime") if item.get("runtime") else "N/A",
             "mpaaRating": item.get("mpaaRating") if item.get("mpaaRating") else "N/A",
-            "thumbnailUrl": imdb_results["imdbThumbUrl"],
-            "posterUrl": imdb_results["imdbPosterUrl"],
+            "thumbnailUrl": imdb_results["imdb_thumbnail_url"],
+            "posterUrl": imdb_results["imdb_poster_url"],
         }
 
         final_data.append(movie_data.copy())
@@ -487,24 +480,128 @@ def imdb_get_data(title, mtype, api_keys=[]):
                         is_rating_float = False
 
                     results = {
-                        "imdbTitle": imdb_movie_data["primaryTitle"],
-                        "imdbYear": imdb_year_parentheses
+                        "imdb_title": imdb_movie_data["primaryTitle"],
+                        "imdb_year": imdb_year_parentheses
                         if is_year_int
                         else imdb_year_from_string,
-                        "imdbRating": imdb_movie_data["averageRating"]
+                        "imdb_rating": imdb_movie_data["averageRating"]
                         if is_rating_float
                         else "N/A",
-                        "imdbGenres": imdb_movie_data["genres"],
-                        "imdbRuntime": imdb_movie_data["runtimeMinutes"]
+                        "imdb_genres": imdb_movie_data["genres"],
+                        "imdb_runtime": imdb_movie_data["runtimeMinutes"]
                         if imdb_movie_data["runtimeMinutes"] != "\\N"
                         else "N/A",
-                        "imdbDescription": imdb_description,
-                        "imdbThumbUrl": imdb_movie_thumbnail_url,
-                        "imdbPosterUrl": imdb_poster_url,
+                        "imdb_description": imdb_description,
+                        "imdb_thumbnail_url": imdb_movie_thumbnail_url,
+                        "imdb_poster_url": imdb_poster_url,
                     }
 
-                    logging.info("Imdb's movie data: %s" % results)
+                    logging.info("Imdb's media data: %s" % results)
                     return results
+        else:
+            logging.warning("No results!")
+            click.echo(Tcolors.WARNING + "No results!" + Tcolors.ENDC)
+
+
+def rt_get_data(title, mtype, year):
+
+    movie_title = title
+    media_type = mtype
+    media_year = year
+    query = urllib.parse.quote_plus(movie_title)
+    url = f"https://www.rottentomatoes.com/api/private/v2.0/search?q={query}"
+
+    try:
+        int(media_year)
+        is_year_int = True
+    except ValueError:
+        is_year_int = False
+
+    if not is_year_int:
+        results = {
+            "rt_title": "N/A",
+            "rt_year": "N/A",
+            "rt_rating": "N/A",
+            "rt_freshness": "N/A",
+        }
+        return results
+
+    try:
+        res = urlopen(url)
+    except HTTPError as e:
+        logging.critical("RT API server couldn't fulfill the request.")
+        logging.debug("Error code: %s" % e.code)
+        click.echo(
+            Tcolors.FAIL + "RT API server couldn't fulfill the request." + Tcolors.ENDC
+        )
+    except URLError as e:
+        logging.critical("We failed to reach RT API server.")
+        click.echo(Tcolors.FAIL + "We failed to reach RT API server." + Tcolors.ENDC)
+        if hasattr(e, "reason"):
+            logging.debug("Reason: %s" % e.reason)
+
+    else:
+        rt_media_types = {
+            "mov": "movies",
+            "tv": "tvSeries",
+            "tvmini": "tvSeries",
+        }
+
+        data = json.loads(res.read().decode())
+        media_list = data.get(rt_media_types[media_type])
+        # print("HERE WE GO FAGSTER1!", rt_media_types[media_type])
+        # print("HERE WE GO FAGSTER!", media_list)
+        results = {}
+
+        if media_list:
+            for item in media_list:
+                # print("ITEM", item)
+                try:
+                    if rt_media_types[media_type] == "movies":
+                        rt_title = item["name"]
+                        rt_year = item["year"]
+                    else:
+                        rt_title = item["title"]
+                        rt_year = item["startYear"]
+
+                    rt_freshness = item["meterClass"]
+
+                except KeyError as err:
+                    logging.critical("KeyError: {0}".format(err))
+                    click.echo(Tcolors.FAIL + "KeyError: %s" % err + Tcolors.ENDC)
+                    continue
+                except NameError as err:
+                    logging.critical("NameError: {0}".format(err))
+                    click.echo(Tcolors.FAIL + "NameError: %s" % err + Tcolors.ENDC)
+                except IndexError as err:
+                    logging.critical("IndexError: {0}".format(err))
+                    click.echo(Tcolors.FAIL + "IndexError: %s" % err + Tcolors.ENDC)
+                except Exception as e:
+                    logging.critical("Unexpected error: {0}".format(e))
+                    click.echo(Tcolors.FAIL + "Unexpected error: %s" % e + Tcolors.ENDC)
+                    raise
+                else:
+                    print("year", rt_year)
+                    if rt_year == int(media_year) or (
+                        rt_title == movie_title
+                        and (
+                            rt_year == int(media_year) + 1
+                            or rt_year == int(media_year) - 1
+                        )
+                    ):
+                        rt_rating = item.get("meterScore")
+                        print("year inside", rt_year)
+
+                        results = {
+                            "rt_title": rt_title,
+                            "rt_year": rt_year,
+                            "rt_rating": rt_rating if rt_rating else "N/A",
+                            "rt_freshness": rt_freshness,
+                        }
+
+                        logging.info("RT's media data: %s" % results)
+                        print("HERE WE GO BABY", results)
+                        return results
         else:
             logging.warning("No results!")
             click.echo(Tcolors.WARNING + "No results!" + Tcolors.ENDC)
@@ -520,6 +617,7 @@ def write_json_to_file(json_dict):
 
 if __name__ == "__main__":
     imdb_cli_init()
+    # rt_get_data("300", "mov", "2006")
     # results = rt_parse_json()
     # print(results)
     # rt_construct_json()

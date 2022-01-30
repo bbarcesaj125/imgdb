@@ -198,7 +198,8 @@ def parse_config_yaml(current_config, first_run=False):
                     used_options[gen_key] = gen_value
                 else:
                     raise ParseError(
-                        "Unknown option <%s> in %s section!" % (gen_key, key)
+                        "Unknown or malformatted option <%s> in %s section!"
+                        % (gen_key, key)
                         if not isinstance(gen_value, dict)
                         else "Invalid value <%s> for option <%s> in '%s' section!"
                         % (gen_value, gen_key, key)
@@ -218,17 +219,21 @@ def parse_config_yaml(current_config, first_run=False):
                             used_options[api_key] = api_value
                         else:
                             raise ParseError(
-                                "Unknown option <%s> in %s section!" % (api_key, key)
+                                "Unknown or malformatted option <%s> in %s section!"
+                                % (api_key, key)
                                 if not isinstance(api_value, dict)
                                 else "Invalid value <%s> for option <%s> in '%s' section!"
                                 % (api_value, api_key, key)
                             )
                 else:
                     raise ParseError(
-                        "Unknown option <%s> in '%s' section!" % (inter_key, key)
+                        "Unknown or malformatted option <%s> in '%s' section!"
+                        % (inter_key, key)
                     )
         else:
-            raise ParseError("Unknown section <%s> in the configuration file!" % key)
+            raise ParseError(
+                "Unknown or malformatted section <%s> in the configuration file!" % key
+            )
     return validate_config(used_options, check_api=first_run)
 
 
@@ -255,11 +260,11 @@ def validate_config(
     for key in api_keys:
         try:
             if key not in config_options:
-                raise ConfigError(
+                raise ApiError(
                     "You must provide a working Google Custom Search API key in the configuration file!"
                 )
                 break
-        except ConfigError as e:
+        except ApiError as e:
             logging.critical("Error: %s. Context: %s" % (e.name, e.error_ctx))
             click.echo(Tcolors.FAIL + e.error_ctx + Tcolors.ENDC)
             return 0
