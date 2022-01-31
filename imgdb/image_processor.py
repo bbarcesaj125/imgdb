@@ -58,6 +58,10 @@ def movie_image(
         # canvas.save(filename="font_shadow.png")
 
 
+def similar(a, b):
+    return SequenceMatcher(None, a, b).ratio()
+
+
 if __name__ == "__main__":
     movie_image(
         movie_title="The Dark Knight Rises",

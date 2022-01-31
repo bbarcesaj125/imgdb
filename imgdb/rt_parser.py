@@ -19,6 +19,7 @@ from utils import *
 from exceptions import InputError
 from config import check_config_file, Config
 from pathlib import Path
+from difflib import SequenceMatcher
 
 
 @click.command()
@@ -136,17 +137,24 @@ def imdb_cli_init(mov, tv, tvmini, debug, logfile, freq, d):
                     runtime_options["imdb_gsearch_id"],
                 ],
             )
+
+            rt_data = rt_get_data(
+                imdb_data["imdb_title"],
+                imdb_data["imdb_original_title"],
+                media_type,
+                imdb_data["imdb_year"],
+            )
+
             if imdb_data:
+                rt_media_rating = rt_data["rt_rating"] if rt_data else "N/A"
+
                 click.echo(
                     "Title: %s" % imdb_data["imdb_title"]
                     + "\nGenres: %s" % ", ".join(map(str, imdb_data["imdb_genres"]))
                     + "\nYear: %s" % imdb_data["imdb_year"]
                     + "\nRuntime: %s min" % imdb_data["imdb_runtime"]
                     + "\nIMDb Rating: %s" % imdb_data["imdb_rating"]
-                    + "\nRottenTomatoes Rating: %s"
-                    % rt_get_data(
-                        imdb_data["imdb_title"], media_type, imdb_data["imdb_year"]
-                    )["rt_rating"]
+                    + "\nRottenTomatoes Rating: %s" % rt_media_rating
                     + "\nDescription: %s"
                     % replace_every_nth(50, " ", "\n", imdb_data["imdb_description"])
                 )
@@ -241,13 +249,13 @@ def rt_parse_json():
     return full_results
 
 
-def rt_get_movie_year(rurl):
-    """This is a function that takes in the relative url of a RT movie and return its release year."""
+def rt_search_media(title, mtype):
+    """This is a function that searches RT site for a specific title (movie or series)."""
 
-    base_url = "https://www.rottentomatoes.com"
-    relative_url = rurl
-    full_url = base_url + relative_url
-    logging.info("The RT's full URL is: %s" % full_url)
+    rt_search_term = title
+    media_type = mtype
+    query = urllib.parse.quote_plus(rt_search_term)
+    url = f"https://www.rottentomatoes.com/search?search={query}"
 
     # Implementing a random wait timer to avoid some anti-scraping detection methods (not sure if it works but gonna keep it anyway).
     sleep(uniform(0.05, 0.1))
@@ -275,7 +283,7 @@ def rt_get_movie_year(rurl):
         "Upgrade-Insecure-Requests": "1",
     }
 
-    req = Request(full_url, headers=headers)
+    req = Request(url, headers=headers)
 
     try:
         response = urlopen(req)
@@ -294,28 +302,26 @@ def rt_get_movie_year(rurl):
     else:
         soup = BeautifulSoup(response.read(), "html.parser")
         try:
-            date = soup.find("time")["datetime"]
+            if media_type == "movies":
+                rt_media_title = soup.find(
+                    "search-page-result", {"type": "movie"}
+                ).find("a", {"data-qa": "info-name"})
+                print("RT TITLE", rt_media_title.text.strip())
+            elif media_type == "tvSeries":
+                rt_media_title = soup.find("search-page-result", {"type": "tv"}).find(
+                    "a", {"data-qa": "info-name"}
+                )
+                print("RT TITLE", rt_media_title.text.strip())
         except Exception as e:
-            logging.critical("We couldn't retrieve the movie's release year from RT.")
+            logging.critical("We couldn't retrieve the movie's title from RT.")
             logging.debug("Error: %s" % e)
             click.echo(
                 Tcolors.FAIL
-                + "We couldn't retrieve the movie's release year from RT."
+                + "We couldn't retrieve the movie's title from RT."
                 + Tcolors.ENDC
             )
-            year = datetime.datetime.now().year
-        else:
-            logging.debug("The scrapped date is: %s" % date)
-            try:
-                date_year = datetime.datetime.strptime(date, "%b %d, %Y").year
-                is_date_year_valid = True
-                logging.info("The movie's release year is: %s" % date_year)
-            except Exception as e:
-                is_date_year_valid = False
-
-            year = date_year if is_date_year_valid else datetime.datetime.now().year
-            logging.info("The movie's release year is: %s" % year)
-        return year
+            return
+        return rt_media_title.text.strip()
 
 
 def imdb_get_data(title, mtype, api_keys=[]):
@@ -481,6 +487,7 @@ def imdb_get_data(title, mtype, api_keys=[]):
 
                     results = {
                         "imdb_title": imdb_movie_data["primaryTitle"],
+                        "imdb_original_title": imdb_movie_data["originalTitle"],
                         "imdb_year": imdb_year_parentheses
                         if is_year_int
                         else imdb_year_from_string,
@@ -503,13 +510,17 @@ def imdb_get_data(title, mtype, api_keys=[]):
             click.echo(Tcolors.WARNING + "No results!" + Tcolors.ENDC)
 
 
-def rt_get_data(title, mtype, year):
+def rt_get_data(title, title_original, mtype, year):
 
     movie_title = title
+    movie_title_original = title_original
     media_type = mtype
     media_year = year
-    query = urllib.parse.quote_plus(movie_title)
-    url = f"https://www.rottentomatoes.com/api/private/v2.0/search?q={query}"
+    rt_media_types = {
+        "mov": "movies",
+        "tv": "tvSeries",
+        "tvmini": "tvSeries",
+    }
 
     try:
         int(media_year)
@@ -526,85 +537,110 @@ def rt_get_data(title, mtype, year):
         }
         return results
 
-    try:
-        res = urlopen(url)
-    except HTTPError as e:
-        logging.critical("RT API server couldn't fulfill the request.")
-        logging.debug("Error code: %s" % e.code)
-        click.echo(
-            Tcolors.FAIL + "RT API server couldn't fulfill the request." + Tcolors.ENDC
-        )
-    except URLError as e:
-        logging.critical("We failed to reach RT API server.")
-        click.echo(Tcolors.FAIL + "We failed to reach RT API server." + Tcolors.ENDC)
-        if hasattr(e, "reason"):
-            logging.debug("Reason: %s" % e.reason)
+    def rt_json_fetcher(rt_movie_title):
+        movie_title_rt = rt_movie_title
+        print("RT TITLE", movie_title_rt)
+        query = urllib.parse.quote_plus(str(movie_title_rt))
+        url = f"https://www.rottentomatoes.com/api/private/v2.0/search?q={query}"
 
-    else:
-        rt_media_types = {
-            "mov": "movies",
-            "tv": "tvSeries",
-            "tvmini": "tvSeries",
-        }
+        try:
+            res = urlopen(url)
+        except HTTPError as e:
+            logging.critical("RT API server couldn't fulfill the request.")
+            logging.debug("Error code: %s" % e.code)
+            click.echo(
+                Tcolors.FAIL
+                + "RT API server couldn't fulfill the request."
+                + Tcolors.ENDC
+            )
+        except URLError as e:
+            logging.critical("We failed to reach RT API server.")
+            click.echo(
+                Tcolors.FAIL + "We failed to reach RT API server." + Tcolors.ENDC
+            )
+            if hasattr(e, "reason"):
+                logging.debug("Reason: %s" % e.reason)
 
-        data = json.loads(res.read().decode())
-        media_list = data.get(rt_media_types[media_type])
-        # print("HERE WE GO FAGSTER1!", rt_media_types[media_type])
-        # print("HERE WE GO FAGSTER!", media_list)
-        results = {}
-
-        if media_list:
-            for item in media_list:
-                # print("ITEM", item)
-                try:
-                    if rt_media_types[media_type] == "movies":
-                        rt_title = item["name"]
-                        rt_year = item["year"]
-                    else:
-                        rt_title = item["title"]
-                        rt_year = item["startYear"]
-
-                    rt_freshness = item["meterClass"]
-
-                except KeyError as err:
-                    logging.critical("KeyError: {0}".format(err))
-                    click.echo(Tcolors.FAIL + "KeyError: %s" % err + Tcolors.ENDC)
-                    continue
-                except NameError as err:
-                    logging.critical("NameError: {0}".format(err))
-                    click.echo(Tcolors.FAIL + "NameError: %s" % err + Tcolors.ENDC)
-                except IndexError as err:
-                    logging.critical("IndexError: {0}".format(err))
-                    click.echo(Tcolors.FAIL + "IndexError: %s" % err + Tcolors.ENDC)
-                except Exception as e:
-                    logging.critical("Unexpected error: {0}".format(e))
-                    click.echo(Tcolors.FAIL + "Unexpected error: %s" % e + Tcolors.ENDC)
-                    raise
-                else:
-                    print("year", rt_year)
-                    if rt_year == int(media_year) or (
-                        rt_title == movie_title
-                        and (
-                            rt_year == int(media_year) + 1
-                            or rt_year == int(media_year) - 1
-                        )
-                    ):
-                        rt_rating = item.get("meterScore")
-                        print("year inside", rt_year)
-
-                        results = {
-                            "rt_title": rt_title,
-                            "rt_year": rt_year,
-                            "rt_rating": rt_rating if rt_rating else "N/A",
-                            "rt_freshness": rt_freshness,
-                        }
-
-                        logging.info("RT's media data: %s" % results)
-                        print("HERE WE GO BABY", results)
-                        return results
         else:
-            logging.warning("No results!")
-            click.echo(Tcolors.WARNING + "No results!" + Tcolors.ENDC)
+
+            print("MEDIA TYPES", rt_media_types)
+
+            data = json.loads(res.read().decode())
+            media_list_json = data.get(rt_media_types[media_type])
+            return media_list_json
+
+    media_list = rt_json_fetcher(movie_title)
+    print("MEDIA LIST", media_list)
+    if not media_list:
+        rt_search_title = rt_search_media(movie_title, rt_media_types[media_type])
+        print("HERE I AM", rt_search_title)
+        if not rt_search_title:
+            return
+        else:
+            media_list = rt_json_fetcher(rt_search_title)
+            if not media_list:
+                logging.warning("RT search returned no results!")
+                click.echo(
+                    Tcolors.WARNING + "RT search returned no results!" + Tcolors.ENDC
+                )
+                return
+
+    results = {}
+
+    for item in media_list:
+        # print("ITEM", item)
+        try:
+            if rt_media_types[media_type] == "movies":
+                rt_title = item["name"]
+                rt_year = item["year"]
+            else:
+                rt_title = item["title"]
+                rt_year = item["startYear"]
+
+            rt_freshness = item["meterClass"]
+
+        except KeyError as err:
+            logging.critical("KeyError: {0}".format(err))
+            click.echo(Tcolors.FAIL + "KeyError: %s" % err + Tcolors.ENDC)
+            continue
+        except NameError as err:
+            logging.critical("NameError: {0}".format(err))
+            click.echo(Tcolors.FAIL + "NameError: %s" % err + Tcolors.ENDC)
+        except IndexError as err:
+            logging.critical("IndexError: {0}".format(err))
+            click.echo(Tcolors.FAIL + "IndexError: %s" % err + Tcolors.ENDC)
+        except Exception as e:
+            logging.critical("Unexpected error: {0}".format(e))
+            click.echo(Tcolors.FAIL + "Unexpected error: %s" % e + Tcolors.ENDC)
+            raise
+        else:
+            print("year", rt_year)
+
+            similar1 = SequenceMatcher(None, rt_title, movie_title).ratio()
+            similar2 = SequenceMatcher(
+                None, rt_title, movie_title + " " + movie_title_original
+            ).ratio()
+
+            if (
+                rt_year == int(media_year)
+                or rt_year == int(media_year) + 1
+                or rt_year == int(media_year) - 1
+            ) and max(similar1, similar2) >= 0.75:
+                rt_rating = item.get("meterScore")
+                print("year inside", rt_year)
+                print("Similar ratio 1", similar1)
+                print("Similar ratio 2", similar2)
+
+                results = {
+                    "rt_title": rt_title,
+                    "rt_year": rt_year,
+                    "rt_rating": rt_rating if rt_rating else "N/A",
+                    "rt_freshness": rt_freshness,
+                }
+
+                logging.info("RT's media data: %s" % results)
+                print("HERE WE GO BABY", results)
+                return results
 
 
 def write_json_to_file(json_dict):
@@ -617,7 +653,10 @@ def write_json_to_file(json_dict):
 
 if __name__ == "__main__":
     imdb_cli_init()
-    # rt_get_data("300", "mov", "2006")
+    # movie = rt_search_media("westworld", "tvSeries")
+    # print("MOVIE", movie)
+    # data = rt_get_data("Compartment Number 6", "Compartment No. 6", "mov", "2021")
+    # print(data)
     # results = rt_parse_json()
     # print(results)
     # rt_construct_json()

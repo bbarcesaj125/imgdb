@@ -223,10 +223,3 @@ if __name__ == "__main__":
         "movie_year": "2015",
     }
     print(imdb_get_data_from_datasets(imdb_search_criteria))
-    base_path = Path("./imdb_datasets/").resolve()
-
-    merge_tsv_files(
-        "/home/yusarch/Documents/Programming/Python/rt_movie_cover/imdb_datasets/title.basics.tsv",
-        "/home/yusarch/Documents/Programming/Python/rt_movie_cover/imdb_datasets/title.ratings.tsv",
-        base_path,
-    )
