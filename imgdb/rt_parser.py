@@ -33,13 +33,13 @@ from difflib import SequenceMatcher
     "-d", is_flag=True, default=False, help="Download the movie's poster image."
 )
 def imdb_cli_init(mov, tv, tvmini, debug, logfile, freq, d):
-    """Imdb CLI search"""
+    """Imdb CLI search."""
 
     # Checking and creating or getting current config info
     current_config = check_config_file(debug)
     if current_config == 0:
         return
-    print("CURRENT", current_config)
+
     # Making sure that command-line options override those present in the configuration file
     runtime_options = {
         "download": d if d else current_config.get("download"),
@@ -127,8 +127,8 @@ def imdb_cli_init(mov, tv, tvmini, debug, logfile, freq, d):
 
             logging.debug("Media title: %s" % media_name)
             logging.debug("Media type: %s" % media_type)
-
             click.echo(Tcolors.OK_GREEN + "Fetching data..." + Tcolors.ENDC)
+
             imdb_data = imdb_get_data(
                 media_name,
                 media_type,
@@ -138,14 +138,13 @@ def imdb_cli_init(mov, tv, tvmini, debug, logfile, freq, d):
                 ],
             )
 
-            rt_data = rt_get_data(
-                imdb_data["imdb_title"],
-                imdb_data["imdb_original_title"],
-                media_type,
-                imdb_data["imdb_year"],
-            )
-
             if imdb_data:
+                rt_data = rt_get_data(
+                    imdb_data["imdb_title"],
+                    imdb_data["imdb_original_title"],
+                    media_type,
+                    imdb_data["imdb_year"],
+                )
                 rt_media_rating = rt_data["rt_rating"] if rt_data else "N/A"
 
                 click.echo(
@@ -201,7 +200,7 @@ def rt_construct_json():
         movie_data = {
             "tomatoTitle": item["title"],
             "tomatoScore": item["tomatoScore"],
-            "imdb_rating": imdb_results["imdb_rating"],
+            "imdbRating": imdb_results["imdb_rating"],
             "dvdReleaseDate": item.get("dvdReleaseDate")
             if item.get("dvdReleaseDate")
             else "N/A",
@@ -306,12 +305,10 @@ def rt_search_media(title, mtype):
                 rt_media_title = soup.find(
                     "search-page-result", {"type": "movie"}
                 ).find("a", {"data-qa": "info-name"})
-                print("RT TITLE", rt_media_title.text.strip())
             elif media_type == "tvSeries":
                 rt_media_title = soup.find("search-page-result", {"type": "tv"}).find(
                     "a", {"data-qa": "info-name"}
                 )
-                print("RT TITLE", rt_media_title.text.strip())
         except Exception as e:
             logging.critical("We couldn't retrieve the movie's title from RT.")
             logging.debug("Error: %s" % e)
@@ -321,6 +318,7 @@ def rt_search_media(title, mtype):
                 + Tcolors.ENDC
             )
             return
+        logging.info("RT media title is %s: " % rt_media_title.text.strip())
         return rt_media_title.text.strip()
 
 
@@ -388,11 +386,11 @@ def imdb_get_data(title, mtype, api_keys=[]):
                     click.echo(Tcolors.FAIL + "Unexpected error: %s" % e + Tcolors.ENDC)
                     raise
                 else:
+
                     # Google custom search engine changed their JSON response. Now, there is no need to process the imdb_movie_cropped_poster_url.
                     # The imdb_movie_cropped_poster_url which we get directly from the JSON results already contains the desired image size.
                     # Thus, there is no need to use regex substitutions on imdb_movie_cropped_poster_url.
                     # But I will leave the part that deals with substitutions intact as Google can change their API anytime they want.
-
                     imdb_poster_url_pattern = re.search(
                         regex_url, imdb_movie_cropped_poster_url
                     )
@@ -419,7 +417,6 @@ def imdb_get_data(title, mtype, api_keys=[]):
                         if imdb_title_without_parentheses_test
                         else imdb_title
                     )
-
                     logging.debug(
                         "The IMDB raw poster URL is: %s" % imdb_movie_cropped_poster_url
                     )
@@ -435,7 +432,8 @@ def imdb_get_data(title, mtype, api_keys=[]):
                     except ValueError:
                         is_year_int = False
 
-                    # If the value between the parentheses is not an integer, then we extract the first year value from the text inside the parentheses.
+                    # If the value between the parentheses is not an integer, then we extract the first
+                    # year value from the text inside the parentheses.
                     if not is_year_int:
                         imdb_year_string_test = re.search(
                             regex_year, imdb_year_parentheses
@@ -453,10 +451,18 @@ def imdb_get_data(title, mtype, api_keys=[]):
                         "tvmini": "tvMiniSeries",
                     }
 
+                    try:
+                        imdb_pageconst = item["pagemap"]["metatags"][0][
+                            "imdb:pageconst"
+                        ]
+                    except Exception as e:
+                        imdb_pageconst = None
+
                     imdb_search_criteria = {
-                        "movie_title": imdb_title_without_parentheses,
+                        "media_title": imdb_title_without_parentheses,
+                        "media_pageconst": imdb_pageconst,
                         "media_type": imdb_media_types[media_type],
-                        "movie_year": imdb_year_parentheses
+                        "media_year": imdb_year_parentheses
                         if is_year_int
                         else imdb_year_from_string,
                     }
@@ -464,7 +470,8 @@ def imdb_get_data(title, mtype, api_keys=[]):
                     imdb_movie_data = imdb_get_data_from_datasets(imdb_search_criteria)
 
                     # If imdb_get_data_from_datasets() function doesn't return anything, then we assume that either the requested
-                    # movie doesn't exist on the dataset or that the media type was incorrect (e.g., specifying "tvSeries" instead of "movie" for a movie).
+                    # movie doesn't exist on the dataset or that the media type was incorrect
+                    # (e.g., specifying "tvSeries" instead of "movie" for a movie).
                     try:
                         if imdb_movie_data == None:
                             raise TypeError
@@ -511,6 +518,7 @@ def imdb_get_data(title, mtype, api_keys=[]):
 
 
 def rt_get_data(title, title_original, mtype, year):
+    """This function uses RT semi-public search API to get information about a specific title (movie or series)."""
 
     movie_title = title
     movie_title_original = title_original
@@ -529,17 +537,12 @@ def rt_get_data(title, title_original, mtype, year):
         is_year_int = False
 
     if not is_year_int:
-        results = {
-            "rt_title": "N/A",
-            "rt_year": "N/A",
-            "rt_rating": "N/A",
-            "rt_freshness": "N/A",
-        }
-        return results
+        return
 
     def rt_json_fetcher(rt_movie_title):
+        """This function uses RT semi-public search API to get a JSON response containing information about a specific title (movie or series)."""
+
         movie_title_rt = rt_movie_title
-        print("RT TITLE", movie_title_rt)
         query = urllib.parse.quote_plus(str(movie_title_rt))
         url = f"https://www.rottentomatoes.com/api/private/v2.0/search?q={query}"
 
@@ -560,20 +563,15 @@ def rt_get_data(title, title_original, mtype, year):
             )
             if hasattr(e, "reason"):
                 logging.debug("Reason: %s" % e.reason)
-
         else:
-
-            print("MEDIA TYPES", rt_media_types)
-
             data = json.loads(res.read().decode())
             media_list_json = data.get(rt_media_types[media_type])
             return media_list_json
 
     media_list = rt_json_fetcher(movie_title)
-    print("MEDIA LIST", media_list)
+
     if not media_list:
         rt_search_title = rt_search_media(movie_title, rt_media_types[media_type])
-        print("HERE I AM", rt_search_title)
         if not rt_search_title:
             return
         else:
@@ -586,9 +584,7 @@ def rt_get_data(title, title_original, mtype, year):
                 return
 
     results = {}
-
     for item in media_list:
-        # print("ITEM", item)
         try:
             if rt_media_types[media_type] == "movies":
                 rt_title = item["name"]
@@ -614,23 +610,30 @@ def rt_get_data(title, title_original, mtype, year):
             click.echo(Tcolors.FAIL + "Unexpected error: %s" % e + Tcolors.ENDC)
             raise
         else:
-            print("year", rt_year)
 
-            similar1 = SequenceMatcher(None, rt_title, movie_title).ratio()
-            similar2 = SequenceMatcher(
+            # Getting the similarity ratio between IMDb title and RT title
+            similar_title_1 = SequenceMatcher(None, rt_title, movie_title).ratio()
+            similar_title_2 = SequenceMatcher(
                 None, rt_title, movie_title + " " + movie_title_original
             ).ratio()
+            logging.debug(
+                "Similar ratio 1: %s, similar ratio 2: %s"
+                % (similar_title_1, similar_title_2)
+            )
 
+            # Sometimes the release year in RT is slightly different than that of IMDb.
+            # In this case, it is usually off by 1 or 2 years).
+            # Here, we use that difference and combine it with the similar ratio to get
+            # the exact title we are looking for.
+            # The code here is not bullet-proof and might provide inaccurate results,
+            # but this is very rare according to my tests.
+            # We can always modify the similarity threshold to increase the accuracy.
             if (
                 rt_year == int(media_year)
-                or rt_year == int(media_year) + 1
-                or rt_year == int(media_year) - 1
-            ) and max(similar1, similar2) >= 0.75:
-                rt_rating = item.get("meterScore")
-                print("year inside", rt_year)
-                print("Similar ratio 1", similar1)
-                print("Similar ratio 2", similar2)
+                or rt_year in range(int(media_year) - 2, int(media_year) + 3)
+            ) and max(similar_title_1, similar_title_2) >= 0.75:
 
+                rt_rating = item.get("meterScore")
                 results = {
                     "rt_title": rt_title,
                     "rt_year": rt_year,
@@ -639,7 +642,6 @@ def rt_get_data(title, title_original, mtype, year):
                 }
 
                 logging.info("RT's media data: %s" % results)
-                print("HERE WE GO BABY", results)
                 return results
 
 
@@ -655,7 +657,7 @@ if __name__ == "__main__":
     imdb_cli_init()
     # movie = rt_search_media("westworld", "tvSeries")
     # print("MOVIE", movie)
-    # data = rt_get_data("Compartment Number 6", "Compartment No. 6", "mov", "2021")
+    # data = rt_get_data("American Horror Story", "American Horror Story", "tv", "2013")
     # print(data)
     # results = rt_parse_json()
     # print(results)

@@ -158,9 +158,10 @@ def imdb_get_data_from_datasets(criteria={}):
     """This function takes in a dictionary containing movie data as input to output the corresponding Imdb's data.
     The input dictionary has the following structure:
         criteria = {
-                        "movie_title": The title of the movie,
+                        "media_title": The title of the movie,
+                        "media_pageconst": The ID of the title,
                         "media_type": (e.g., movie, tvSeries, etc.),
-                        "movie_year": The release year of the movie
+                        "media_year": The release year of the movie,
                     }
     """
 
@@ -189,11 +190,14 @@ def imdb_get_data_from_datasets(criteria={}):
         tsv_title_basics_ratings, sep="\t", chunksize=chunk_size, dtype=dtypes, header=0
     ):
 
-        res = chunk.loc[
-            (chunk["primaryTitle"] == argument_list["movie_title"])
-            & (chunk["titleType"] == argument_list["media_type"])
-            & (chunk["startYear"] == argument_list["movie_year"])
-        ]
+        if argument_list["media_pageconst"]:
+            res = chunk.loc[(chunk["tconst"] == argument_list["media_pageconst"])]
+        else:
+            res = chunk.loc[
+                (chunk["primaryTitle"] == argument_list["media_title"])
+                & (chunk["titleType"] == argument_list["media_type"])
+                & (chunk["startYear"] == argument_list["media_year"])
+            ]
 
         if not res.empty:
             imdb_movie_raw_data = res.values[0]
