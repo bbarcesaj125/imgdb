@@ -6,8 +6,6 @@ import logging
 from utils import Tcolors, logger
 from exceptions import ParseError, ConfigError, ApiError
 
-# logger("debug")
-
 
 class Config:
     """Default configuration."""

@@ -105,6 +105,13 @@ def imdb_download_poster(
             )
             sys.exit()
 
+        if not filepath:
+            saved_file_data = {
+                "filename": name_no_special_characters,
+                "filepath": file_path,
+            }
+            return saved_file_data
+
 
 if __name__ == "__main__":
     f = imdb_download_poster(

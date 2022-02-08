@@ -14,6 +14,7 @@ from imdb_data_handler import (
     datasets_updater,
 )
 from imdb_poster_fetcher import imdb_download_poster
+from image_processor import generate_media_image
 import click
 from utils import *
 from exceptions import InputError
@@ -159,9 +160,17 @@ def imdb_cli_init(mov, tv, tvmini, debug, logfile, freq, d):
                 )
 
                 if runtime_options["download"] == True:
-                    imdb_download_poster(
+                    downloaded_image_data = imdb_download_poster(
                         imdb_data["imdb_poster_url"], imdb_data["imdb_title"]
                     )
+                    generate_media_image(
+                        imdb_data["imdb_title"],
+                        imdb_data["imdb_rating"],
+                        rt_data["rt_rating"],
+                        downloaded_image_data["filename"],
+                        downloaded_image_data["filepath"],
+                    )
+
                 elif runtime_options["download"]:
                     click.echo(
                         Tcolors.FAIL + "The download option is invalid!" + Tcolors.ENDC
@@ -632,6 +641,7 @@ def rt_get_data(title, title_original, mtype, year):
                 rt_year == int(media_year)
                 or rt_year in range(int(media_year) - 2, int(media_year) + 3)
             ) and max(similar_title_1, similar_title_2) >= 0.75:
+                logging.debug("Matched year is: %s" % rt_year)
 
                 rt_rating = item.get("meterScore")
                 results = {

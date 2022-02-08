@@ -191,7 +191,10 @@ def imdb_get_data_from_datasets(criteria={}):
     ):
 
         if argument_list["media_pageconst"]:
-            res = chunk.loc[(chunk["tconst"] == argument_list["media_pageconst"])]
+            res = chunk.loc[
+                (chunk["tconst"] == argument_list["media_pageconst"])
+                & (chunk["titleType"] == argument_list["media_type"])
+            ]
         else:
             res = chunk.loc[
                 (chunk["primaryTitle"] == argument_list["media_title"])
