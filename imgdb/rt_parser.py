@@ -33,7 +33,13 @@ from difflib import SequenceMatcher
 @click.option(
     "-d", is_flag=True, default=False, help="Download the movie's poster image."
 )
-def imdb_cli_init(mov, tv, tvmini, debug, logfile, freq, d):
+@click.option(
+    "-e",
+    is_flag=True,
+    default=False,
+    help="Save the edited image containing the movie's ratings.",
+)
+def imdb_cli_init(mov, tv, tvmini, debug, logfile, freq, d, e):
     """Imdb CLI search."""
 
     # Checking and creating or getting current config info
@@ -44,6 +50,7 @@ def imdb_cli_init(mov, tv, tvmini, debug, logfile, freq, d):
     # Making sure that command-line options override those present in the configuration file
     runtime_options = {
         "download": d if d else current_config.get("download"),
+        "image_edit": e if e else current_config.get("image editing"),
         "log_file_path": logfile if logfile else current_config.get("log_file_path"),
         "freq": freq if freq else current_config.get("update frequency"),
         "gsearch_api_key": current_config.get("google search api key"),
@@ -101,7 +108,9 @@ def imdb_cli_init(mov, tv, tvmini, debug, logfile, freq, d):
             return
 
     # Updating the datasets
-    datasets_updater(runtime_options["freq"])
+    dataset_update_status = datasets_updater(runtime_options["freq"])
+    if dataset_update_status == 0:
+        return
 
     # Creating a dictionary containing a list of all mutually exclusive options
     options = {"mov": mov, "tv": tv, "tvmini": tvmini}
@@ -159,17 +168,28 @@ def imdb_cli_init(mov, tv, tvmini, debug, logfile, freq, d):
                     % replace_every_nth(50, " ", "\n", imdb_data["imdb_description"])
                 )
 
-                if runtime_options["download"] == True:
+                if (
+                    runtime_options["download"] == True
+                    or runtime_options["image_edit"] == True
+                ):
                     downloaded_image_data = imdb_download_poster(
                         imdb_data["imdb_poster_url"], imdb_data["imdb_title"]
                     )
-                    generate_media_image(
-                        imdb_data["imdb_title"],
-                        imdb_data["imdb_rating"],
-                        rt_data["rt_rating"],
-                        downloaded_image_data["filename"],
-                        downloaded_image_data["filepath"],
-                    )
+                    if runtime_options["image_edit"] == True:
+                        generate_media_image(
+                            imdb_data["imdb_title"],
+                            imdb_data["imdb_rating"],
+                            rt_data["rt_rating"],
+                            downloaded_image_data["filename"],
+                            downloaded_image_data["filepath"],
+                        )
+                    elif runtime_options["download"]:
+                        click.echo(
+                            Tcolors.FAIL
+                            + "The image editing option is invalid!"
+                            + Tcolors.ENDC
+                        )
+                    logging.critical("The image editing option is invalid!")
 
                 elif runtime_options["download"]:
                     click.echo(

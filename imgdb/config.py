@@ -35,6 +35,7 @@ class Config:
         "general": {
             "update frequency": "weekly",
             "download": False,
+            "image editing": False,
             "log file path": str(Path(IMGDB_CACHE_HOME / "imgdb.log")),
         },
         "interface": {
@@ -184,13 +185,15 @@ def parse_config_yaml(current_config, first_run=False):
             cfg_error=True, cfg_error_ctx="The configuration file cannot be empty!"
         )
 
-    # Aggressively parsing the current configuration options not allowing neither empty nor unknown options
+    # Aggressively parsing the current configuration options allowing neither empty nor unknown options
     for key, value in config_options.items():
         if key == "general" and isinstance(value, dict):
             for gen_key, gen_value in config_options[key].items():
                 if gen_key == "log file path" and not isinstance(gen_value, dict):
                     used_options[gen_key] = gen_value
                 elif gen_key == "download" and not isinstance(gen_value, dict):
+                    used_options[gen_key] = gen_value
+                elif gen_key == "image editing" and not isinstance(gen_value, dict):
                     used_options[gen_key] = gen_value
                 elif gen_key == "update frequency" and not isinstance(gen_value, dict):
                     used_options[gen_key] = gen_value

@@ -111,7 +111,6 @@ def generate_media_image(
                 canvas, header_text.upper(), multiline=True
             )
             logging.debug("Initial font metrics: %s" % str(font_metrics))
-            logging.debug("Header text: %s" % header_text)
 
             while font_metrics.text_width > 600 or font_metrics.text_height > 150:
                 context.font_size -= 1

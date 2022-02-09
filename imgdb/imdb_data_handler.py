@@ -78,15 +78,26 @@ def datasets_updater(freq):
                 is_pickle and time_difference > threshold
             ):
                 download_msg = "Downloading" if not is_pickle else "Updating"
-                logging.debug(
-                    "Downloading dataset file %s... yay :)" % tsv_gz_file_name
-                )
+                logging.info("Downloading dataset file %s... yay :)" % tsv_gz_file_name)
+                if count_url == 1:
+                    click.echo(
+                        Tcolors.OK_GREEN
+                        + "%s IMDb datasets!" % download_msg
+                        + Tcolors.ENDC
+                    )
+                # Downloading IMDb datasets
                 imdb_download_poster(
                     url,
                     name=tsv_file_name,
                     filepath=tsv_gz_file_path,
                     download_or_update=download_msg,
                 )
+
+                click.echo(
+                    Tcolors.OK_GREEN + "Unzipping: %s" % tsv_gz_file_name + Tcolors.ENDC
+                )
+                logging.info("Unzipping: %s" % tsv_gz_file_name)
+                # Unzipping the datsets
                 unzip(tsv_gz_file_path, tsv_file_path)
 
                 if count_url == len(datasets_list):
@@ -132,16 +143,29 @@ def merge_tsv_files(tsv_title_basics, tsv_title_ratings, base_path):
         logging.critical("We couldn't read the tsv files!")
         logging.debug("Error: %s" % e)
         click.echo(Tcolors.FAIL + "We couldn't read the tsv files!" + Tcolors.ENDC)
+        return 0
 
     # Merging the two tsv files
+    click.echo(Tcolors.OK_GREEN + "Merging IMDb datasets!" + Tcolors.ENDC)
+    logging.info("Merging IMDb datasets!")
     try:
         title_basics_ratings_pd = title_basics_pd.merge(title_ratings_pd, on="tconst")
     except Exception as e:
         logging.critical("We failed to merge the tsv files!")
         logging.debug("Error: %s" % e)
         click.echo(Tcolors.FAIL + "We failed to merge the tsv files!" + Tcolors.ENDC)
+        return 0
+    else:
+        click.echo(
+            Tcolors.OK_GREEN + "Successfully merged IMDb datasets!" + Tcolors.ENDC
+        )
+        logging.info("Successfully merged IMDb datasets!")
 
     # Saving the merged file to disk
+    click.echo(
+        Tcolors.OK_GREEN + "Saving the merged dataset file to disk!" + Tcolors.ENDC
+    )
+    logging.info("Saving the merged dataset file to disk!")
     try:
         title_basics_ratings_pd.to_csv(
             title_basics_ratings_file_path, sep="\t", index=False
@@ -151,6 +175,16 @@ def merge_tsv_files(tsv_title_basics, tsv_title_ratings, base_path):
         logging.debug("Error: %s" % e)
         click.echo(
             Tcolors.FAIL + "We failed to write the merged tsv file!" + Tcolors.ENDC
+        )
+        return 0
+    else:
+        click.echo(
+            Tcolors.OK_GREEN
+            + "Merged dataset file saved as:\n <%s>" % title_basics_ratings_file_path
+            + Tcolors.ENDC
+        )
+        logging.info(
+            "Merged dataset file saved as: <%s>" % title_basics_ratings_file_path
         )
 
 

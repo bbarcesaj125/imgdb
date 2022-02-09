@@ -79,7 +79,7 @@ def imdb_download_poster(
         )
         click.echo(
             Tcolors.OK_GREEN
-            + "\n➜ %s: %s - Size: %s KiB\n"
+            + "➜ %s: %s - Size: %s KiB\n"
             % (download_or_update, file_name, file_size // 1024)
             + Tcolors.ENDC
         )
