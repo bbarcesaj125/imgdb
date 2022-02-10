@@ -179,7 +179,7 @@ def imdb_cli_init(mov, tv, tvmini, debug, logfile, freq, d, e):
                         generate_media_image(
                             imdb_data["imdb_title"],
                             imdb_data["imdb_rating"],
-                            rt_data["rt_rating"],
+                            rt_media_rating,
                             downloaded_image_data["filename"],
                             downloaded_image_data["filepath"],
                         )

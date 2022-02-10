@@ -7,6 +7,8 @@ import click
 from utils import Tcolors
 import textwrap
 import logging
+from importlib.resources import files
+import resources.images as img_dir
 
 
 def generate_media_image(
@@ -85,15 +87,17 @@ def generate_media_image(
 
             ## IMDb ring chart rating
             if imdb_is_rating_float:
-                with Image(
-                    filename=f"./art/imdb_{imdb_rounded_rating}.png"
-                ) as img_imdb:
+                imdb_rating_img = files(img_dir).joinpath(
+                    f"imdb_{imdb_rounded_rating}.png"
+                )
+                with Image(filename=imdb_rating_img) as img_imdb:
                     img_imdb.resize(ring_size, ring_size)
                     canvas.composite(img_imdb, left=x_ring_chart, top=y_imdb_rating)
 
             ## RT ring chart rating
             if rt_is_rating_int:
-                with Image(filename=f"./art/rt_{rt_rounded_rating}.png") as img_rt:
+                rt_rating_img = files(img_dir).joinpath(f"rt_{rt_rounded_rating}.png")
+                with Image(filename=rt_rating_img) as img_rt:
                     img_rt.resize(ring_size, ring_size)
                     canvas.composite(img_rt, left=x_ring_chart, top=y_rt_rating)
 
