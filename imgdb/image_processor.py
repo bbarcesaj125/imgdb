@@ -4,11 +4,11 @@ from wand.drawing import Drawing
 from wand.display import display
 from wand.font import Font
 import click
-from utils import Tcolors
+from imgdb.utils import Tcolors
 import textwrap
 import logging
 from importlib.resources import files
-import resources.images as img_dir
+import imgdb.resources.images as img_dir
 
 
 def generate_media_image(

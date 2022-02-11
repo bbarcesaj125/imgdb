@@ -8,17 +8,17 @@ from time import sleep
 import re
 from urllib.error import URLError, HTTPError
 import os
-from imdb_data_handler import (
+from imgdb.imdb_data_handler import (
     imdb_get_data_from_datasets,
     merge_tsv_files,
     datasets_updater,
 )
-from imdb_poster_fetcher import imdb_download_poster
-from image_processor import generate_media_image
+from imgdb.imdb_poster_fetcher import imdb_download_poster
+from imgdb.image_processor import generate_media_image
 import click
-from utils import *
-from exceptions import InputError
-from config import check_config_file, Config
+from imgdb.utils import *
+from imgdb.exceptions import InputError
+from imgdb.config import check_config_file, Config
 from pathlib import Path
 from difflib import SequenceMatcher
 

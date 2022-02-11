@@ -3,9 +3,9 @@ import pandas as pd
 import logging
 import click
 import datetime
-from utils import Tcolors, unzip, pickler
-from config import Config
-from imdb_poster_fetcher import imdb_download_poster
+from imgdb.utils import Tcolors, unzip, pickler
+from imgdb.config import Config
+from imgdb.imdb_poster_fetcher import imdb_download_poster
 import re
 
 

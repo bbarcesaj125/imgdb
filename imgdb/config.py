@@ -3,8 +3,8 @@ from pathlib import Path
 import yaml
 import click
 import logging
-from utils import Tcolors, logger
-from exceptions import ParseError, ConfigError, ApiError
+from imgdb.utils import Tcolors, logger
+from imgdb.exceptions import ParseError, ConfigError, ApiError
 
 
 class Config:

@@ -1,6 +1,6 @@
 import unittest
-from config import parse_config_yaml, validate_config, read_config_yaml
-from exceptions import ConfigError
+from imgdb.config import parse_config_yaml, validate_config, read_config_yaml
+from imgdb.exceptions import ConfigError
 from unittest.mock import patch, mock_open
 
 
@@ -13,8 +13,7 @@ class TestConfig(unittest.TestCase):
         self.current_config = {
             "general": {
                 "update frequency": "weekly",
-                "log level": "warning",
-                "log file path": "./rt_movie_cover/config_test/.local/share/imgdb/imgdb.log",
+                "log file path": "./config_test/.local/share/imgdb/imgdb.log",
             },
             "interface": {
                 "api": {
@@ -24,8 +23,7 @@ class TestConfig(unittest.TestCase):
             },
         }
         self.parsed_config = {
-            "log file path": "./rt_movie_cover/config_test/.local/share/imgdb/imgdb.log",
-            "log level": "warning",
+            "log file path": "./config_test/.local/share/imgdb/imgdb.log",
             "update frequency": "weekly",
             "google search api key": "AIzaSyANWkWTK4gmJIRHferGPmqCTdffdIT8XFjhk",
             "imdb custom search id": "32b1e112kdf754be1f",
@@ -33,7 +31,6 @@ class TestConfig(unittest.TestCase):
         self.yaml_file_content = (
             "general:\n"
             "  log file path: ./config_test/.local/share/imgdb/imgdb.log\n"
-            "  log level: warning\n"
             "  update frequency: weekly\n"
             "interface:\n"
             "  api:\n"
@@ -50,8 +47,7 @@ class TestConfig(unittest.TestCase):
         self.assertEqual(
             parsed_yaml,
             {
-                "log file path": "./rt_movie_cover/config_test/.local/share/imgdb/imgdb.log",
-                "log level": "warning",
+                "log file path": "./config_test/.local/share/imgdb/imgdb.log",
                 "update frequency": "weekly",
                 "google search api key": "AIzaSyANWkWTK4gmJIRHferGPmqCTdffdIT8XFjhk",
                 "imdb custom search id": "32b1e112kdf754be1f",
@@ -66,8 +62,7 @@ class TestConfig(unittest.TestCase):
         file_path_mock = "path/to/imgdb.yaml"
 
         parse_config_yaml.return_value = {
-            "log file path": "./rt_movie_cover/config_test/.local/share/imgdb/imgdb.log",
-            "log level": "warning",
+            "log file path": "./config_test/.local/share/imgdb/imgdb.log",
             "update frequency": "weekly",
             "google search api key": "AIzaSyANWkWTK4gmJIRHferGPmqCTdffdIT8XFjhk",
             "imdb custom search id": "32b1e112kdf754be1f",
@@ -78,8 +73,7 @@ class TestConfig(unittest.TestCase):
             self.assertEqual(
                 reading_mock_file,
                 {
-                    "log file path": "./rt_movie_cover/config_test/.local/share/imgdb/imgdb.log",
-                    "log level": "warning",
+                    "log file path": "./config_test/.local/share/imgdb/imgdb.log",
                     "update frequency": "weekly",
                     "google search api key": "AIzaSyANWkWTK4gmJIRHferGPmqCTdffdIT8XFjhk",
                     "imdb custom search id": "32b1e112kdf754be1f",
@@ -91,8 +85,8 @@ class TestConfig(unittest.TestCase):
 
     def test_validate_config(self):
 
-        # Changing the <log level>'s value to an empty string to test validate_config()
-        self.parsed_config["log level"] = ""
+        # Changing the <log file path>'s value to an empty string to test validate_config()
+        self.parsed_config["log file path"] = ""
         wrong_config = self.parsed_config
 
         self.assertEqual(
