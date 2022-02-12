@@ -10,7 +10,8 @@ import re
 
 
 def datasets_updater(freq):
-    """This functions downloads Imdb's datasets and updates them according to a user-defined interval."""
+    """This functions downloads Imdb's datasets and updates
+    them according to a user-defined interval."""
 
     title_basics_url = "https://datasets.imdbws.com/title.basics.tsv.gz"
     title_ratings_url = "https://datasets.imdbws.com/title.ratings.tsv.gz"
@@ -47,12 +48,11 @@ def datasets_updater(freq):
             break
         elif count_freq == len(update_freq):
             logging.warning(
-                "The update frequency format is wrong. Using 'weekly' as a fallback!"
+                "The update frequency format is wrong." " Using 'weekly' as a fallback!"
             )
             click.echo(
-                Tcolors().WARNING
-                + "The update frequency format is wrong. Using 'weekly' as a fallback!"
-                + Tcolors.ENDC
+                Tcolors().WARNING + "The update frequency format is wrong."
+                " Using 'weekly' as a fallback!" + Tcolors.ENDC
             )
             threshold = update_freq["weekly"]
             logging.debug("Threshold inside loop is %s" % threshold)
@@ -189,7 +189,9 @@ def merge_tsv_files(tsv_title_basics, tsv_title_ratings, base_path):
 
 
 def imdb_get_data_from_datasets(criteria={}):
-    """This function takes in a dictionary containing movie data as input to output the corresponding Imdb's data.
+    """This function takes in a dictionary containing movie data
+    as input to output the corresponding Imdb's data.
+
     The input dictionary has the following structure:
         criteria = {
                         "media_title": The title of the movie,

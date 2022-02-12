@@ -7,7 +7,7 @@
    viewBox="0 0 210 297"
    height="297mm"
    width="210mm"
-   inkscape:version="1.1.1 (3bf5ae0d25, 2021-09-20, custom)"
+   inkscape:version="1.1.2 (0a00cf5339, 2022-02-04)"
    sodipodi:docname="movie_rating_template.svg"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
@@ -23,15 +23,15 @@
      inkscape:pagecheckerboard="0"
      inkscape:document-units="mm"
      showgrid="false"
-     inkscape:zoom="0.70710678"
-     inkscape:cx="446.18438"
-     inkscape:cy="562.857"
+     inkscape:zoom="2.8284271"
+     inkscape:cx="463.68527"
+     inkscape:cy="1042.9825"
      inkscape:window-width="1920"
      inkscape:window-height="1064"
-     inkscape:window-x="1920"
+     inkscape:window-x="0"
      inkscape:window-y="16"
      inkscape:window-maximized="1"
-     inkscape:current-layer="layer1"
+     inkscape:current-layer="g1709-4"
      inkscape:snap-others="true"
      inkscape:snap-nodes="true"
      showguides="true"
@@ -523,6 +523,18 @@
        width="968.52057"
        height="356.58798"
        id="rect31347-3-0-4" />
+    <rect
+       x="-2234.1003"
+       y="1058.881"
+       width="968.52057"
+       height="356.58798"
+       id="rect31347-4-9" />
+    <rect
+       x="-2234.1003"
+       y="1058.881"
+       width="968.52057"
+       height="356.58798"
+       id="rect31347-3-7-17" />
   </defs>
   <g
      inkscape:label="Layer 1"
@@ -587,7 +599,7 @@
          style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:96px;line-height:41.5386px;font-family:Jaapokki;-inkscape-font-specification:'Jaapokki, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;white-space:pre;shape-inside:url(#rect31347);fill:#a0892c"><tspan
            x="-2234.0996"
            y="1094.6423"
-           id="tspan1528">IM</tspan></text>
+           id="tspan30623">IM</tspan></text>
       <rect
          style="fill:#ffcc00;fill-opacity:1;stroke:none;stroke-width:2.09348;stroke-linecap:round;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;paint-order:fill markers stroke"
          id="rect73889"
@@ -602,7 +614,7 @@
          style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:96px;line-height:41.5386px;font-family:Jaapokki;-inkscape-font-specification:'Jaapokki, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;white-space:pre;shape-inside:url(#rect31347-3)"><tspan
            x="-2234.0996"
            y="1094.6423"
-           id="tspan1530">Db</tspan></text>
+           id="tspan30625">Db</tspan></text>
       <circle
          style="fill:none;stroke:#f5ecdc;stroke-width:5;stroke-linecap:round;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;paint-order:fill markers stroke"
          id="path1376-2"
@@ -669,7 +681,7 @@
          style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:96px;line-height:41.5386px;font-family:Jaapokki;-inkscape-font-specification:'Jaapokki, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;white-space:pre;shape-inside:url(#rect31347-5);fill:#a0892c"><tspan
            x="-2234.0996"
            y="1094.6423"
-           id="tspan1532">IM</tspan></text>
+           id="tspan30627">IM</tspan></text>
       <rect
          style="fill:#ffcc00;fill-opacity:1;stroke:none;stroke-width:2.09348;stroke-linecap:round;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;paint-order:fill markers stroke"
          id="rect73889-78"
@@ -684,7 +696,7 @@
          style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:96px;line-height:41.5386px;font-family:Jaapokki;-inkscape-font-specification:'Jaapokki, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;white-space:pre;shape-inside:url(#rect31347-3-9)"><tspan
            x="-2234.0996"
            y="1094.6423"
-           id="tspan1534">Db</tspan></text>
+           id="tspan30629">Db</tspan></text>
       <circle
          style="fill:none;stroke:#f5ecdc;stroke-width:5;stroke-linecap:round;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;paint-order:fill markers stroke"
          id="path1376-2-4"
@@ -718,7 +730,7 @@
          style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:96px;line-height:41.5386px;font-family:Jaapokki;-inkscape-font-specification:'Jaapokki, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;white-space:pre;shape-inside:url(#rect31347-481);fill:#a0892c"><tspan
            x="-2234.0996"
            y="1094.6423"
-           id="tspan1536">IM</tspan></text>
+           id="tspan30631">IM</tspan></text>
       <rect
          style="fill:#ffcc00;fill-opacity:1;stroke:none;stroke-width:2.09348;stroke-linecap:round;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;paint-order:fill markers stroke"
          id="rect73889-4"
@@ -733,7 +745,7 @@
          style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:96px;line-height:41.5386px;font-family:Jaapokki;-inkscape-font-specification:'Jaapokki, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;white-space:pre;shape-inside:url(#rect31347-3-03)"><tspan
            x="-2234.0996"
            y="1094.6423"
-           id="tspan1538">Db</tspan></text>
+           id="tspan30633">Db</tspan></text>
       <circle
          style="fill:none;stroke:#f5ecdc;stroke-width:5;stroke-linecap:round;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;paint-order:fill markers stroke"
          id="path1376-2-31"
@@ -774,7 +786,7 @@
          style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:96px;line-height:41.5386px;font-family:Jaapokki;-inkscape-font-specification:'Jaapokki, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;white-space:pre;shape-inside:url(#rect31347-96);fill:#a0892c"><tspan
            x="-2234.0996"
            y="1094.6423"
-           id="tspan1540">IM</tspan></text>
+           id="tspan30635">IM</tspan></text>
       <rect
          style="fill:#ffcc00;fill-opacity:1;stroke:none;stroke-width:2.09348;stroke-linecap:round;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;paint-order:fill markers stroke"
          id="rect73889-1"
@@ -789,7 +801,7 @@
          style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:96px;line-height:41.5386px;font-family:Jaapokki;-inkscape-font-specification:'Jaapokki, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;white-space:pre;shape-inside:url(#rect31347-3-3)"><tspan
            x="-2234.0996"
            y="1094.6423"
-           id="tspan1542">Db</tspan></text>
+           id="tspan30637">Db</tspan></text>
       <circle
          style="fill:none;stroke:#f5ecdc;stroke-width:5;stroke-linecap:round;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;paint-order:fill markers stroke"
          id="path1376-2-9"
@@ -830,7 +842,7 @@
          style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:96px;line-height:41.5386px;font-family:Jaapokki;-inkscape-font-specification:'Jaapokki, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;white-space:pre;shape-inside:url(#rect31347-48);fill:#a0892c"><tspan
            x="-2234.0996"
            y="1094.6423"
-           id="tspan1544">IM</tspan></text>
+           id="tspan30639">IM</tspan></text>
       <rect
          style="fill:#ffcc00;fill-opacity:1;stroke:none;stroke-width:2.09348;stroke-linecap:round;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;paint-order:fill markers stroke"
          id="rect73889-08"
@@ -845,7 +857,7 @@
          style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:96px;line-height:41.5386px;font-family:Jaapokki;-inkscape-font-specification:'Jaapokki, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;white-space:pre;shape-inside:url(#rect31347-3-1)"><tspan
            x="-2234.0996"
            y="1094.6423"
-           id="tspan1546">Db</tspan></text>
+           id="tspan30641">Db</tspan></text>
       <circle
          style="fill:none;stroke:#f5ecdc;stroke-width:5;stroke-linecap:round;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;paint-order:fill markers stroke"
          id="path1376-2-5"
@@ -886,7 +898,7 @@
          style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:96px;line-height:41.5386px;font-family:Jaapokki;-inkscape-font-specification:'Jaapokki, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;white-space:pre;shape-inside:url(#rect31347-97);fill:#a0892c"><tspan
            x="-2234.0996"
            y="1094.6423"
-           id="tspan1548">IM</tspan></text>
+           id="tspan30643">IM</tspan></text>
       <rect
          style="fill:#ffcc00;fill-opacity:1;stroke:none;stroke-width:2.09348;stroke-linecap:round;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;paint-order:fill markers stroke"
          id="rect73889-5"
@@ -901,7 +913,7 @@
          style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:96px;line-height:41.5386px;font-family:Jaapokki;-inkscape-font-specification:'Jaapokki, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;white-space:pre;shape-inside:url(#rect31347-3-76)"><tspan
            x="-2234.0996"
            y="1094.6423"
-           id="tspan1550">Db</tspan></text>
+           id="tspan30645">Db</tspan></text>
       <circle
          style="fill:none;stroke:#f5ecdc;stroke-width:5;stroke-linecap:round;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;paint-order:fill markers stroke"
          id="path1376-2-3"
@@ -942,7 +954,7 @@
          style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:96px;line-height:41.5386px;font-family:Jaapokki;-inkscape-font-specification:'Jaapokki, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;white-space:pre;shape-inside:url(#rect31347-9);fill:#a0892c"><tspan
            x="-2234.0996"
            y="1094.6423"
-           id="tspan1552">IM</tspan></text>
+           id="tspan30647">IM</tspan></text>
       <rect
          style="fill:#ffcc00;fill-opacity:1;stroke:none;stroke-width:2.09348;stroke-linecap:round;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;paint-order:fill markers stroke"
          id="rect73889-7"
@@ -957,7 +969,7 @@
          style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:96px;line-height:41.5386px;font-family:Jaapokki;-inkscape-font-specification:'Jaapokki, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;white-space:pre;shape-inside:url(#rect31347-3-0)"><tspan
            x="-2234.0996"
            y="1094.6423"
-           id="tspan1554">Db</tspan></text>
+           id="tspan30649">Db</tspan></text>
       <circle
          style="fill:none;stroke:#f5ecdc;stroke-width:5;stroke-linecap:round;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;paint-order:fill markers stroke"
          id="path1376-2-1"
@@ -1024,7 +1036,7 @@
          style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:96px;line-height:41.5386px;font-family:Jaapokki;-inkscape-font-specification:'Jaapokki, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;white-space:pre;shape-inside:url(#rect31347-4);fill:#a0892c"><tspan
            x="-2234.0996"
            y="1094.6423"
-           id="tspan1556">IM</tspan></text>
+           id="tspan30651">IM</tspan></text>
       <rect
          style="fill:#ffcc00;fill-opacity:1;stroke:none;stroke-width:2.09348;stroke-linecap:round;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;paint-order:fill markers stroke"
          id="rect73889-0"
@@ -1039,7 +1051,7 @@
          style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:96px;line-height:41.5386px;font-family:Jaapokki;-inkscape-font-specification:'Jaapokki, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;white-space:pre;shape-inside:url(#rect31347-3-7)"><tspan
            x="-2234.0996"
            y="1094.6423"
-           id="tspan1558">Db</tspan></text>
+           id="tspan30653">Db</tspan></text>
       <circle
          style="fill:none;stroke:#f5ecdc;stroke-width:5;stroke-linecap:round;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;paint-order:fill markers stroke"
          id="path1376-2-8"
@@ -1059,6 +1071,32 @@
          sodipodi:open="true"
          sodipodi:arc-type="arc"
          d="M 29.754961,8.6643827 A 17.756926,17.756926 0 0 1 43.190213,18.443889" />
+      <rect
+         style="fill:#00baff;fill-opacity:1;stroke:#0a7df8;stroke-width:1.62093;stroke-linecap:round;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;paint-order:fill markers stroke"
+         id="rect25601-4-7"
+         width="16.431065"
+         height="16.431065"
+         x="96.361725"
+         y="224.41222"
+         inkscape:export-filename="/home/yusarch/Documents/Programming/Python/rt_movie_cover/art/imgdb_logo.png"
+         inkscape:export-xdpi="360.20389"
+         inkscape:export-ydpi="360.20389" />
+      <text
+         xml:space="preserve"
+         transform="matrix(0.08546873,0,0,0.08546873,289.12628,138.88337)"
+         id="text31345-3-11"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:82.5513px;line-height:32.1475px;font-family:Jaapokki;-inkscape-font-specification:'Jaapokki, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;white-space:pre;shape-inside:url(#rect31347-4-9);fill:#406390;fill-opacity:1"><tspan
+           x="-2234.0996"
+           y="1087.8465"
+           id="tspan30655">Img</tspan></text>
+      <text
+         xml:space="preserve"
+         transform="matrix(0.08546873,0,0,0.08546873,290.26057,144.66512)"
+         id="text31345-8-7-5"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:96px;line-height:41.5386px;font-family:Jaapokki;-inkscape-font-specification:'Jaapokki, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;white-space:pre;shape-inside:url(#rect31347-3-7-17)"><tspan
+           x="-2234.0996"
+           y="1094.6423"
+           id="tspan30657">Db</tspan></text>
     </g>
     <g
        id="g1709-4-4"
@@ -1080,7 +1118,7 @@
          style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:96px;line-height:41.5386px;font-family:Jaapokki;-inkscape-font-specification:'Jaapokki, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;white-space:pre;shape-inside:url(#rect31347-4-8);fill:#a0892c"><tspan
            x="-2234.0996"
            y="1094.6423"
-           id="tspan1560">IM</tspan></text>
+           id="tspan30659">IM</tspan></text>
       <rect
          style="fill:#ffcc00;fill-opacity:1;stroke:none;stroke-width:4.84578;stroke-linecap:round;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;paint-order:fill markers stroke"
          id="rect73889-0-4"
@@ -1096,7 +1134,7 @@
          style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:96px;line-height:41.5386px;font-family:Jaapokki;-inkscape-font-specification:'Jaapokki, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;white-space:pre;shape-inside:url(#rect31347-3-7-8)"><tspan
            x="-2234.0996"
            y="1094.6423"
-           id="tspan1562">Db</tspan></text>
+           id="tspan30661">Db</tspan></text>
       <circle
          style="fill:none;stroke:#f5ecdc;stroke-width:5;stroke-linecap:round;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;paint-order:fill markers stroke"
          id="path1376-2-8-2"
@@ -1137,7 +1175,7 @@
          style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:96px;line-height:41.5386px;font-family:Jaapokki;-inkscape-font-specification:'Jaapokki, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;white-space:pre;shape-inside:url(#rect31347-4-8-6);fill:#a0892c"><tspan
            x="-2234.0996"
            y="1094.6423"
-           id="tspan1564">IM</tspan></text>
+           id="tspan30663">IM</tspan></text>
       <rect
          style="fill:#ffcc00;fill-opacity:1;stroke:none;stroke-width:2.09348;stroke-linecap:round;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;paint-order:fill markers stroke"
          id="rect73889-0-4-6"
@@ -1152,7 +1190,7 @@
          style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:96px;line-height:41.5386px;font-family:Jaapokki;-inkscape-font-specification:'Jaapokki, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;white-space:pre;shape-inside:url(#rect31347-3-7-8-8)"><tspan
            x="-2234.0996"
            y="1094.6423"
-           id="tspan1566">Db</tspan></text>
+           id="tspan30665">Db</tspan></text>
       <circle
          style="fill:none;stroke:#f5ecdc;stroke-width:5;stroke-linecap:round;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;paint-order:fill markers stroke"
          id="path1376-2-8-2-9"
@@ -1193,7 +1231,7 @@
          style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:96px;line-height:41.5386px;font-family:Jaapokki;-inkscape-font-specification:'Jaapokki, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;white-space:pre;shape-inside:url(#rect31347-4-8-6-0);fill:#a0892c"><tspan
            x="-2234.0996"
            y="1094.6423"
-           id="tspan1568">IM</tspan></text>
+           id="tspan30667">IM</tspan></text>
       <rect
          style="fill:#ffcc00;fill-opacity:1;stroke:none;stroke-width:2.09348;stroke-linecap:round;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;paint-order:fill markers stroke"
          id="rect73889-0-4-6-7"
@@ -1208,7 +1246,7 @@
          style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:96px;line-height:41.5386px;font-family:Jaapokki;-inkscape-font-specification:'Jaapokki, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;white-space:pre;shape-inside:url(#rect31347-3-7-8-8-4)"><tspan
            x="-2234.0996"
            y="1094.6423"
-           id="tspan1570">Db</tspan></text>
+           id="tspan30669">Db</tspan></text>
       <circle
          style="fill:none;stroke:#f5ecdc;stroke-width:5;stroke-linecap:round;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;paint-order:fill markers stroke"
          id="path1376-2-8-2-9-7"
@@ -1249,7 +1287,7 @@
          style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:96px;line-height:41.5386px;font-family:Jaapokki;-inkscape-font-specification:'Jaapokki, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;white-space:pre;shape-inside:url(#rect31347-4-8-6-0-2);fill:#a0892c"><tspan
            x="-2234.0996"
            y="1094.6423"
-           id="tspan1572">IM</tspan></text>
+           id="tspan30671">IM</tspan></text>
       <rect
          style="fill:#ffcc00;fill-opacity:1;stroke:none;stroke-width:2.09348;stroke-linecap:round;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;paint-order:fill markers stroke"
          id="rect73889-0-4-6-7-1"
@@ -1264,7 +1302,7 @@
          style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:96px;line-height:41.5386px;font-family:Jaapokki;-inkscape-font-specification:'Jaapokki, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;white-space:pre;shape-inside:url(#rect31347-3-7-8-8-4-6)"><tspan
            x="-2234.0996"
            y="1094.6423"
-           id="tspan1574">Db</tspan></text>
+           id="tspan30673">Db</tspan></text>
       <circle
          style="fill:none;stroke:#f5ecdc;stroke-width:5;stroke-linecap:round;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;paint-order:fill markers stroke"
          id="path1376-2-8-2-9-7-9"

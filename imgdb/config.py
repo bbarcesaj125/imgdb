@@ -48,7 +48,8 @@ class Config:
 
 
 def check_config_file(debug):
-    """This function checks if a config file exists in the CONFIG directory."""
+    """This function checks if a config file exists
+    in the CONFIG directory."""
 
     # Preparing necessary configuration & data directories
     imdb_datasets_dir = (Config.IMDB_DATASETS_DIR, "Imdb datasets")
@@ -60,10 +61,8 @@ def check_config_file(debug):
                 d[0].mkdir(parents=True)
             except Exception as e:
                 click.echo(
-                    Tcolors.FAIL
-                    + "Something went wrong while trying to create the '%s' directory!"
-                    % d[1]
-                    + Tcolors.ENDC
+                    Tcolors.FAIL + "Something went wrong while trying"
+                    " to create the '%s' directory!" % d[1] + Tcolors.ENDC
                 )
                 return 0
 
@@ -90,13 +89,13 @@ def create_default_yaml(config_file):
             imgdb_config_dir.mkdir(parents=True, exist_ok=True)
         except Exception as e:
             logging.critical(
-                "Something went wrong while trying to create the configuration directory!"
+                "Something went wrong while trying to create"
+                " the configuration directory!"
             )
             logging.debug("Error: %s" % e)
             click.echo(
-                Tcolors.FAIL
-                + "Something went wrong while trying to create the configuration directory!"
-                + Tcolors.ENDC
+                Tcolors.FAIL + "Something went wrong while trying to create"
+                " the configuration directory!" + Tcolors.ENDC
             )
             return 0
 
@@ -117,20 +116,21 @@ def create_default_yaml(config_file):
         )
     except Exception as e:
         logging.critical(
-            "Something went wrong while trying to save the program's configuration file!"
+            "Something went wrong while trying to save"
+            " the program's configuration file!"
         )
         logging.debug("Error: %s" % e)
         click.echo(
-            Tcolors.FAIL
-            + "Something went wrong while trying to save the program's configuration file!"
-            + Tcolors.ENDC
+            Tcolors.FAIL + "Something went wrong while trying to save"
+            " the program's configuration file!" + Tcolors.ENDC
         )
         return 0
     return parse_config_yaml(Config.DEFAULT_CONFIG, first_run=True)
 
 
 def read_config_yaml(config_file):
-    """This function extracts configuration options from a YAML configuration file."""
+    """This function extracts configuration options
+    from a YAML configuration file."""
 
     config_file_path = config_file
     try:
@@ -142,13 +142,12 @@ def read_config_yaml(config_file):
         if hasattr(exc, "problem_mark"):
             mark = exc.problem_mark
             logging.critical(
-                "The configuration file is malformatted. Error(s) at line %s, column %s!"
-                % (mark.line + 1, mark.column + 1)
+                "The configuration file is malformatted."
+                " Error(s) at line %s, column %s!" % (mark.line + 1, mark.column + 1)
             )
             click.echo(
-                Tcolors.FAIL
-                + "The configuration file is malformatted. Error(s) at line %s, column %s!"
-                % (mark.line + 1, mark.column + 1)
+                Tcolors.FAIL + "The configuration file is malformatted."
+                " Error(s) at line %s, column %s!" % (mark.line + 1, mark.column + 1)
                 + Tcolors.ENDC
             )
         else:
@@ -163,19 +162,20 @@ def read_config_yaml(config_file):
             click.echo(Tcolors.FAIL + e.error_ctx + Tcolors.ENDC)
         else:
             logging.critical(
-                "Something went wrong while trying to read the program's configuration file!"
+                "Something went wrong while trying to read"
+                " the program's configuration file!"
             )
             logging.debug("Error: %s" % e)
             click.echo(
-                Tcolors.FAIL
-                + "Something went wrong while trying to read the program's configuration file!"
-                + Tcolors.ENDC
+                Tcolors.FAIL + "Something went wrong while trying to read"
+                " the program's configuration file!" + Tcolors.ENDC
             )
         return 0
 
 
 def parse_config_yaml(current_config, first_run=False):
-    """This function parses the configuration values contained in the configuration dictionary obtained by reading the YAML file."""
+    """This function parses the configuration values contained in the
+    configuration dictionary obtained by reading the YAML file."""
 
     config_options = current_config
     used_options = {}
@@ -185,7 +185,8 @@ def parse_config_yaml(current_config, first_run=False):
             cfg_error=True, cfg_error_ctx="The configuration file cannot be empty!"
         )
 
-    # Aggressively parsing the current configuration options allowing neither empty nor unknown options
+    # Aggressively parsing the current configuration options allowing
+    # neither empty nor unknown options
     for key, value in config_options.items():
         if key == "general" and isinstance(value, dict):
             for gen_key, gen_value in config_options[key].items():
@@ -250,7 +251,8 @@ def validate_config(
     try:
         if check_api:
             raise ApiError(
-                "You are running the application for the first time. Please, provide a working Google Search API key in the configuration file!"
+                "You are running the application for the first time."
+                " Please, provide a working Google Search API key in the configuration file!"
             )
     except ApiError as e:
         logging.critical("Error: %s. Context: %s" % (e.name, e.error_ctx))
@@ -262,7 +264,8 @@ def validate_config(
         try:
             if key not in config_options:
                 raise ApiError(
-                    "You must provide a working Google Custom Search API key in the configuration file!"
+                    "You must provide a working Google Custom Search"
+                    " API key in the configuration file!"
                 )
                 break
         except ApiError as e:

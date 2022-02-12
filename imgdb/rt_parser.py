@@ -47,7 +47,8 @@ def imdb_cli_init(mov, tv, tvmini, debug, logfile, freq, d, e):
     if current_config == 0:
         return
 
-    # Making sure that command-line options override those present in the configuration file
+    # Making sure that command-line options override those
+    # present in the configuration file
     runtime_options = {
         "download": d if d else current_config.get("download"),
         "image_edit": e if e else current_config.get("image editing"),
@@ -78,14 +79,13 @@ def imdb_cli_init(mov, tv, tvmini, debug, logfile, freq, d, e):
                         )
                     except PermissionError:
                         click.echo(
-                            Tcolors.FAIL
-                            + "Permission denied. You don't have the required permissions on '%s'!"
-                            % logfile_directory
+                            Tcolors.FAIL + "Permission denied. You don't have"
+                            " the required permissions on '%s'!" % logfile_directory
                             + Tcolors.ENDC
                         )
                         logging.critical(
-                            "Permission denied. You don't have the required permissions on '%s'!"
-                            % logfile_directory
+                            "Permission denied. You don't have"
+                            " the required permissions on '%s'!" % logfile_directory
                         )
                         return
                 else:
@@ -98,12 +98,12 @@ def imdb_cli_init(mov, tv, tvmini, debug, logfile, freq, d, e):
                     return
         else:
             click.echo(
-                Tcolors.WARNING
-                + "Either the log file's path is invalid or that it doesn't end with the .log extension!"
-                + Tcolors.ENDC
+                Tcolors.WARNING + "Either the log file's path is invalid or that"
+                " it doesn't end with the .log extension!" + Tcolors.ENDC
             )
             logging.warning(
-                "Either the log file's path is invalid or that it doesn't end with the .log extension!"
+                "Either the log file's path is invalid or that"
+                " it doesn't end with the .log extension!"
             )
             return
 
@@ -130,7 +130,8 @@ def imdb_cli_init(mov, tv, tvmini, debug, logfile, freq, d, e):
             Tcolors.WARNING + "Please specify the media type argument!" + Tcolors.ENDC
         )
     else:
-        # Here, this code only executes when the user has specified only one option from the mutually exclusive options
+        # Here, this code only executes when the user has specified only
+        # one option from the mutually exclusive options
         if len(used_options) == 1:
             media_name = used_options[0]
             media_type = list(options.keys())[list(options.values()).index(media_name)]
@@ -183,15 +184,15 @@ def imdb_cli_init(mov, tv, tvmini, debug, logfile, freq, d, e):
                             downloaded_image_data["filename"],
                             downloaded_image_data["filepath"],
                         )
-                    elif runtime_options["download"]:
+                    else:
                         click.echo(
                             Tcolors.FAIL
                             + "The image editing option is invalid!"
                             + Tcolors.ENDC
                         )
-                    logging.critical("The image editing option is invalid!")
+                        logging.critical("The image editing option is invalid!")
 
-                elif runtime_options["download"]:
+                else:
                     click.echo(
                         Tcolors.FAIL + "The download option is invalid!" + Tcolors.ENDC
                     )
@@ -215,7 +216,8 @@ def imdb_cli_init(mov, tv, tvmini, debug, logfile, freq, d, e):
 
 
 def rt_construct_json():
-    """This function creates a JSON file that contains a list of movies with their respective metadata."""
+    """This function creates a JSON file that contains a list
+    of movies with their respective metadata."""
 
     data = rt_parse_json()
     final_data = []
@@ -247,11 +249,19 @@ def rt_construct_json():
 
 
 def rt_parse_json():
-    """This is a function that fetches and parses JSON data from a url (RottenTomatoes semi-public API)."""
+    """This is a function that fetches and parses JSON data from
+    a url (RottenTomatoes semi-public API)."""
 
+    rt_base_url = "https://www.rottentomatoes.com/api/private/v2.0"
     api_urls = [
-        "https://www.rottentomatoes.com/api/private/v2.0/browse?minTomato=70&maxTomato=100&maxPopcorn=100&services=amazon%3Bhbo_go%3Bitunes%3Bnetflix_iw%3Bvudu%3Bamazon_prime%3Bfandango_now&certified=true&sortBy=release&type=cf-dvd-streaming-all",
-        "https://www.rottentomatoes.com/api/private/v2.0/browse?maxTomato=100&services=amazon%3Bhbo_go%3Bitunes%3Bnetflix_iw%3Bvudu%3Bamazon_prime%3Bfandango_now&certified&sortBy=release&type=cf-dvd-streaming-all&page=2",
+        f"{rt_base_url}/browse?minTomato=70&maxTomato=100"
+        "&maxPopcorn=100&services=amazon%3Bhbo_go%3B"
+        "itunes%3Bnetflix_iw%3Bvudu%3Bamazon_prime%3Bfandango_now"
+        "&certified=true&sortBy=release&type=cf-dvd-streaming-all",
+        f"{rt_base_url}/browse?minTomato=70&maxTomato=100"
+        "&maxPopcorn=100&services=amazon%3Bhbo_go%3B"
+        "itunes%3Bnetflix_iw%3Bvudu%3Bamazon_prime%3Bfandango_now"
+        "&certified=true&sortBy=release&type=cf-dvd-streaming-all&page=2",
     ]
     full_results = []
 
@@ -285,20 +295,29 @@ def rt_search_media(title, mtype):
     query = urllib.parse.quote_plus(rt_search_term)
     url = f"https://www.rottentomatoes.com/search?search={query}"
 
-    # Implementing a random wait timer to avoid some anti-scraping detection methods (not sure if it works but gonna keep it anyway).
+    # Implementing a random wait timer to avoid some anti-scraping detection
+    # methods (not sure if it works but gonna keep it anyway).
     sleep(uniform(0.05, 0.1))
 
     # Creating a list of user agents to use with urllib
     user_agents_list = [
-        "Mozilla/5.0 (Windows NT 5.1; rv:11.0) Gecko Firefox/11.0 (via ggpht.com GoogleImageProxy)",
+        "Mozilla/5.0 (Windows NT 5.1; rv:11.0) Gecko Firefox/11.0"
+        " (via ggpht.com GoogleImageProxy)",
         "CheckMarkNetwork/1.0 (+http://www.checkmarknetwork.com/spider.html)",
-        "Mozilla/5.0 (iPhone; CPU iPhone OS 13_3_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 [FBAN/FBIOS;FBDV/iPhone11,8;FBMD/iPhone;FBSN/iOS;FBSV/13.3.1;FBSS/2;FBID/phone;FBLC/en_US;FBOP/5;FBCR/]",
+        "Mozilla/5.0 (iPhone; CPU iPhone OS 13_3_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML,"
+        " like Gecko) Mobile/15E148 [FBAN/FBIOS;FBDV/iPhone11,8;FBMD/iPhone;FBSN/iOS;FBSV/13.3.1;"
+        "FBSS/2;FBID/phone;FBLC/en_US;FBOP/5;FBCR/]",
         "Mozilla/5.0 CK={} (Windows NT 6.1; WOW64; Trident/7.0; rv:11.0) like Gecko",
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/52.0.2743.116 Safari/537.36 Edge/15.15063",
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.105 Safari/537.36",
-        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/11.1.2 Safari/605.1.15",
-        "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.87 Safari/537.36",
-        "Mozilla/5.0 (Linux; Android 7.1.2; AFTMM Build/NS6265; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/70.0.3538.110 Mobile Safari/537.36",
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)"
+        " Chrome/52.0.2743.116 Safari/537.36 Edge/15.15063",
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)"
+        " Chrome/84.0.4147.105 Safari/537.36",
+        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) AppleWebKit/605.1.15"
+        " (KHTML, like Gecko) Version/11.1.2 Safari/605.1.15",
+        "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko)"
+        " Chrome/80.0.3987.87 Safari/537.36",
+        "Mozilla/5.0 (Linux; Android 7.1.2; AFTMM Build/NS6265; wv) AppleWebKit/537.36"
+        " (KHTML, like Gecko) Version/4.0 Chrome/70.0.3538.110 Mobile Safari/537.36",
     ]
 
     # Picking up a random user agents each time we make a connection to the server
@@ -352,14 +371,18 @@ def rt_search_media(title, mtype):
 
 
 def imdb_get_data(title, mtype, api_keys=[]):
-    """This function fetches the poster url and other data related to Imdb movies from Google Custom Search JSON API."""
+    """This function fetches the poster url and other data related
+    to Imdb movies from Google Custom Search JSON API."""
 
     movie_title = title
     media_type = mtype
     gcsearch_api_key = api_keys[0]
     imdb_custom_search_id = api_keys[1]
     query = urllib.parse.quote_plus(movie_title)
-    url = f"https://www.googleapis.com/customsearch/v1/siterestrict?key={gcsearch_api_key}&cx={imdb_custom_search_id}&num=10&q={query}"
+    api_base_url = "https://www.googleapis.com/customsearch/v1/siterestrict?key="
+    url = (
+        f"{api_base_url}{gcsearch_api_key}&cx={imdb_custom_search_id}&num=10&q={query}"
+    )
     regex_url = r"(?<=UY1200)(.*?)(?=.(jpg|png|jpeg)\b)"
     regex_year_parentheses = r"\(([^)]+)\)"
     regex_year = r"\d+"
@@ -416,10 +439,14 @@ def imdb_get_data(title, mtype, api_keys=[]):
                     raise
                 else:
 
-                    # Google custom search engine changed their JSON response. Now, there is no need to process the imdb_movie_cropped_poster_url.
-                    # The imdb_movie_cropped_poster_url which we get directly from the JSON results already contains the desired image size.
-                    # Thus, there is no need to use regex substitutions on imdb_movie_cropped_poster_url.
-                    # But I will leave the part that deals with substitutions intact as Google can change their API anytime they want.
+                    # Google custom search engine changed their JSON response.
+                    # Now, there is no need to process the imdb_movie_cropped_poster_url.
+                    # The imdb_movie_cropped_poster_url which we get directly from
+                    # the JSON results already contains the desired image size.
+                    # Thus, there is no need to use regex substitutions on
+                    # imdb_movie_cropped_poster_url.
+                    # But I will leave the part that deals with substitutions intact
+                    # as Google can change their API anytime they want.
                     imdb_poster_url_pattern = re.search(
                         regex_url, imdb_movie_cropped_poster_url
                     )
@@ -461,7 +488,8 @@ def imdb_get_data(title, mtype, api_keys=[]):
                     except ValueError:
                         is_year_int = False
 
-                    # If the value between the parentheses is not an integer, then we extract the first
+                    # If the value between the parentheses is not an integer,
+                    # then we extract the first
                     # year value from the text inside the parentheses.
                     if not is_year_int:
                         imdb_year_string_test = re.search(
@@ -498,7 +526,8 @@ def imdb_get_data(title, mtype, api_keys=[]):
 
                     imdb_movie_data = imdb_get_data_from_datasets(imdb_search_criteria)
 
-                    # If imdb_get_data_from_datasets() function doesn't return anything, then we assume that either the requested
+                    # If imdb_get_data_from_datasets() function doesn't return anything,
+                    # then we assume that either the requested
                     # movie doesn't exist on the dataset or that the media type was incorrect
                     # (e.g., specifying "tvSeries" instead of "movie" for a movie).
                     try:
@@ -507,11 +536,12 @@ def imdb_get_data(title, mtype, api_keys=[]):
                     except TypeError:
                         click.echo(
                             Tcolors.FAIL
-                            + "Either the requested title doesn't exist or that the media type was incorrectly specified!"
-                            + Tcolors.ENDC
+                            + "Either the requested title doesn't exist or that"
+                            " the media type was incorrectly specified!" + Tcolors.ENDC
                         )
                         logging.warning(
-                            "Either the requested title doesn't exist or that the media type was incorrectly specified!"
+                            "Either the requested title doesn't exist or that"
+                            " the media type was incorrectly specified!"
                         )
                         return
 
@@ -547,7 +577,8 @@ def imdb_get_data(title, mtype, api_keys=[]):
 
 
 def rt_get_data(title, title_original, mtype, year):
-    """This function uses RT semi-public search API to get information about a specific title (movie or series)."""
+    """This function uses RT semi-public search API to get information about
+    a specific title (movie or series)."""
 
     movie_title = title
     movie_title_original = title_original
@@ -569,7 +600,8 @@ def rt_get_data(title, title_original, mtype, year):
         return
 
     def rt_json_fetcher(rt_movie_title):
-        """This function uses RT semi-public search API to get a JSON response containing information about a specific title (movie or series)."""
+        """This function uses RT semi-public search API to get a JSON response containing
+        information about a specific title (movie or series)."""
 
         movie_title_rt = rt_movie_title
         query = urllib.parse.quote_plus(str(movie_title_rt))

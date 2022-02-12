@@ -33,7 +33,8 @@ class ConfigError(Error):
 
 
 class ApiError(Error):
-    """Exception raised when trying to run the application without API keys."""
+    """Exception raised when trying to run the application
+    without API keys."""
 
     name = "ApiError"
 

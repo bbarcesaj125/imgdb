@@ -23,7 +23,8 @@ def generate_media_image(
         saved_image_filename = poster_filename + "_by_imgdb"
     else:
         click.echo(
-            Tcolors.WARNING + "Downloaded image filename cannot be null!" + Tcolors.ENDC
+            Tcolors.WARNING + "Downloaded image filename"
+            " cannot be null!" + Tcolors.ENDC
         )
         logging.critical("Downloaded image filename cannot be null!")
         return
@@ -48,7 +49,8 @@ def generate_media_image(
 
     if not imdb_is_rating_float and not rt_is_rating_int:
         click.echo(
-            Tcolors.WARNING + "Cannot produce picture without ratings!" + Tcolors.ENDC
+            Tcolors.WARNING + "Cannot produce picture"
+            " without ratings!" + Tcolors.ENDC
         )
         logging.critical("Cannot produce picture without ratings!")
         return
@@ -198,16 +200,19 @@ def generate_media_image(
 
 
 def round_ratings(rating):
-    """This functions takes in a movie rating as an argument and returns its corresponding rounded value
+    """This functions takes in a movie rating as an argument
+    and returns its corresponding rounded value
     that can be used to choose the correct ring chart picture."""
 
+    rounded_rating_value = None
     rating_steps = [0, 5, 10, 20, 25, 30, 40, 50, 60, 70, 75, 80, 90, 95, 100]
     for step in rating_steps:
         if rating in rating_steps:
             rounded_rating_value = rating_steps[rating_steps.index(rating)]
             break
         # Using zero or 100 only when the rating exactly matches those values.
-        # In other words, we don't round values like 2 or 98 for example to zero or 100 respectively!
+        # In other words, we don't round values like 2 or 98 for example
+        # to zero or 100 respectively!
         elif rating in range(1, 3):
             rounded_rating_value = 5
             break
@@ -238,16 +243,27 @@ def round_ratings(rating):
                 rounded_rating_value = step + rounding_increment
                 break
 
-    if rounded_rating_value is not None:
-        logging.debug("Rounded rating value is: %s" % rounded_rating_value)
-        return rounded_rating_value
+    logging.debug("Rounded rating value is: %s" % rounded_rating_value)
+    return rounded_rating_value
 
 
 if __name__ == "__main__":
     generate_media_image(
         movie_title="The forever purge",
         imdb_rating="5.4",
-        rt_rating=50,
+        rt_rating=0,
         poster_filename="The forever purge",
         poster_filepath="Meander.jpg",
     )
+    rt_base_url = "fag§"
+    api_urls = [
+        f"{rt_base_url}/browse?minTomato=70&maxTomato=100"
+        "&maxPopcorn=100&services=amazon%3Bhbo_go%3B"
+        "itunes%3Bnetflix_iw%3Bvudu%3Bamazon_prime%3Bfandango_now"
+        "&certified=true&sortBy=release&type=cf-dvd-streaming-all",
+        f"{rt_base_url}/browse?minTomato=70&maxTomato=100"
+        "&maxPopcorn=100&services=amazon%3Bhbo_go%3B"
+        "itunes%3Bnetflix_iw%3Bvudu%3Bamazon_prime%3Bfandango_now"
+        "&certified=true&sortBy=release&type=cf-dvd-streaming-all&page=2",
+    ]
+    print(api_urls[0])

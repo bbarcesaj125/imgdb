@@ -19,7 +19,8 @@ def logger(loglevel, filepath):
         numeric_level = 30
     logging.basicConfig(
         level=numeric_level,
-        format="%(asctime)s - %(name)s - %(levelname)-8s [%(filename)s:%(lineno)d] %(message)s",
+        format="%(asctime)s - %(name)s - %(levelname)-8s"
+        " [%(filename)s:%(lineno)d] %(message)s",
         datefmt="%m/%d/%Y %I:%M:%S %p",
         filename=filepath,
     )
@@ -74,7 +75,8 @@ def unzip(filepath_input, filepath_output):
 
 
 def pickler(save_pickle_path, save_pickle_input=None):
-    """This function uses the pickle library to serialize or de-serialize an input dictionary."""
+    """This function uses the pickle library to serialize
+    or de-serialize an input dictionary."""
 
     if save_pickle_input:
         try:
@@ -109,7 +111,8 @@ def pickler(save_pickle_path, save_pickle_input=None):
 
 
 def replace_every_nth(nth, pattern, drop, string):
-    """This function replaces every nth character (pattern) in a string with a pre-defined text or character (drop)."""
+    """This function replaces every nth character (pattern) in a string
+    with a pre-defined text or character (drop)."""
 
     string_to_list = list(string)
     cursor = 0
