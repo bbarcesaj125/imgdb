@@ -1,4 +1,4 @@
-# Imgdb - a command line IMDb front-end
+# Imgdb - a command line IMDb search app
 [![GitHub release](https://img.shields.io/github/v/release/bbarcesaj125/imgdb.svg)](https://github.com/bbarcesaj125/imgdb/releases)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 ![Repository Size](https://img.shields.io/github/repo-size/bbarcesaj125/imgdb)
@@ -25,7 +25,32 @@ sure the entered title is exactly what the user is looking for.
 generate an image containing the movie's or series' ratings like so:
 
 <p align="center">
-	<img width="400" src="/art/Captain_America_Civil_War_by_imgdb.png" alt="Captain America: Civil War Poster">
+	<img width="500" src="/art/Captain_America_Civil_War_by_imgdb.png" alt="Captain America: Civil War Poster">
 </p>
+
+## Requirements
+### Python dependencies
+
+- beautifulsoup4
+- click
+- pandas
+- PyYAML
+- tqdm
+- Wand
+
+### System dependencies
+
+- ImageMagick
+
+## Installation
+The easiest way to install `Imgdb` is to use `Pip`:
+
+    pip install imgdb
+
+## Configuration
+The application is configured using a `Yaml` configuration file that resides
+in your `XDG_CONFIG_HOME` directory. After running the application for the first
+time, it will create an initial configuration file (`imgdb.yaml`) in `$HOME/.config/imgdb`.
+
 
 
