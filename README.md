@@ -16,7 +16,16 @@ The idea behind `Imgdb` is to create a simple command line application that
 fetches information about a specific title (e.g., movie or series) from IMDb
 as well as RottenTomatoes.
 
-The application make use of the freely available [IMDb datasets](https://www.imdb.com/interfaces/)**
-to extract the required information (e.g, genres, title, rating etc). 
+The application makes use of the freely available **[IMDb datasets](https://www.imdb.com/interfaces/)**
+to extract the required information (e.g, genres, title, rating, etc). 
 To achieve that, `Imgdb` also uses `Google Custom Search API` to make
 sure the entered title is exactly what the user is looking for.
+
+`Imgdb` is also capable of doing some fancy stuff by using `ImageMagick` to
+generate an image containing the movie's or series' ratings like so:
+
+<p align="center">
+	<img width="400" src="/art/Captain_America_Civil_War_by_imgdb.png" alt="Captain America: Civil War Poster">
+</p>
+
+
