@@ -50,7 +50,23 @@ The easiest way to install `Imgdb` is to use `Pip`:
 ## Configuration
 The application is configured using a `Yaml` configuration file that resides
 in your `XDG_CONFIG_HOME` directory. After running the application for the first
-time, it will create an initial configuration file (`imgdb.yaml`) in `$HOME/.config/imgdb`.
+time, it will create an initial configuration file (`imgdb.yaml`) in the
+`$HOME/.config/imgdb` directory.
+
+The `imgdb.yaml` file should have the following structure:
+
+    general:
+    download: True | False
+    image editing: True | False
+    log file path: <path/to/log/file.log>
+    update frequency: daily | weekly | bi-weekly | 1d (for 1 day) | 1h (for 1 hour) | etc
+    interface:
+    api:
+        google search api key: <Google API key>
+        imdb custom search id: <Custom IMDb search engine ID>
+
+You can refer to [`imgdb_config_template.yaml`](/imgdb_config_template.yaml) for an example 
+configuration file.
 
 
 
