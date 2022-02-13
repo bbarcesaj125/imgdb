@@ -30,6 +30,7 @@ from difflib import SequenceMatcher
 @click.option("--debug", default="debug", help="The logging level of the application.")
 @click.option("--logfile", help="The path of the log file.")
 @click.option("--freq", help="The update frequency of the datasets.")
+@click.option("--font", help="The font used to generate the rating image.")
 @click.option(
     "-d", is_flag=True, default=False, help="Download the movie's poster image."
 )
@@ -39,7 +40,7 @@ from difflib import SequenceMatcher
     default=False,
     help="Save the edited image containing the movie's ratings.",
 )
-def imdb_cli_init(mov, tv, tvmini, debug, logfile, freq, d, e):
+def imdb_cli_init(mov, tv, tvmini, debug, logfile, freq, font, d, e):
     """Imdb CLI search."""
 
     # Checking and creating or getting current config info
@@ -52,6 +53,7 @@ def imdb_cli_init(mov, tv, tvmini, debug, logfile, freq, d, e):
     runtime_options = {
         "download": d if d else current_config.get("download"),
         "image_edit": e if e else current_config.get("image editing"),
+        "font": font if font else current_config.get("font"),
         "log_file_path": logfile if logfile else current_config.get("log_file_path"),
         "freq": freq if freq else current_config.get("update frequency"),
         "gsearch_api_key": current_config.get("google search api key"),
@@ -183,6 +185,7 @@ def imdb_cli_init(mov, tv, tvmini, debug, logfile, freq, d, e):
                             rt_media_rating,
                             downloaded_image_data["filename"],
                             downloaded_image_data["filepath"],
+                            font=font,
                         )
                     else:
                         click.echo(

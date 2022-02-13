@@ -17,7 +17,7 @@ fetches information about a specific title (e.g., movie or series) from IMDb
 as well as RottenTomatoes.
 
 The application makes use of the freely available **[IMDb datasets](https://www.imdb.com/interfaces/)**
-to extract the required information (e.g, genres, title, rating, etc). 
+to extract the required information (e.g., genres, title, rating, etc). 
 To achieve that, `Imgdb` also uses `Google Custom Search API` to make
 sure the entered title is exactly what the user is looking for.
 
@@ -56,14 +56,14 @@ time, it will create an initial configuration file (`imgdb.yaml`) in the
 The `imgdb.yaml` file should have the following structure:
 
     general:
-    download: True | False
-    image editing: True | False
-    log file path: <path/to/log/file.log>
-    update frequency: daily | weekly | bi-weekly | 1d (for 1 day) | 1h (for 1 hour) | etc
+        download: True | False
+        image editing: True | False
+        log file path: <path/to/log/file.log>
+        update frequency: daily | weekly | bi-weekly | 1d (for 1 day) | 1h (for 1 hour) | etc
     interface:
-    api:
-        google search api key: <Google API key>
-        imdb custom search id: <Custom IMDb search engine ID>
+        api:
+            google search api key: <Google API key>
+            imdb custom search id: <Custom IMDb search engine ID>
 
 You can refer to [`imgdb_config_template.yaml`](/imgdb_config_template.yaml) for an example 
 configuration file.

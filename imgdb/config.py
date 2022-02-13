@@ -196,6 +196,8 @@ def parse_config_yaml(current_config, first_run=False):
                     used_options[gen_key] = gen_value
                 elif gen_key == "image editing" and not isinstance(gen_value, dict):
                     used_options[gen_key] = gen_value
+                elif gen_key == "font" and not isinstance(gen_value, dict):
+                    used_options[gen_key] = gen_value
                 elif gen_key == "update frequency" and not isinstance(gen_value, dict):
                     used_options[gen_key] = gen_value
                 else:

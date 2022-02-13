@@ -17,6 +17,7 @@ def generate_media_image(
     rt_rating,
     poster_filename,
     poster_filepath,
+    font=None,
 ):
 
     if poster_filename:
@@ -110,7 +111,10 @@ def generate_media_image(
             fontsize_title = 50
             fontsize_ratings = 70
             # context.font = "Mosk-Ultra-Bold-900"
-            context.font = "Maler-Regular"
+            if font:
+                context.font = font
+            else:
+                context.font = "Maler-Regular"
 
             header_text = textwrap.fill(movie_title, width=15)
             font_metrics = context.get_font_metrics(
@@ -254,6 +258,7 @@ if __name__ == "__main__":
         rt_rating=0,
         poster_filename="The forever purge",
         poster_filepath="Meander.jpg",
+        font=None,
     )
     rt_base_url = "fag§"
     api_urls = [
