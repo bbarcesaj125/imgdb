@@ -13,12 +13,12 @@ corresponding poster.
 
 ## Introduction
 
-`Imgdb` is a play on the **IMDb** acronym. Since, the application can also
+`Imgdb` is a play on the **IMDb** acronym. Since the application can also
 download movie posters, I added the **g** to **IMDb** to get a name that is
 both closer to **IMDb** while also representing one of the main application's 
 functionalities at the same time.
 The idea behind `Imgdb` is to create a simple command line application that
-fetches information about a specific title (e.g., movie or series) from IMDb
+fetches information about a specific title (e.g., a movie or series) from IMDb
 as well as RottenTomatoes.
 
 The application makes use of the freely available **[IMDb datasets](https://www.imdb.com/interfaces/)**
@@ -56,7 +56,7 @@ The easiest way to install `Imgdb` is to use `pip`:
     pip install imgdb
 
 ## Configuration
-The application is configured using a `Yaml` configuration file that resides
+The application is configured using a `yaml` configuration file that resides
 in your `XDG_CONFIG_HOME` directory. After running the application for the first
 time, it will create an initial configuration file (`imgdb.yaml`) in the
 `$HOME/.config/imgdb` directory.
@@ -99,7 +99,7 @@ You can think of them as daily snapshot of the huge IMDb database.
 The application needs these datasets in order to extract and display information
 about a specific movie or series.
 I opted for this solution because it allows `Imgdb` to fetch almost all the information
-from the datasets stored on the user's computer. 
+from the datasets that are stored on the user's computer. 
 This makes the application more reliable as opposed to scraping for example.
 
 These datasets are updated on a weekly basis by default. However, you can
@@ -114,9 +114,9 @@ for more information on how to get and use an API key.
 For creating an IMDb custom search engine, you can refer to this
 [link](https://developers.google.com/custom-search/docs/tutorial/creatingcse).
 
-Once, you have set up the application properly, you can invoke it like so:
+Once you have set up the application properly, you can invoke it like so:
 
-    imgdb --mov "The Dark Knight" -d
+    imgdb --mov "The Dark Knight" -de
 
 The above command will display the following information in your terminal:
 
@@ -137,12 +137,15 @@ The above command will display the following information in your terminal:
     100%|██████████████████████████████████| 281k/281k [00:00<00:00, 3.15MiB/s]
     Edited image saved as: The_Dark_Knight_by_imgdb.png
 
-It will also download the movie's poster and save it in the current directory.
-The `The_Dark_Knight_by_imgdb.png` saved image yill look something like this:
+It will also download the movie's poster (`The_Dark_Knight.jpg`) and save it in the current directory.
+The `The_Dark_Knight_by_imgdb.png` saved image will look something like this:
 
 <p align="center">
 	<img width="500" src="/art/The_Dark_Knight_by_imgdb.png" alt="Imgdb Logo">
 </p>
+
+For optimal results, you should use a good design font like **Maler** which is
+the default font of the application used in the image above.
 
 ## TODO
 
