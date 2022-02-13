@@ -56,17 +56,45 @@ time, it will create an initial configuration file (`imgdb.yaml`) in the
 The `imgdb.yaml` file should have the following structure:
 
     general:
-        download: True | False
-        image editing: True | False
+        download: true | false
+        image editing: true | false
+        font: <font name>
         log file path: <path/to/log/file.log>
         update frequency: daily | weekly | bi-weekly | 1d (for 1 day) | 1h (for 1 hour) | etc
     interface:
         api:
-            google search api key: <Google API key>
-            imdb custom search id: <Custom IMDb search engine ID>
+            google search api key: <google API key>
+            imdb custom search id: <custom IMDb search engine ID>
 
 You can refer to [`imgdb_config_template.yaml`](/imgdb_config_template.yaml) for an example 
 configuration file.
 
+## Usage
 
+    Usage: imgdb [OPTIONS]
 
+    Options:
+        --mov TEXT      The title of the movie.
+        --tv TEXT       The title of the series.
+        --tvmini TEXT   The title of the mini series.
+        --debug TEXT    The logging level of the application.
+        --logfile TEXT  The path of the log file.
+        --freq TEXT     The update frequency of the datasets.
+        --font TEXT     The font used to generate the rating image.
+        -d              Download the movie's poster image.
+        -e              Save the edited image containing the movie's ratings.
+        --help          Show this message and exit.
+
+When you run the application for the first time, it will attempt to download
+the required IMDb datasets from [imdb.com/interfaces/](https://www.imdb.com/interfaces/). 
+You can think of them as daily snapshot of the huge IMDb database.
+The application needs these datasets in order to extract and display information
+about a specific movie or series.
+I opted for this solution because almost all the information are extracted
+from the datasets stored on the user's computer. 
+This makes the application more reliable as opposed to scraping for example.
+
+These datasets are updated on a weekly basis by default. However, you can
+always change the update frequency by using the `--freq` option as documented above.
+In most cases, you don't really need to update them very frequently. A `weekly` or
+even a `bi-weekly` update interval should suffice. 

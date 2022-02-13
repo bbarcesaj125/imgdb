@@ -1,9 +1,10 @@
 general:
-  download: True | False
-  image editing: True | False
+  download: true | false
+  image editing: true | false
+  font: <font name>
   log file path: <path/to/log/file.log>
   update frequency: daily | weekly | bi-weekly | 1d (for 1 day) | 1h (for 1 hour) | etc
 interface:
   api:
-    google search api key: <Google API key>
-    imdb custom search id: <Custom IMDb search engine ID>
+    google search api key: <google API key>
+    imdb custom search id: <custom IMDb search engine ID>

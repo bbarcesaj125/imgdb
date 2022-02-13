@@ -185,7 +185,7 @@ def imdb_cli_init(mov, tv, tvmini, debug, logfile, freq, font, d, e):
                             rt_media_rating,
                             downloaded_image_data["filename"],
                             downloaded_image_data["filepath"],
-                            font=font,
+                            font=runtime_options["font"],
                         )
                     else:
                         click.echo(
