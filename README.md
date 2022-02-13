@@ -12,6 +12,11 @@ IMDb information about a particular title as well as downloading its
 corresponding poster.
 
 ## Introduction
+
+`Imgdb` is a play on the **IMDb** acronym. Since, the application can also
+download movie posters, I added the **g** to **IMDb** to get a name that is
+both closer to **IMDb** while also representing of one of the main application's 
+functionalities at the same time.
 The idea behind `Imgdb` is to create a simple command line application that
 fetches information about a specific title (e.g., movie or series) from IMDb
 as well as RottenTomatoes.
@@ -42,8 +47,11 @@ generate an image containing the movie's or series' ratings like so:
 
 - ImageMagick
 
+In order to use the image editing option, you should have `ImageMagick` installed on you system.
+Please, use your distribution's package manager to install it.
+
 ## Installation
-The easiest way to install `Imgdb` is to use `Pip`:
+The easiest way to install `Imgdb` is to use `pip`:
 
     pip install imgdb
 
@@ -86,11 +94,11 @@ configuration file.
         --help          Show this message and exit.
 
 When you run the application for the first time, it will attempt to download
-the required IMDb datasets from [imdb.com/interfaces/](https://www.imdb.com/interfaces/). 
+the required IMDb datasets from [imdb.com/interfaces](https://www.imdb.com/interfaces/). 
 You can think of them as daily snapshot of the huge IMDb database.
 The application needs these datasets in order to extract and display information
 about a specific movie or series.
-I opted for this solution because almost all the information are extracted
+I opted for this solution because it allows `Imgdb` to fetch almost all the information
 from the datasets stored on the user's computer. 
 This makes the application more reliable as opposed to scraping for example.
 
@@ -98,3 +106,10 @@ These datasets are updated on a weekly basis by default. However, you can
 always change the update frequency by using the `--freq` option as documented above.
 In most cases, you don't really need to update them very frequently. A `weekly` or
 even a `bi-weekly` update interval should suffice. 
+
+To use the application, you also need a Google API key as well as an IMDb custom search
+ID.
+You can refer to the relevant [Google documentation](https://cloud.google.com/docs/authentication/api-keys)
+for more information on how to get and use an API key.
+For creating an IMDb custom search engine, you can refer to this
+[link](https://developers.google.com/custom-search/docs/tutorial/creatingcse).
