@@ -15,7 +15,7 @@ corresponding poster.
 
 `Imgdb` is a play on the **IMDb** acronym. Since, the application can also
 download movie posters, I added the **g** to **IMDb** to get a name that is
-both closer to **IMDb** while also representing of one of the main application's 
+both closer to **IMDb** while also representing one of the main application's 
 functionalities at the same time.
 The idea behind `Imgdb` is to create a simple command line application that
 fetches information about a specific title (e.g., movie or series) from IMDb
@@ -116,7 +116,7 @@ For creating an IMDb custom search engine, you can refer to this
 
 Once, you have set up the application properly, you can invoke it like so:
 
-    imgdb --mov "The Dark Knight" -de
+    imgdb --mov "The Dark Knight" -d
 
 The above command will display the following information in your terminal:
 
@@ -138,3 +138,13 @@ The above command will display the following information in your terminal:
     Edited image saved as: The_Dark_Knight_by_imgdb.png
 
 It will also download the movie's poster and save it in the current directory.
+The `The_Dark_Knight_by_imgdb.png` saved image yill look something like this:
+
+<p align="center">
+	<img width="500" src="/art/The_Dark_Knight_by_imgdb.png" alt="Imgdb Logo">
+</p>
+
+## TODO
+
+- [ ] Add multi-result search option
+- [ ] Add API-less search option
