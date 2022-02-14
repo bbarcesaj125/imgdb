@@ -26,7 +26,7 @@ to extract the required information (e.g., genres, title, rating, etc).
 To achieve that, `Imgdb` also uses `Google Custom Search API` to make
 sure the entered title is exactly what the user is looking for.
 
-`Imgdb` is also capable of doing some fancy stuff by using `ImageMagick` to
+`Imgdb` is also capable of doing some fancy stuff by leveraging the power of `ImageMagick` to
 generate an image containing the movie's or series' ratings like so:
 
 <p align="center">
@@ -102,19 +102,19 @@ I opted for this solution because it allows `Imgdb` to fetch almost all the info
 from the datasets that are stored on the user's computer. 
 This makes the application more reliable as opposed to scraping for example.
 
-These datasets are updated on a weekly basis by default. However, you can
-always change the update frequency by using the `--freq` option as documented above.
-In most cases, you don't really need to update them very frequently. A `weekly` or
+These datasets are automatically updated on a weekly basis by default. However, you can
+always change the automatic update frequency by using the `--freq` option as documented
+above. In most cases, you don't really need to update them very frequently. A `weekly` or
 even a `bi-weekly` update interval should suffice. 
 
 To use the application, you also need a Google API key as well as an IMDb custom search
-ID.
+engine ID.
 You can refer to the relevant [Google documentation](https://cloud.google.com/docs/authentication/api-keys)
 for more information on how to get and use an API key.
-For creating an IMDb custom search engine, you can refer to this
+For creating an IMDb custom search engine (Google), you can refer to this
 [link](https://developers.google.com/custom-search/docs/tutorial/creatingcse).
 
-Once you have set up the application properly, you can invoke it like so:
+Once you have the application set up properly, you can invoke it like so:
 
     imgdb --mov "The Dark Knight" -de
 
@@ -138,16 +138,23 @@ The above command will display the following information in your terminal:
     Edited image saved as: The_Dark_Knight_by_imgdb.png
 
 It will also download the movie's poster (`The_Dark_Knight.jpg`) and save it in the current directory.
-The `The_Dark_Knight_by_imgdb.png` saved image will look something like this:
+The `The_Dark_Knight_by_imgdb.png` rating image will look something like this:
 
 <p align="center">
 	<img width="500" src="/art/The_Dark_Knight_by_imgdb.png" alt="Imgdb Logo">
 </p>
 
 For optimal results, you should use a good design font like **Maler** which is
-the default font of the application used in the image above.
+the default font of the application that was used in the image above.
+
+To get a list of installed fonts that can be used with the application, you can issue 
+this command:
+
+    convert -list font
+
 
 ## TODO
 
-- [ ] Add multi-result search option
+- [ ] Add multi result search option
 - [ ] Add API-less search option
+- [ ] Add JSON output
