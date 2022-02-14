@@ -38,7 +38,7 @@ class TestConfig(unittest.TestCase):
             "    imdb custom search id: 32b1e112kdf754be1f"
         )
 
-    @patch("config.validate_config")
+    @patch("imgdb.config.validate_config")
     def test_parse_config_yaml(self, validate_config):
 
         validate_config.return_value = self.parsed_config
@@ -55,7 +55,7 @@ class TestConfig(unittest.TestCase):
             "Parsing failed!",
         )
 
-    @patch("config.parse_config_yaml")
+    @patch("imgdb.config.parse_config_yaml")
     def test_read_config_yaml(self, parse_config_yaml):
 
         yaml_file_mock = self.yaml_file_content
