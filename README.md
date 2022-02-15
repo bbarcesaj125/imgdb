@@ -71,16 +71,18 @@ time, it will create an initial configuration file (`imgdb.yaml`) in the
 
 The `imgdb.yaml` file should have the following structure:
 
-    general:
-        download: true | false
-        image editing: true | false
-        font: <font name>
-        log file path: <path/to/log/file.log>
-        update frequency: daily | weekly | bi-weekly | 1d (for 1 day) | 1h (for 1 hour) | etc
-    interface:
-        api:
-            google search api key: <google API key>
-            imdb custom search id: <custom IMDb search engine ID>
+```yaml
+general:
+    download: true | false
+    image editing: true | false
+    font: <font name>
+    log file path: <path/to/log/file.log>
+    update frequency: daily | weekly | bi-weekly | 1d (for 1 day) | 1h (for 1 hour) | etc
+interface:
+    api:
+        google search api key: <google API key>
+        imdb custom search id: <custom IMDb search engine ID>
+```
 
 You can refer to [`imgdb_config_template.yaml`](/imgdb_config_template.yaml) for an example 
 configuration file.
