@@ -11,9 +11,9 @@ This is a Python command line application that allows the user to get
 IMDb information about a particular title as well as downloading its
 corresponding poster.
 
-<p align="center">
+<!--<p align="center">
 	<img width="800" src="/art/screencasts/imgdb_updating_datasets.gif" alt="Imgdb Screencast 1">
-</p>
+</p>-->
 
 <p align="center">
 	<img width="800" src="/art/screencasts/imgdb_results.gif" alt="Imgdb Screencast 2">
