@@ -27,7 +27,7 @@ from difflib import SequenceMatcher
 @click.option("--mov", help="The title of the movie.")
 @click.option("--tv", help="The title of the series.")
 @click.option("--tvmini", help="The title of the mini series.")
-@click.option("--debug", default="debug", help="The logging level of the application.")
+@click.option("--debug", help="The logging level of the application.")
 @click.option("--logfile", help="The path of the log file.")
 @click.option("--freq", help="The update frequency of the datasets.")
 @click.option("--font", help="The font used to generate the rating image.")
@@ -44,6 +44,7 @@ def imdb_cli_init(mov, tv, tvmini, debug, logfile, freq, font, d, e):
     """Imdb CLI search."""
 
     # Checking and creating or getting current config info
+    debug = "debug" if Config.DEV_MODE else "warning"
     current_config = check_config_file(debug)
     if current_config == 0:
         return
@@ -187,7 +188,7 @@ def imdb_cli_init(mov, tv, tvmini, debug, logfile, freq, font, d, e):
                             downloaded_image_data["filepath"],
                             font=runtime_options["font"],
                         )
-                    else:
+                    elif runtime_options["image_edit"]:
                         click.echo(
                             Tcolors.FAIL
                             + "The image editing option is invalid!"
@@ -195,7 +196,7 @@ def imdb_cli_init(mov, tv, tvmini, debug, logfile, freq, font, d, e):
                         )
                         logging.critical("The image editing option is invalid!")
 
-                else:
+                elif runtime_options["download"]:
                     click.echo(
                         Tcolors.FAIL + "The download option is invalid!" + Tcolors.ENDC
                     )

@@ -11,6 +11,10 @@ This is a Python command line application that allows the user to get
 IMDb information about a particular title as well as downloading its
 corresponding poster.
 
+<p align="left">
+	<img width="500" src="/art/screencasts/imgdb_updating_datasets.gif" alt="Imgdb Logo">
+</p>
+
 ## Introduction
 
 `Imgdb` is a play on the **IMDb** acronym. Since the application can also
@@ -127,11 +131,11 @@ The above command will display the following information in your terminal:
     IMDb Rating: 9.0
     RottenTomatoes Rating: 94
     Description: The Dark Knight: Directed by Christopher Nolan. With 
-                Christian Bale, Heath Ledger, Aaron Eckhart, Michael 
-                Caine. When the menace known as the Joker wreaks havoc 
-                and chaos on the people of Gotham, Batman must accept 
-                one of the greatest psychological and physical tests 
-                of his ability to fight injustice.
+                 Christian Bale, Heath Ledger, Aaron Eckhart, Michael 
+                 Caine. When the menace known as the Joker wreaks havoc 
+                 and chaos on the people of Gotham, Batman must accept 
+                 one of the greatest psychological and physical tests 
+                 of his ability to fight injustice.
     ➜ Downloading: The_Dark_Knight.jpg - Size: 274 KiB
 
     100%|██████████████████████████████████| 281k/281k [00:00<00:00, 3.15MiB/s]

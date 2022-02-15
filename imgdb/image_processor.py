@@ -5,6 +5,7 @@ from wand.display import display
 from wand.font import Font
 import click
 from imgdb.utils import Tcolors
+from imgdb.config import Config
 import textwrap
 import logging
 from importlib.resources import files
@@ -193,7 +194,8 @@ def generate_media_image(
 
             context(canvas)
             canvas.format = "png"
-            display(canvas)
+            if Config.DEV_MODE:
+                display(canvas)
         canvas.save(filename=f"{saved_image_filename}.png")
         logging.info("Edited image saved as: %s" % f"{saved_image_filename}.png")
         click.echo(

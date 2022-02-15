@@ -10,8 +10,8 @@ from imgdb.exceptions import ParseError, ConfigError, ApiError
 class Config:
     """Default configuration."""
 
-    # HOME = Path.home()
-    HOME = Path("./config_test").resolve()
+    DEV_MODE = os.getenv("IMGDB_DEV")
+    HOME = Path("./config_test").resolve() if DEV_MODE else Path.home()
     XDG_CONFIG_HOME = Path(
         os.getenv("XDG_CONFIG_HOME")
         if os.getenv("XDG_CONFIG_HOME")
@@ -51,7 +51,7 @@ def check_config_file(debug):
     """This function checks if a config file exists
     in the CONFIG directory."""
 
-    # Preparing necessary configuration & data directories
+    # Preparing the necessary configuration & data directories
     imdb_datasets_dir = (Config.IMDB_DATASETS_DIR, "Imdb datasets")
     imgdb_cache_dir = (Config.IMGDB_CACHE_HOME, "cache")
     dir_list = [imdb_datasets_dir, imgdb_cache_dir]
@@ -293,6 +293,7 @@ if __name__ == "__main__":
     # a = check_config_file()
     # print("Returned value is: %s" % a)
     # create_default_yaml(Config.CONFIG)
+    print("DEV", Config.DEV_MODE)
     print("XDG HOME", Config.XDG_CONFIG_HOME)
     print("XDG DATA HOME", Config.XDG_DATA_HOME)
     print("IMGDB CONFIG HOME", Config.IMGDB_CONFIG_HOME)
