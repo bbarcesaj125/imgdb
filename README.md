@@ -16,7 +16,7 @@ corresponding poster.
 </p>-->
 
 <p align="center">
-	<img width="800" src="https://github.com/bbarcesaj125/imgdb/raw/main/art/screencasts/imgdb_results.gif" alt="Imgdb Screencast 2">
+	<img width="800" src="https://raw.githubusercontent.com/bbarcesaj125/imgdb/main/art/screencasts/imgdb_results.gif" alt="Imgdb Screencast 2">
 </p>
 
 ## Introduction
@@ -84,7 +84,7 @@ interface:
         imdb custom search id: <custom IMDb search engine ID>
 ```
 
-You can refer to [`imgdb_config_template.yaml`](/imgdb_config_template.yaml) for an example 
+You can refer to [`imgdb_config_template.yaml`](https://github.com/bbarcesaj125/imgdb/blob/main/imgdb_config_template.yaml) for an example 
 configuration file.
 
 ## Usage
