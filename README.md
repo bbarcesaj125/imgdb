@@ -4,7 +4,7 @@
 ![Repository Size](https://img.shields.io/github/repo-size/bbarcesaj125/imgdb)
 
 <p align="center">
-	<img width="200" src="/art/imgdb_logo.png" alt="Imgdb Logo">
+	<img width="200" src="https://raw.githubusercontent.com/bbarcesaj125/imgdb/main/art/imgdb_logo.png" alt="Imgdb Logo">
 </p>
 
 This is a Python command line application that allows the user to get 
@@ -16,7 +16,7 @@ corresponding poster.
 </p>-->
 
 <p align="center">
-	<img width="800" src="/art/screencasts/imgdb_results.gif" alt="Imgdb Screencast 2">
+	<img width="800" src="https://github.com/bbarcesaj125/imgdb/raw/main/art/screencasts/imgdb_results.gif" alt="Imgdb Screencast 2">
 </p>
 
 ## Introduction
@@ -38,7 +38,7 @@ sure the entered title is exactly what the user is looking for.
 generate an image containing the movie's or series' ratings like so:
 
 <p align="center">
-	<img width="500" src="/art/Captain_America_Civil_War_by_imgdb.png" alt="Captain America: Civil War Poster">
+	<img width="500" src="https://raw.githubusercontent.com/bbarcesaj125/imgdb/main/art/Captain_America_Civil_War_by_imgdb.png" alt="Captain America: Civil War Poster">
 </p>
 
 ## Requirements
@@ -151,7 +151,7 @@ It will also download the movie's poster (`The_Dark_Knight.jpg`) and save it in 
 The `The_Dark_Knight_by_imgdb.png` rating image will look something like this:
 
 <p align="center">
-	<img width="500" src="/art/The_Dark_Knight_by_imgdb.png" alt="Imgdb Logo">
+	<img width="500" src="https://raw.githubusercontent.com/bbarcesaj125/imgdb/main/art/The_Dark_Knight_by_imgdb.png" alt="Imgdb Logo">
 </p>
 
 For optimal results, you should use a good design font like **Maler** which is
