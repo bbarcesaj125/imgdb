@@ -194,9 +194,10 @@ def generate_media_image(
 
             context(canvas)
             canvas.format = "png"
-            print("DEVVVV", Config.DEV_MODE)
-            if True:
+
+            if Config.DEV_MODE:
                 display(canvas)
+
         canvas.save(filename=f"{saved_image_filename}.png")
         logging.info("Edited image saved as: %s" % f"{saved_image_filename}.png")
         click.echo(
@@ -216,41 +217,38 @@ def round_ratings(rating):
 
     if rating in rating_steps:
         rounded_rating_value = rating_steps[rating_steps.index(rating)]
+
+    # Using zero or 100 only when the rating exactly matches those values.
+    # In other words, we don't round values like 2 or 98 for example
+    # to zero or 100 respectively!
+    elif rating in range(1, 3):
+        rounded_rating_value = 5
+    elif rating in range(98, 100):
+        rounded_rating_value = 95
     else:
         for step in rating_steps:
-            # Using zero or 100 only when the rating exactly matches those values.
-            # In other words, we don't round values like 2 or 98 for example
-            # to zero or 100 respectively!
-            if rating in range(1, 3):
-                rounded_rating_value = 5
-                break
-            elif rating in range(98, 100):
-                rounded_rating_value = 95
-                break
+            rating_diff = rating - step
+            rating_diff_abs = abs(rating_diff)
+
+            if (
+                rating in range(3, 10)
+                or rating in range(21, 30)
+                or rating in range(71, 80)
+                or rating in range(91, 100)
+            ):
+                difference_threshold = 2.5
             else:
-                rating_diff = rating - step
-                rating_diff_abs = abs(rating_diff)
+                difference_threshold = 5
+                rounding_increment = 10
 
-                if (
-                    rating in range(3, 10)
-                    or rating in range(21, 30)
-                    or rating in range(71, 80)
-                    or rating in range(91, 100)
-                ):
-                    difference_threshold = 2.5
-                else:
-                    difference_threshold = 5
-                    rounding_increment = 10
-
-                if rating_diff_abs < difference_threshold:
-                    rounded_rating_value = step
-                    break
-                elif (
-                    rating_diff_abs == difference_threshold
-                    and difference_threshold != 2.5
-                ):
-                    rounded_rating_value = step + rounding_increment
-                    break
+            if rating_diff_abs < difference_threshold:
+                rounded_rating_value = step
+                break
+            elif (
+                rating_diff_abs == difference_threshold and difference_threshold != 2.5
+            ):
+                rounded_rating_value = step + rounding_increment
+                break
 
     logging.debug("Rounded rating value is: %s" % rounded_rating_value)
     return rounded_rating_value
