@@ -194,7 +194,8 @@ def generate_media_image(
 
             context(canvas)
             canvas.format = "png"
-            if Config.DEV_MODE:
+            print("DEVVVV", Config.DEV_MODE)
+            if True:
                 display(canvas)
         canvas.save(filename=f"{saved_image_filename}.png")
         logging.info("Edited image saved as: %s" % f"{saved_image_filename}.png")
@@ -212,65 +213,44 @@ def round_ratings(rating):
 
     rounded_rating_value = None
     rating_steps = [0, 5, 10, 20, 25, 30, 40, 50, 60, 70, 75, 80, 90, 95, 100]
-    for step in rating_steps:
-        if rating in rating_steps:
-            rounded_rating_value = rating_steps[rating_steps.index(rating)]
-            break
-        # Using zero or 100 only when the rating exactly matches those values.
-        # In other words, we don't round values like 2 or 98 for example
-        # to zero or 100 respectively!
-        elif rating in range(1, 3):
-            rounded_rating_value = 5
-            break
-        elif rating in range(98, 100):
-            rounded_rating_value = 95
-            break
-        else:
-            rating_diff = rating - step
-            rating_diff_abs = abs(rating_diff)
 
-            if (
-                rating in range(3, 10)
-                or rating in range(21, 30)
-                or rating in range(71, 80)
-                or rating in range(91, 100)
-            ):
-                difference_threshold = 2.5
+    if rating in rating_steps:
+        rounded_rating_value = rating_steps[rating_steps.index(rating)]
+    else:
+        for step in rating_steps:
+            # Using zero or 100 only when the rating exactly matches those values.
+            # In other words, we don't round values like 2 or 98 for example
+            # to zero or 100 respectively!
+            if rating in range(1, 3):
+                rounded_rating_value = 5
+                break
+            elif rating in range(98, 100):
+                rounded_rating_value = 95
+                break
             else:
-                difference_threshold = 5
-                rounding_increment = 10
+                rating_diff = rating - step
+                rating_diff_abs = abs(rating_diff)
 
-            if rating_diff_abs < difference_threshold:
-                rounded_rating_value = step
-                break
-            elif (
-                rating_diff_abs == difference_threshold and difference_threshold != 2.5
-            ):
-                rounded_rating_value = step + rounding_increment
-                break
+                if (
+                    rating in range(3, 10)
+                    or rating in range(21, 30)
+                    or rating in range(71, 80)
+                    or rating in range(91, 100)
+                ):
+                    difference_threshold = 2.5
+                else:
+                    difference_threshold = 5
+                    rounding_increment = 10
+
+                if rating_diff_abs < difference_threshold:
+                    rounded_rating_value = step
+                    break
+                elif (
+                    rating_diff_abs == difference_threshold
+                    and difference_threshold != 2.5
+                ):
+                    rounded_rating_value = step + rounding_increment
+                    break
 
     logging.debug("Rounded rating value is: %s" % rounded_rating_value)
     return rounded_rating_value
-
-
-if __name__ == "__main__":
-    generate_media_image(
-        movie_title="The forever purge",
-        imdb_rating="5.4",
-        rt_rating=0,
-        poster_filename="The forever purge",
-        poster_filepath="Meander.jpg",
-        font=None,
-    )
-    rt_base_url = "fag§"
-    api_urls = [
-        f"{rt_base_url}/browse?minTomato=70&maxTomato=100"
-        "&maxPopcorn=100&services=amazon%3Bhbo_go%3B"
-        "itunes%3Bnetflix_iw%3Bvudu%3Bamazon_prime%3Bfandango_now"
-        "&certified=true&sortBy=release&type=cf-dvd-streaming-all",
-        f"{rt_base_url}/browse?minTomato=70&maxTomato=100"
-        "&maxPopcorn=100&services=amazon%3Bhbo_go%3B"
-        "itunes%3Bnetflix_iw%3Bvudu%3Bamazon_prime%3Bfandango_now"
-        "&certified=true&sortBy=release&type=cf-dvd-streaming-all&page=2",
-    ]
-    print(api_urls[0])

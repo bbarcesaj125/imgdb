@@ -286,17 +286,3 @@ def validate_config(
             click.echo(Tcolors.FAIL + e.error_ctx + Tcolors.ENDC)
             return 0
     return config_options
-
-
-if __name__ == "__main__":
-    # print(Path(IMGDB_DATA_HOME / "imgdb.log"))
-    # a = check_config_file()
-    # print("Returned value is: %s" % a)
-    # create_default_yaml(Config.CONFIG)
-    print("DEV", Config.DEV_MODE)
-    print("XDG HOME", Config.XDG_CONFIG_HOME)
-    print("XDG DATA HOME", Config.XDG_DATA_HOME)
-    print("IMGDB CONFIG HOME", Config.IMGDB_CONFIG_HOME)
-    print("IMGDB DATA HOME", Config.IMGDB_DATA_HOME)
-    print("CONFIG", Config.CONFIG)
-    print("DATASETS DIR", Config.IMDB_DATASETS_DIR)

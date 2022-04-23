@@ -124,9 +124,3 @@ def replace_every_nth(nth, pattern, drop, string):
 
     list_to_string = "".join(string_to_list)
     return list_to_string
-
-
-if __name__ == "__main__":
-    string = "True Detective: Created by Nic Pizzolatto. With Matthew McConaughey, Colin Farrell, Mahershala Ali, Woody Harrelson. Seasonal anthology series in which police investigations unearth the personal and professional secrets of those involved, both within and outside the law."
-    s = replace_every_nth(50, " ", "\n", string)
-    print(s)

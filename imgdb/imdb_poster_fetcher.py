@@ -111,11 +111,3 @@ def imdb_download_poster(
                 "filepath": file_path,
             }
             return saved_file_data
-
-
-if __name__ == "__main__":
-    f = imdb_download_poster(
-        "https://m.media-amazon.com/images/M/MV5BYjc1ZTFiNGItMzQyYy00OTFlLThjOGYtNzA2NWY1M2E4MTAzXkEyXkFqcGdeQXVyMTkxNjUyNQ@@._V1_FMjpg_UX1000_.jpg",
-        name="Dunnu éla#dopeáj ffrg",
-    )
-    print(f)

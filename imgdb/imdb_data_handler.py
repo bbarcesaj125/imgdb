@@ -257,12 +257,3 @@ def imdb_get_data_from_datasets(criteria={}):
             logging.debug("Imdb movie data: %s" % imdb_movie_data)
             logging.info("The results were successfully retrieved from the datasets.")
             return imdb_movie_data
-
-
-if __name__ == "__main__":
-    imdb_search_criteria = {
-        "movie_title": "Rams",
-        "media_type": "movie",
-        "movie_year": "2015",
-    }
-    print(imdb_get_data_from_datasets(imdb_search_criteria))

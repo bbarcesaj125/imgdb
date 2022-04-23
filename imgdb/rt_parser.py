@@ -717,17 +717,3 @@ def write_json_to_file(json_dict):
     dict_input = json_dict
     with open("results.json", "w") as json_file:
         json.dump(dict_input, json_file, indent=4)
-
-
-if __name__ == "__main__":
-    imdb_cli_init()
-    # movie = rt_search_media("westworld", "tvSeries")
-    # print("MOVIE", movie)
-    # data = rt_get_data("American Horror Story", "American Horror Story", "tv", "2013")
-    # print(data)
-    # results = rt_parse_json()
-    # print(results)
-    # rt_construct_json()
-    # year = rt_get_movie_year("/m/can_you_ever_forgive_me")
-    # print(year)
-    # imdb_get_data("arrows")
